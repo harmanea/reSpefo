@@ -5,6 +5,15 @@ import java.io.FileReader;
 import java.util.Vector;
 
 public class SpectrumBuilder {
+	
+	/**
+	 * Imports the spectrum from an ordinary ASCII file mediated by the {@code FileReader} fr.
+	 * <p>
+	 * Note: This function does NOT close the provided {@code FileReader}.
+	 * 
+	 * @param fr mediates the export
+	 * @return returns the spectrum data as an array of {@code Point[]} or {@code null} if it encounters any errors
+	 */
 	public static Point[] importFromASCIIFile(FileReader fr) {
 		Vector<Point> data = new Vector<>();
 		
@@ -24,7 +33,6 @@ public class SpectrumBuilder {
 		        line = br.readLine();
 		    }
 		} catch  (Exception e) {
-			System.out.println("Error: Couldn't load file.");
 			return null;
 		}
 		return data.toArray(new Point[data.size()]);
