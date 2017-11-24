@@ -1,4 +1,4 @@
-package cz.cuni.mff;
+package cz.cuni.mff.respefo;
 
 public class Spectrum {
 	private Point[] data;
