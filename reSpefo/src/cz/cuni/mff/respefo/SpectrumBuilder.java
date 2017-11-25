@@ -12,9 +12,9 @@ public class SpectrumBuilder {
 	 * Note: This function does NOT close the provided {@code FileReader}.
 	 * 
 	 * @param fr mediates the export
-	 * @return returns the spectrum data as an array of {@code Point[]} or {@code null} if it encounters any errors
+	 * @return returns the {@code Spectrum} object or {@code null} if it encounters any errors
 	 */
-	public static Point[] importFromASCIIFile(FileReader fr) {
+	public static Spectrum importFromASCIIFile(FileReader fr) {
 		Vector<Point> data = new Vector<>();
 		
 		try(BufferedReader br = new BufferedReader(fr)) {
@@ -35,6 +35,6 @@ public class SpectrumBuilder {
 		} catch  (Exception e) {
 			return null;
 		}
-		return data.toArray(new Point[data.size()]);
+		return new Spectrum(data.toArray(new Point[data.size()]));
 	}
 }

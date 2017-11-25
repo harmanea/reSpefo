@@ -1,5 +1,6 @@
 package cz.cuni.mff.respefo;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 
 public class SpectrumPrinter {
@@ -9,17 +10,18 @@ public class SpectrumPrinter {
 	 * <p>
 	 * Note: This function does NOT close the provided {@code PrintWriter}.
 	 * 
-	 * @param writer the {@code PrintWriter} to export to
-	 * @param data the spectrum data to be exported
+	 * @param writer {@code PrintWriter} to export to
+	 * @param spectrum {@code Spectrum} object to be exported
+	 * @throws IOException if a problem occurred while printing to file
 	 */
-	public static void exportToASCIIFIle(PrintWriter writer, Point[] data) {
-		for (Point p : data) {
-			writer.print(p.getX());
+	public static void exportToASCIIFIle(PrintWriter writer, Spectrum spectrum) throws IOException {
+		for (int i = 0; i < spectrum.size(); i++) {
+			writer.print(spectrum.getX(i));
 			writer.print("  ");
-			writer.println(p.getY());
+			writer.println(spectrum.getY(i));
 		}
 		if (writer.checkError()) {
-			System.out.println("Error ocurred while printing to file.");
+			throw new IOException();
 		}
 	}
 }
