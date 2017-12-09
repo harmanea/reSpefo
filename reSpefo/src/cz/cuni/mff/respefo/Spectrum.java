@@ -5,13 +5,16 @@ public class Spectrum {
 	private double[] YSeries;
 
 	private double max_Y, min_Y;
+	
+	private String name;
 
 	/**
 	 * 
 	 * @param XSeries {@code double[]} array representing the XSeries
 	 * @param YSeries {@code double[]} array representing the YSeries
+	 * @param name {@code String} name of the Spectrum
 	 */
-	public Spectrum(double[] XSeries, double[] YSeries) {
+	public Spectrum(double[] XSeries, double[] YSeries, String name) {
 		this.XSeries = XSeries;
 		this.YSeries = YSeries;
 		double max_Y = Double.MIN_VALUE;
@@ -25,6 +28,8 @@ public class Spectrum {
 		}
 		this.max_Y = max_Y;
 		this.min_Y = min_Y;
+		
+		this.name = name;
 	}
 	
 	/**
@@ -34,6 +39,16 @@ public class Spectrum {
 	 */
 	public int size() {
 		return YSeries.length;
+	}
+	
+	
+	/**
+	 * Gets the name of the spectrum
+	 * 
+	 * @return {@code String} name of the spectrum
+	 */
+	public String name() {
+		return name;
 	}
 
 	/**
