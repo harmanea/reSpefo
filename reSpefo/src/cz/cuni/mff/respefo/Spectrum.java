@@ -4,6 +4,7 @@ public class Spectrum {
 	private double[] XSeries;
 	private double[] YSeries;
 
+	private double max_X, min_X;
 	private double max_Y, min_Y;
 	
 	private String name;
@@ -17,17 +18,31 @@ public class Spectrum {
 	public Spectrum(double[] XSeries, double[] YSeries, String name) {
 		this.XSeries = XSeries;
 		this.YSeries = YSeries;
+		
 		double max_Y = Double.MIN_VALUE;
 		double min_Y = Double.MAX_VALUE;
+		
+		double max_X = Double.MIN_VALUE;
+		double min_X = Double.MAX_VALUE;
+		
 		for (int i = 0; i < YSeries.length; i++) {
+			if (XSeries[i] > max_X) {
+				max_X = XSeries[i];
+			} else if (XSeries[i] < min_X) {
+				min_X = XSeries[i];
+			}
 			if (YSeries[i] > max_Y) {
 				max_Y = YSeries[i];
 			} else if (YSeries[i] < min_Y) {
 				min_Y = YSeries[i];
 			}
 		}
+		
 		this.max_Y = max_Y;
 		this.min_Y = min_Y;
+		
+		this.max_X = max_X;
+		this.min_X = min_X;
 		
 		this.name = name;
 	}
@@ -57,7 +72,7 @@ public class Spectrum {
 	 * @return {@code double} maximum X value
 	 */
 	public double getMaxX() {
-		return XSeries[XSeries.length - 1];
+		return max_X;
 	}
 
 	/**
@@ -66,7 +81,7 @@ public class Spectrum {
 	 * @return {@code double} minimum X value
 	 */
 	public double getMinX() {
-		return XSeries[0];
+		return min_X;
 	}
 
 	/**
