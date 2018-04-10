@@ -1,5 +1,7 @@
 package cz.cuni.mff.respefo;
 
+import java.util.Arrays;
+
 public class Spectrum {
 	private double[] XSeries;
 	private double[] YSeries;
@@ -145,6 +147,27 @@ public class Spectrum {
 		return XSeries;
 	}
 	
+	public double[] getTrimmedXSeries(double from, double to) {
+		int lo_index = Arrays.binarySearch(XSeries, from);
+		int hi_index = Arrays.binarySearch(XSeries, to);
+		
+		if (lo_index < 0) {
+			lo_index *= -1;
+			lo_index -= 1;
+		} else if (lo_index >= XSeries.length) {
+			lo_index = XSeries.length - 1;
+		}
+		
+		if (hi_index < 0) {
+			hi_index *= -1;
+			hi_index -= 1;
+		} else if (hi_index >= XSeries.length) {
+			hi_index = XSeries.length - 1;
+		}
+		
+		return Arrays.copyOfRange(XSeries, lo_index, hi_index);
+	}
+	
 	/**
 	 * Gets the array {@code double[]} representing the YSeries.
 	 * 
@@ -152,5 +175,26 @@ public class Spectrum {
 	 */
 	public double[] getYSeries() {
 		return YSeries;
+	}
+	
+	public double[] getTrimmedYSeries(double from, double to) {
+		int lo_index = Arrays.binarySearch(XSeries, from);
+		int hi_index = Arrays.binarySearch(XSeries, to);
+		
+		if (lo_index < 0) {
+			lo_index *= -1;
+			lo_index -= 2;
+		} else if (lo_index >= XSeries.length) {
+			lo_index = XSeries.length - 1;
+		}
+		
+		if (hi_index < 0) {
+			hi_index *= -1;
+			hi_index -= 2;
+		} else if (hi_index >= XSeries.length) {
+			hi_index = XSeries.length - 1;
+		}
+		
+		return Arrays.copyOfRange(YSeries, lo_index, hi_index);
 	}
 }

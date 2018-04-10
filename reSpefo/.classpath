@@ -2,5 +2,9 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="/home/adam/Eclipse_Java/lib/plugins/org.swtchart_0.10.0.v20160212.jar"/>
+	<classpathentry kind="lib" path="/home/adam/Eclipse_Java/lib/plugins/org.swtchart.ext_0.10.0.v20160212.jar"/>
+	<classpathentry kind="lib" path="/home/adam/Eclipse_Java/lib/plugins/fits.jar"/>
+	<classpathentry kind="lib" path="/home/adam/Eclipse_Java/eclipse/plugins/org.eclipse.swt.gtk.linux.x86_64_3.106.2.v20171129-0543.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
