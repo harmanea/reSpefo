@@ -28,6 +28,7 @@ import org.swtchart.Range;
 import org.swtchart.ILineSeries.PlotSymbolType;
 import org.swtchart.ISeries.SeriesType;
 
+import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.Util;
@@ -68,109 +69,44 @@ public class MeasureRVItemListener implements SelectionListener {
 			if (chart != null) {
 				chart.dispose();
 			}
-			chart = new Chart(ReSpefo.getShell(), SWT.NONE);
-			
-			chart.getTitle().setText(spectrum.name());
-	        chart.getAxisSet().getXAxis(0).getTitle().setText("wavelength (Å)");
-	        chart.getAxisSet().getYAxis(0).getTitle().setText("relative flux");
+			chart = new ChartBuilder(ReSpefo.getShell()).setTitle(spectrum.name()).setXAxisLabel("RV (km/s)").setYAxisLabel("relative flux")
+					.addSeries(LineStyle.SOLID, "original", ChartBuilder.green, spectrum.getXSeries(), spectrum.getYSeries())
+					.addSeries(LineStyle.SOLID, "mirrored", ChartBuilder.blue, Xmdata, Ymdata)
+					.adjustRange(1).pack();
 	        
-	        Color black = new Color(Display.getDefault(), 0, 0, 0);
-			Color green = new Color(Display.getDefault(), 0, 255, 0);
-			Color blue = new Color(Display.getDefault(), 0, 0, 255);
-			Color yellow = new Color(Display.getDefault(), 255, 255, 0);
-	        
-	     // create second Y axis
-	        int axisId = chart.getAxisSet().createYAxis();
-	        IAxis yAxis2 = chart.getAxisSet().getYAxis(axisId);
-	        yAxis2.getTick().setVisible(false);
-	        yAxis2.getTitle().setVisible(false);
-	        yAxis2.getGrid().setForeground(black);
-	        int axisId2 = chart.getAxisSet().createXAxis();
-	        IAxis xAxis2 = chart.getAxisSet().getXAxis(axisId2);
-	        xAxis2.getTick().setVisible(false);
-	        xAxis2.getTitle().setVisible(false);
-	        xAxis2.getGrid().setForeground(black);
-	        
-	        // create line series
-	        ILineSeries original = (ILineSeries) chart.getSeriesSet().createSeries(SeriesType.LINE, "original");
-	        original.setXSeries(spectrum.getXSeries());
-	        original.setYSeries(spectrum.getYSeries());
-	        original.setLineStyle(LineStyle.SOLID);
-	        
-	        ILineSeries mirrored = (ILineSeries) chart.getSeriesSet().createSeries(SeriesType.LINE, "mirrored");
-	        mirrored.setXSeries(Xmdata);
-	        mirrored.setYSeries(Ymdata);
-	        mirrored.setLineStyle(LineStyle.SOLID);
-	        
-	        
-	        
-	        // assign series to second Y axis
-	        mirrored.setYAxisId(axisId);
-	        mirrored.setXAxisId(axisId2);
-	        
-	        IAxisSet axisset = chart.getAxisSet();
-	        
-	        chart.setBackground(black);
-	        chart.setBackgroundInPlotArea(black);
-	        axisset.getXAxis(0).getGrid().setForeground(black);
-	        axisset.getYAxis(0).getGrid().setForeground(black);
-	        
-	        original.setSymbolSize(1);
-	        original.setSymbolColor(green);
-	        original.setSymbolType(PlotSymbolType.NONE);
-	        original.setLineColor(green);
-	        
-	        
-	        mirrored.setSymbolSize(1);
-	        mirrored.setSymbolColor(blue);
-	        mirrored.setSymbolType(PlotSymbolType.NONE);
-	        mirrored.setLineColor(blue);
-	        
-	        
-	        axisset.getXAxis(0).getTick().setForeground(yellow);
-	        axisset.getYAxis(0).getTick().setForeground(yellow);
-	        chart.getTitle().setForeground(yellow);
-	        axisset.getXAxis(0).getTitle().setForeground(yellow);
-	        axisset.getYAxis(0).getTitle().setForeground(yellow);
-	        
-	        chart.getLegend().setVisible(false);
-	        
-	        chart.getAxisSet().adjustRange();
-	        axisset.getXAxis(0).setRange(xAxis2.getRange());
-	        axisset.getYAxis(0).setRange(yAxis2.getRange());
-	        
-	        def = mirrored.getXSeries()[0];
+	        def = Xmdata[0];
 	        
 	        ReSpefo.setChart(chart);
 	        
 	        ReSpefo.getShell().addKeyListener(new KeyAdapter() {
 				public void keyPressed(KeyEvent e)
         		{     
-
 					Chart chart = ReSpefo.getChart();
+					
+					int s = 1;
 					
         			switch (e.keyCode) {
         			case SWT.ARROW_UP:
         			case 'w':
-        				chart.getAxisSet().getYAxis(0).scrollUp();
-        				chart.getAxisSet().getYAxis(axisId2).scrollUp();
+        				for (IAxis i : chart.getAxisSet().getYAxes()) {
+    						i.scrollUp();
+    					}
         				break;
         			case SWT.ARROW_DOWN:
         			case 's':
-        				chart.getAxisSet().getYAxis(0).scrollDown();
-        				chart.getAxisSet().getYAxis(axisId2).scrollDown();
+        				for (IAxis i : chart.getAxisSet().getYAxes()) {
+    						i.scrollDown();
+    					}
         				break;
         			case 'a':
         			case SWT.ARROW_LEFT: // arrow left
-        				ILineSeries left = (ILineSeries) chart.getSeriesSet().getSeries("mirrored");
-        				double q = (chart.getAxisSet().getXAxis(axisId2).getRange().upper - chart.getAxisSet().getXAxis(axisId2).getRange().lower) / 200;
-        				left.setXSeries(Util.adjustArrayValues(left.getXSeries(), -q));
-        				break;
+        				s = -1;
         			case 'd':
         			case SWT.ARROW_RIGHT: // arrow right
-        				ILineSeries right = (ILineSeries) chart.getSeriesSet().getSeries("mirrored");
-        				double w = (chart.getAxisSet().getXAxis(axisId2).getRange().upper - chart.getAxisSet().getXAxis(axisId2).getRange().lower) / 200;
-        				right.setXSeries(Util.adjustArrayValues(right.getXSeries(), w));
+        				ILineSeries ser = (ILineSeries) chart.getSeriesSet().getSeries("mirrored");
+        				IAxis XAxis = chart.getAxisSet().getXAxis(ser.getXAxisId());
+        				double q = (XAxis.getRange().upper - XAxis.getRange().lower) / 400;
+        				ser.setXSeries(Util.adjustArrayValues(ser.getXSeries(), s * q));
         				break;
         			case '+': // +
         			case 16777259:
@@ -183,20 +119,24 @@ public class MeasureRVItemListener implements SelectionListener {
         				chart.getAxisSet().zoomOut();
         				break;
         			case SWT.KEYPAD_8: // NumPad up
-        				chart.getAxisSet().getYAxis(0).zoomIn();
-        				chart.getAxisSet().getYAxis(axisId2).zoomIn();
+        				for (IAxis i : chart.getAxisSet().getYAxes()) {
+    						i.zoomIn();
+    					}
         				break;
         			case SWT.KEYPAD_2: // NumPad down
-        				chart.getAxisSet().getYAxis(0).zoomOut();
-        				chart.getAxisSet().getYAxis(axisId2).zoomOut();
+        				for (IAxis i : chart.getAxisSet().getYAxes()) {
+    						i.zoomOut();
+    					}
         				break;
         			case SWT.KEYPAD_4: // NumPad left
-        				chart.getAxisSet().getXAxis(0).zoomOut();
-        				chart.getAxisSet().getXAxis(axisId2).zoomOut();
+        				for (IAxis i : chart.getAxisSet().getXAxes()) {
+    						i.zoomOut();
+    					}
         				break;
         			case SWT.KEYPAD_6: // NumPad right
-        				chart.getAxisSet().getXAxis(0).zoomIn();
-        				chart.getAxisSet().getXAxis(axisId2).zoomIn();
+        				for (IAxis i : chart.getAxisSet().getXAxes()) {
+    						i.zoomIn();
+    					}
         				break;
         			case SWT.CR:
         				ILineSeries m = (ILineSeries) chart.getSeriesSet().getSeries("mirrored");

@@ -30,6 +30,7 @@ import org.swtchart.Range;
 import org.swtchart.ILineSeries.PlotSymbolType;
 import org.swtchart.ISeries.SeriesType;
 
+import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpectrumBuilder;
@@ -59,43 +60,10 @@ public class FileImportItemListener implements SelectionListener {
 		if (chart != null) {
 			chart.dispose();
 		}
-		chart = new Chart(ReSpefo.getShell(), SWT.NONE);
-		// chart.setBounds(shell.getClientArea());
-
-		chart.getTitle().setText(spectrum.name());
-		chart.getAxisSet().getXAxis(0).getTitle().setText("wavelength (Å)");
-		chart.getAxisSet().getYAxis(0).getTitle().setText("relative flux");
-
-		ILineSeries scatterSeries = (ILineSeries) chart.getSeriesSet().createSeries(SeriesType.LINE, "series");
-		scatterSeries.setLineStyle(LineStyle.SOLID);
-		scatterSeries.setXSeries(spectrum.getXSeries());
-		scatterSeries.setYSeries(spectrum.getYSeries());
-
-		IAxisSet axisset = chart.getAxisSet();
-
-		Color black = new Color(Display.getDefault(), 0, 0, 0);
-		chart.setBackground(black);
-		chart.setBackgroundInPlotArea(black);
-		axisset.getXAxis(0).getGrid().setForeground(black);
-		axisset.getYAxis(0).getGrid().setForeground(black);
-
-		Color green = new Color(Display.getDefault(), 0, 255, 0);
-		scatterSeries.setSymbolSize(1);
-		scatterSeries.setSymbolColor(green);
-		scatterSeries.setSymbolType(PlotSymbolType.NONE);
-		scatterSeries.setLineColor(green);
-
-		Color yellow = new Color(Display.getDefault(), 255, 255, 0);
-		axisset.getXAxis(0).getTick().setForeground(yellow);
-		axisset.getYAxis(0).getTick().setForeground(yellow);
-		chart.getTitle().setForeground(yellow);
-		axisset.getXAxis(0).getTitle().setForeground(yellow);
-		axisset.getYAxis(0).getTitle().setForeground(yellow);
-
-		chart.getLegend().setVisible(false);
-
-		chart.getAxisSet().adjustRange();
-
+		
+		chart = new ChartBuilder(ReSpefo.getShell()).setTitle(spectrum.name()).setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux")
+				.addSeries(LineStyle.SOLID, "series", ChartBuilder.green, spectrum.getXSeries(), spectrum.getYSeries()).adjustRange().pack();
+		
 		ReSpefo.setChart(chart);
 
 		ReSpefo.getShell().addKeyListener(new KeyAdapter() {

@@ -23,6 +23,7 @@ import org.swtchart.Range;
 import org.swtchart.ILineSeries.PlotSymbolType;
 import org.swtchart.ISeries.SeriesType;
 
+import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.Util;
@@ -59,7 +60,7 @@ public class RectifyItemListener implements SelectionListener {
 		return Util.intep(X, Y, xinter);
 	}
 	
-	private double[] getXData(double[] xinter) {
+	private double[] getXData() {
 		double[] X = new double[cont.size()];
 		double[] Y = new double[cont.size()];
 		
@@ -72,7 +73,7 @@ public class RectifyItemListener implements SelectionListener {
 		
 		return X;
 	}
-	private double[] getYData(double[] xinter) {
+	private double[] getYData() {
 		double[] X = new double[cont.size()];
 		double[] Y = new double[cont.size()];
 		
@@ -104,91 +105,11 @@ public class RectifyItemListener implements SelectionListener {
 		if (chart != null) {
 			chart.dispose();
 		}
-		chart = new Chart(ReSpefo.getShell(), SWT.NONE);
-		
-		chart.getTitle().setText(spectrum.name());
-        chart.getAxisSet().getXAxis(0).getTitle().setText("wavelength (Å)");
-        chart.getAxisSet().getYAxis(0).getTitle().setText("flux");
-        
-        Color black = new Color(Display.getDefault(), 0, 0, 0);
-		Color green = new Color(Display.getDefault(), 0, 255, 0);
-		Color blue = new Color(Display.getDefault(), 0, 0, 255);
-		Color yellow = new Color(Display.getDefault(), 255, 255, 0);
-		
-		int axisId = chart.getAxisSet().createYAxis();
-        IAxis yAxis2 = chart.getAxisSet().getYAxis(axisId);
-        yAxis2.getTick().setVisible(false);
-        yAxis2.getTitle().setVisible(false);
-        yAxis2.getGrid().setForeground(black);
-        int axisId2 = chart.getAxisSet().createXAxis();
-        IAxis xAxis2 = chart.getAxisSet().getXAxis(axisId2);
-        xAxis2.getTick().setVisible(false);
-        xAxis2.getTitle().setVisible(false);
-        xAxis2.getGrid().setForeground(black);
-        
-        int axisId3 = chart.getAxisSet().createYAxis();
-        IAxis yAxis3 = chart.getAxisSet().getYAxis(axisId3);
-        yAxis3.getTick().setVisible(false);
-        yAxis3.getTitle().setVisible(false);
-        yAxis3.getGrid().setForeground(black);
-        int axisId4 = chart.getAxisSet().createXAxis();
-        IAxis xAxis4 = chart.getAxisSet().getXAxis(axisId4);
-        xAxis4.getTick().setVisible(false);
-        xAxis4.getTitle().setVisible(false);
-        xAxis4.getGrid().setForeground(black);
-        
-        // create line series
-        ILineSeries original = (ILineSeries) chart.getSeriesSet().createSeries(SeriesType.LINE, "original");
-        original.setXSeries(spectrum.getXSeries());
-        original.setYSeries(spectrum.getYSeries());
-        original.setLineStyle(LineStyle.SOLID);
-        
-        ILineSeries continuum = (ILineSeries) chart.getSeriesSet().createSeries(SeriesType.LINE, "continuum");
-        continuum.setXSeries(spectrum.getXSeries());
-        continuum.setYSeries(this.getData(spectrum.getXSeries()));
-        continuum.setLineStyle(LineStyle.SOLID);     
-        
-        // assign series to second Y axis
-        continuum.setYAxisId(axisId);
-        continuum.setXAxisId(axisId2);
-        
-        ILineSeries points = (ILineSeries) chart.getSeriesSet().createSeries(SeriesType.LINE, "points");
-        points.setXSeries(this.getXData(null));
-        points.setYSeries(this.getYData(null));
-        points.setLineStyle(LineStyle.NONE);
-        
-        IAxisSet axisset = chart.getAxisSet();
-        
-        chart.setBackground(black);
-        chart.setBackgroundInPlotArea(black);
-        axisset.getXAxis(0).getGrid().setForeground(black);
-        axisset.getYAxis(0).getGrid().setForeground(black);
-        
-        //original.setSymbolSize(1);
-        original.setSymbolColor(green);
-        original.setSymbolType(PlotSymbolType.NONE);
-        original.setLineColor(green);
-        
-        
-        //continuum.setSymbolSize(1);
-        continuum.setSymbolColor(yellow);
-        continuum.setSymbolType(PlotSymbolType.NONE);
-        continuum.setLineColor(yellow);
-        
-        
-        axisset.getXAxis(0).getTick().setForeground(yellow);
-        axisset.getYAxis(0).getTick().setForeground(yellow);
-        chart.getTitle().setForeground(yellow);
-        axisset.getXAxis(0).getTitle().setForeground(yellow);
-        axisset.getYAxis(0).getTitle().setForeground(yellow);
-        
-        chart.getLegend().setVisible(false);
-        
-        chart.getAxisSet().adjustRange();
-        axisset.getXAxis(axisId2).setRange(axisset.getXAxis(0).getRange());
-        axisset.getYAxis(axisId).setRange(axisset.getYAxis(0).getRange());
-        axisset.getXAxis(axisId4).setRange(axisset.getXAxis(0).getRange());
-        axisset.getYAxis(axisId3).setRange(axisset.getYAxis(0).getRange());
+		chart = new ChartBuilder(ReSpefo.getShell()).setTitle(spectrum.name()).setXAxisLabel("wavelength (Å)").setYAxisLabel("flux")
+				.addSeries(LineStyle.SOLID, "original", ChartBuilder.green, spectrum.getXSeries(), spectrum.getYSeries())
+				.addSeries(LineStyle.SOLID, "continuum", ChartBuilder.yellow, spectrum.getXSeries(), this.getData(spectrum.getXSeries()))
+				.addSeries(LineStyle.NONE, "points", ChartBuilder.white, this.getXData(), this.getYData())
+				.adjustRange().pack();
         
         chart.getPlotArea().addMouseListener(new MouseListener() {
 
@@ -199,8 +120,7 @@ public class RectifyItemListener implements SelectionListener {
 				Range XRange = chart.getAxisSet().getXAxis(0).getRange();
 				Range YRange = chart.getAxisSet().getYAxis(0).getRange();
 				double x = XRange.lower + ((XRange.upper - XRange.lower) * ((double) e.x / bounds.width));
-				double y = YRange.lower
-						+ ((YRange.upper - YRange.lower) * ((double) (bounds.height - e.y) / bounds.height));
+				double y = YRange.lower + ((YRange.upper - YRange.lower) * ((double) (bounds.height - e.y) / bounds.height));
 				cont.add(new Point(x, y));
 				
 				ILineSeries continuum = (ILineSeries) chart.getSeriesSet().getSeries("continuum");
@@ -209,8 +129,8 @@ public class RectifyItemListener implements SelectionListener {
 				continuum.setYSeries(getData(original.getXSeries()));
 				
 				ILineSeries points = (ILineSeries) chart.getSeriesSet().getSeries("points");
-				points.setXSeries(getXData(null));
-				points.setYSeries(getYData(null));
+				points.setXSeries(getXData());
+				points.setYSeries(getYData());
 				
 				chart.redraw();
 			}
@@ -255,9 +175,7 @@ public class RectifyItemListener implements SelectionListener {
 					}
 					break;
 				case SWT.SPACE: // space
-					ILineSeries original = (ILineSeries) ReSpefo.getChart().getSeriesSet().getSeries("original");
-					//chart.getAxisSet().adjustRange();
-					getData(original.getXSeries());
+					ChartBuilder.adjustRange(chart);
 					break;
 				case '+': // +
 				case 16777259:
