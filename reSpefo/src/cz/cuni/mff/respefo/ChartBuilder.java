@@ -80,7 +80,7 @@ public class ChartBuilder {
 			ser.setLineStyle(LineStyle.NONE);
 			ser.setSymbolType(PlotSymbolType.CIRCLE);
 			ser.setSymbolColor(color);
-			ser.setSymbolSize(4);
+			ser.setSymbolSize(3);
 		} else {
 			ser.setLineStyle(style);
 			ser.setSymbolType(PlotSymbolType.NONE);

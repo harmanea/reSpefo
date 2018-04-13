@@ -30,56 +30,6 @@ import org.swtchart.ISeries.SeriesType;
 import org.swtchart.LineStyle;
 
 public class Util {
-
-	public static void main(String[] args) {
-		double[] y = {1, 4, 7, 9, 11, 35, 112, 155, 156, 157, 321, 322, 458};
-		double[] x = Util.fillArray(13, 1, 20);
-		double[] xinter = Util.fillArray(26, 1, 10);
-		double[] result = Util.intep(x, y, xinter);
-		
-		Display display = new Display();
-	    Shell shell = new Shell(display);
-	    shell.setLayout(new FillLayout());
-		Chart chart = new Chart(shell, SWT.NONE);
-		
-		// create second Y axis
-		int axisId = chart.getAxisSet().createYAxis();
-
-		// set the properties of second Y axis
-		IAxis yAxis2 = chart.getAxisSet().getYAxis(axisId);
-		yAxis2.setPosition(Position.Secondary);
-		final Color RED = Display.getDefault().getSystemColor(SWT.COLOR_RED);
-		yAxis2.getTick().setForeground(RED);
-		yAxis2.getTitle().setForeground(RED);
-		yAxis2.getTitle().setText("Amplitude 2");
-		yAxis2.getGrid().setStyle(LineStyle.NONE);
-
-		// create line series
-		ILineSeries lineSeries1 = (ILineSeries) chart.getSeriesSet()
-		        .createSeries(SeriesType.LINE, "line series 1");
-		lineSeries1.setYSeries(y);
-		lineSeries1.setXSeries(x);
-		ILineSeries lineSeries2 = (ILineSeries) chart.getSeriesSet()
-		        .createSeries(SeriesType.LINE, "line series 2");
-		lineSeries2.setYSeries(result);
-		lineSeries2.setXSeries(xinter);
-		lineSeries2.setLineColor(RED);
-		lineSeries2.setSymbolSize(2);
-
-		// assign series to second Y axis
-		lineSeries2.setYAxisId(axisId);
-
-		// adjust the axis range
-		chart.getAxisSet().adjustRange();
-		
-		shell.open();
-	    while (!shell.isDisposed()) {
-	      if (!display.readAndDispatch())
-	        display.sleep();
-	    }
-	    display.dispose();
-	}
-	
 	
 	/**
 	 * The INTEP interpolation algorithm
@@ -203,6 +153,17 @@ public class Util {
 			array[i] += value;
 		}
 		return array;
+	}
+	
+	public static double[] divideArrayValues(double[] a1, double[] a2) {
+		if (a1.length != a2.length) {
+			return null;
+		}
+		double[] result = new double[a1.length];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = a1[i] / a2[i];
+		}
+		return result;
 	}
 	
 	public static double[] applyBScale(double[] array, double BZero, double BScale) {

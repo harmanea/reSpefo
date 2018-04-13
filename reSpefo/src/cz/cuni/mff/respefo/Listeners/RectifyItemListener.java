@@ -1,5 +1,6 @@
 package cz.cuni.mff.respefo.Listeners;
 
+import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -13,6 +14,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.swtchart.Chart;
 import org.swtchart.IAxis;
@@ -44,9 +46,26 @@ public class RectifyItemListener implements SelectionListener {
 		}
 	}
 	
-	private SortedSet<Point> cont;
+	private TreeSet<Point> cont;
+	private int index = 0;
 	
-	private double[] getData(double[] xinter) {
+	public Point getAt(int index) {
+		if (index < 0 || index >= cont.size()) {
+			return null;
+		}
+		
+		Iterator<Point> it = cont.iterator();
+		int i = 0;
+		Point ret = null;
+		while (it.hasNext() && i <= index) {
+			ret = it.next();
+			i++;
+		}
+		return ret;
+		
+	}
+	
+	private double[] getIntepData(double[] xinter) {
 		double[] X = new double[cont.size()];
 		double[] Y = new double[cont.size()];
 		
@@ -62,24 +81,21 @@ public class RectifyItemListener implements SelectionListener {
 	
 	private double[] getXData() {
 		double[] X = new double[cont.size()];
-		double[] Y = new double[cont.size()];
 		
 		int i = 0;
 		for (Point p : cont) {
 			X[i] = p.x;
-			Y[i] = p.y;
 			i++;
 		}
 		
 		return X;
 	}
+	
 	private double[] getYData() {
-		double[] X = new double[cont.size()];
 		double[] Y = new double[cont.size()];
 		
 		int i = 0;
 		for (Point p : cont) {
-			X[i] = p.x;
 			Y[i] = p.y;
 			i++;
 		}
@@ -96,9 +112,19 @@ public class RectifyItemListener implements SelectionListener {
 			return;
 		}
 		
+		ReSpefo.setSpectrum(spectrum);
+		
 		cont = new TreeSet<>();
 		cont.add(new Point(spectrum.getX(0), spectrum.getY(0)));
 		cont.add(new Point(spectrum.getX(spectrum.size() - 1), spectrum.getY(spectrum.size() - 1)));
+		
+		for (Listener l : ReSpefo.getShell().getListeners(SWT.KeyDown)) {
+			ReSpefo.getShell().removeListener(SWT.KeyDown, l);
+		}
+		
+		for (Listener l : ReSpefo.getShell().getListeners(SWT.MouseDown)) {
+			ReSpefo.getShell().removeListener(SWT.MouseDown, l);
+		}
 		
 		Chart chart = ReSpefo.getChart();
 		
@@ -107,8 +133,9 @@ public class RectifyItemListener implements SelectionListener {
 		}
 		chart = new ChartBuilder(ReSpefo.getShell()).setTitle(spectrum.name()).setXAxisLabel("wavelength (Å)").setYAxisLabel("flux")
 				.addSeries(LineStyle.SOLID, "original", ChartBuilder.green, spectrum.getXSeries(), spectrum.getYSeries())
-				.addSeries(LineStyle.SOLID, "continuum", ChartBuilder.yellow, spectrum.getXSeries(), this.getData(spectrum.getXSeries()))
+				.addSeries(LineStyle.SOLID, "continuum", ChartBuilder.yellow, spectrum.getXSeries(), this.getIntepData(spectrum.getXSeries()))
 				.addSeries(LineStyle.NONE, "points", ChartBuilder.white, this.getXData(), this.getYData())
+				.addSeries(LineStyle.NONE, "selected", ChartBuilder.red, new double[] { cont.first().x }, new double[] { cont.first().y })
 				.adjustRange().pack();
         
         chart.getPlotArea().addMouseListener(new MouseListener() {
@@ -121,16 +148,21 @@ public class RectifyItemListener implements SelectionListener {
 				Range YRange = chart.getAxisSet().getYAxis(0).getRange();
 				double x = XRange.lower + ((XRange.upper - XRange.lower) * ((double) e.x / bounds.width));
 				double y = YRange.lower + ((YRange.upper - YRange.lower) * ((double) (bounds.height - e.y) / bounds.height));
-				cont.add(new Point(x, y));
+				Point p = new Point(x, y);
+				cont.add(p);
 				
 				ILineSeries continuum = (ILineSeries) chart.getSeriesSet().getSeries("continuum");
 				ILineSeries original = (ILineSeries) chart.getSeriesSet().getSeries("original");
-				//continuum.setXSeries(getXdata());
-				continuum.setYSeries(getData(original.getXSeries()));
+				continuum.setYSeries(getIntepData(original.getXSeries()));
 				
 				ILineSeries points = (ILineSeries) chart.getSeriesSet().getSeries("points");
 				points.setXSeries(getXData());
 				points.setYSeries(getYData());
+				
+				index = cont.headSet(p).size();
+				ILineSeries selected = (ILineSeries) chart.getSeriesSet().getSeries("selected");
+				selected.setXSeries(new double[] {x} );
+				selected.setYSeries(new double[] {y} );
 				
 				chart.redraw();
 			}
@@ -148,6 +180,13 @@ public class RectifyItemListener implements SelectionListener {
         ReSpefo.getShell().addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				Chart chart = ReSpefo.getChart();
+				
+				ILineSeries points = (ILineSeries) chart.getSeriesSet().getSeries("points");
+				ILineSeries continuum = (ILineSeries) chart.getSeriesSet().getSeries("continuum");
+				ILineSeries selected = (ILineSeries) chart.getSeriesSet().getSeries("selected");
+				
+				Range Yrange = chart.getAxisSet().getYAxis(0).getRange();
+				Range Xrange = chart.getAxisSet().getXAxis(0).getRange();
 
 				switch (e.keyCode) {
 				case 'w':
@@ -205,6 +244,58 @@ public class RectifyItemListener implements SelectionListener {
 				case SWT.KEYPAD_6: // NumPad right
 					for (IAxis i : chart.getAxisSet().getXAxes()) {
 						i.zoomIn();;
+					}
+					break;
+				case 'i':
+					getAt(index).y += (Yrange.upper - Yrange.lower) / 400;
+					points.setYSeries(getYData());
+					continuum.setYSeries(getIntepData(ReSpefo.getSpectrum().getXSeries()));
+					selected.setYSeries(new double[] { getAt(index).y });
+					break;
+				case 'k':
+					getAt(index).y -= (Yrange.upper - Yrange.lower) / 400;
+					points.setYSeries(getYData());
+					continuum.setYSeries(getIntepData(ReSpefo.getSpectrum().getXSeries()));
+					selected.setYSeries(new double[] { getAt(index).y });
+					break;
+				case 'j':
+					getAt(index).x -= (Xrange.upper - Xrange.lower) / 400;
+					points.setXSeries(getXData());
+					continuum.setYSeries(getIntepData(ReSpefo.getSpectrum().getXSeries()));
+					selected.setXSeries(new double[] { getAt(index).x });
+					break;
+				case 'l':
+					getAt(index).x += (Xrange.upper - Xrange.lower) / 400;
+					points.setXSeries(getXData());
+					continuum.setYSeries(getIntepData(ReSpefo.getSpectrum().getXSeries()));
+					selected.setXSeries(new double[] { getAt(index).x });
+					break;
+				case 'n':
+					if (index > 0) {
+						index--;
+						selected.setXSeries(new double[] { getAt(index).x });
+						selected.setYSeries(new double[] { getAt(index).y });
+					}
+					break;
+				case 'm':
+					if (index + 1 < cont.size()) {
+						index++;
+						selected.setXSeries(new double[] { getAt(index).x });
+						selected.setYSeries(new double[] { getAt(index).y });
+					}
+					break;
+				case SWT.DEL:
+					if (cont.size() > 1) {
+						cont.remove(getAt(index));
+						index--;
+						
+						points.setXSeries(getXData());
+						points.setYSeries(getYData());
+						
+						continuum.setYSeries(getIntepData(ReSpefo.getSpectrum().getXSeries()));
+						
+						selected.setXSeries(new double[] { getAt(index).x });
+						selected.setYSeries(new double[] { getAt(index).y });
 					}
 					break;
 				}
