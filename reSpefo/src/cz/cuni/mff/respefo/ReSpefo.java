@@ -23,17 +23,15 @@ import cz.cuni.mff.respefo.Listeners.RectifyItemListener;
 
 public class ReSpefo {
 
-  Display display;
+  static Display display;
 
   static Shell shell;
 
-  Menu menuBar, fileMenu, toolsMenu;
+  static Menu menuBar, fileMenu, toolsMenu;
 
-  MenuItem fileMenuHeader, toolsMenuHeader;
+  static MenuItem fileMenuHeader, toolsMenuHeader;
 
-  MenuItem fileExportItem, fileImportItem, rectifyItem, measureRVItem;
-
-  Label label;
+  static MenuItem fileExportItem, fileImportItem, rectifyItem, measureRVItem;
   
   static Spectrum spectrum;
   
@@ -86,30 +84,8 @@ public class ReSpefo {
     display.dispose();
   }
 
-  class fileExportItemListener implements SelectionListener {
-    public void widgetSelected(SelectionEvent event) {
-      shell.close();
-      display.dispose();
-    }
-
-    public void widgetDefaultSelected(SelectionEvent event) {
-      shell.close();
-      display.dispose();
-    }
-  }
-
-  class measureRVItemListener implements SelectionListener {
-    public void widgetSelected(SelectionEvent event) {
-      label.setText("No worries!");
-    }
-
-    public void widgetDefaultSelected(SelectionEvent event) {
-      label.setText("No worries!");
-    }
-  }
-
   public static void main(String[] args) {
-    ReSpefo menuExample = new ReSpefo();
+    new ReSpefo();
   }
   
   public static Shell getShell() {

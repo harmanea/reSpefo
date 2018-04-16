@@ -147,6 +147,13 @@ public class Spectrum {
 		return XSeries;
 	}
 	
+	/**
+	 * Gets the XSeries trimmed by the specified arguments
+	 * 
+	 * @param from {@code double} lower bound value
+	 * @param to {@code double} upper bound value
+	 * @return {@code double[]} representing the trimmed XSeries
+	 */
 	public double[] getTrimmedXSeries(double from, double to) {
 		int lo_index = Arrays.binarySearch(XSeries, from);
 		int hi_index = Arrays.binarySearch(XSeries, to);
@@ -177,6 +184,13 @@ public class Spectrum {
 		return YSeries;
 	}
 	
+	/**
+	 * Gets the YSeries trimmed by the specified arguments respective to the XSeries
+	 * 
+	 * @param from {@code double} lower bound value for the XSeries
+	 * @param to {@code double} upper bound value for the XSeries
+	 * @return {@code double[]} representing the trimmed YSeries respective to the XSeries
+	 */
 	public double[] getTrimmedYSeries(double from, double to) {
 		int lo_index = Arrays.binarySearch(XSeries, from);
 		int hi_index = Arrays.binarySearch(XSeries, to);

@@ -29,7 +29,6 @@ public class ChartBuilder {
 	public static final Color yellow = new Color(Display.getDefault(), 255, 255, 0);
 	public static final Color white = new Color(Display.getDefault(), 255, 255, 255);
 	
-	
 	private Chart chart;
 	private ArrayList<ILineSeries> series;
 	

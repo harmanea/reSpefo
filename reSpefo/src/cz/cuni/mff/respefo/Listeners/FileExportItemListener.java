@@ -33,7 +33,7 @@ public class FileExportItemListener implements SelectionListener {
 		FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.SAVE);
 		
 		String[] filterNames = new String[] { "Spectrum Files", "All Files (*)" };
-		String[] filterExtensions = new String[] { "*.txt;*.fits;*.rui;*.uui", "*" };
+		String[] filterExtensions = new String[] { "*.txt;*.fits;*.fit;*.fts;*.rui;*.uui", "*" };
 		//String platform = SWT.getPlatform();
 
 		dialog.setFilterNames(filterNames);
@@ -71,6 +71,8 @@ public class FileExportItemListener implements SelectionListener {
 			}
 			break;
 		case "fits":
+		case "fit":
+		case "fts":
 			try {
 				SpectrumPrinter.exportToFitsFile(s, spectrum);
 			} catch (IOException | FitsException e) {

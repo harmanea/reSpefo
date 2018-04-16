@@ -129,7 +129,7 @@ public class Util {
 		return result;
 	}
 	
-	public static int findFirstGreaterThen(double[] array, double target) { // return array.length+1 if all values are smaller or equal than target
+	public static int findFirstGreaterThen(double[] array, double target) { // returns array.length if all values are smaller or equal than target
         int index = Arrays.binarySearch(array, target);
         if (index >= 0) {
         	return index + 1;
@@ -256,7 +256,7 @@ public class Util {
 		
 		FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN);
 		String[] filterNames = new String[] { "Spectrum Files", "All Files (*)" };
-		String[] filterExtensions = new String[] { "*.txt;*.fits;*.fit;*.rui;*.uui", "*" };
+		String[] filterExtensions = new String[] { "*.txt;*.fits;*.fit;*.fts;*.rui;*.uui", "*" };
 		//String platform = SWT.getPlatform();
 
 		dialog.setFilterNames(filterNames);
@@ -287,6 +287,7 @@ public class Util {
 			break;
 		case "fits":
 		case "fit":
+		case "fts":
 			spectrum = SpectrumBuilder.importFromFitsFile(s);
 			if (spectrum == null) {
 				mb.setMessage("Couldn't import spectrum. File might be corrupt.");

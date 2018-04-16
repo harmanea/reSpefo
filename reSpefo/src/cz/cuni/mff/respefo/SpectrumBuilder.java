@@ -64,11 +64,11 @@ public final class SpectrumBuilder {
 	
 	public static Spectrum importFromFitsFile(String file) {
 		try (Fits f = new Fits(file);) {
-			BasicHDU[] HDUs = f.read();
+			BasicHDU<?>[] HDUs = f.read();
 			
 			for (int i = 0; i < HDUs.length; i++) {
 				if (HDUs[i] instanceof ImageHDU) {
-					ImageData imgdata = (ImageData) HDUs[i].getData();
+					//ImageData imgdata = (ImageData) HDUs[i].getData();
 					Object data = HDUs[i].getKernel();
 					
 					double[] XSeries;
@@ -136,7 +136,7 @@ public final class SpectrumBuilder {
 					double CRPIX = HDUs[i].getHeader().getDoubleValue("CRPIX" + (i + 1), 0);
 					double CDELT = HDUs[i].getHeader().getDoubleValue("CDELT" + (i + 1), 1);
 					double CRVAL = HDUs[i].getHeader().getDoubleValue("CRVAL" + (i + 1), 0);
-
+					
 					XSeries = Util.fillArray(YSeries.length, (CRPIX - 1) * CDELT + CRVAL, CDELT);
 					
 					return new Spectrum(XSeries, YSeries, name);
