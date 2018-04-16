@@ -19,10 +19,16 @@ import org.swtchart.ISeries.SeriesType;
 public class ChartBuilder {
 	public static final Color black = new Color(Display.getDefault(), 0, 0, 0);
 	public static final Color blue = new Color(Display.getDefault(), 0, 0, 255);
+	public static final Color cyan = new Color(Display.getDefault(), 0, 255, 255);
 	public static final Color green = new Color(Display.getDefault(), 0, 255, 0);
+	public static final Color grey = new Color(Display.getDefault(), 128, 128, 128);
+	public static final Color orange = new Color(Display.getDefault(), 255, 128, 0);
+	public static final Color pink = new Color(Display.getDefault(), 255, 0, 255);
+	public static final Color purple = new Color(Display.getDefault(), 128, 0, 255);
 	public static final Color red = new Color(Display.getDefault(), 255, 0, 0);
 	public static final Color yellow = new Color(Display.getDefault(), 255, 255, 0);
 	public static final Color white = new Color(Display.getDefault(), 255, 255, 255);
+	
 	
 	private Chart chart;
 	private ArrayList<ILineSeries> series;
