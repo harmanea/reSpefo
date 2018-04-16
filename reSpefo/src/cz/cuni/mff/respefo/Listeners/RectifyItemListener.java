@@ -47,7 +47,7 @@ public class RectifyItemListener implements SelectionListener {
 	}
 	
 	private TreeSet<Point> cont;
-	private int index = 0;
+	private int index;
 	
 	public Point getAt(int index) {
 		if (index < 0 || index >= cont.size()) {
@@ -103,6 +103,23 @@ public class RectifyItemListener implements SelectionListener {
 		return Y;
 	}
 	
+	private void adjustView() {
+		Point p = getAt(index);
+		Range Xrange = ReSpefo.getChart().getAxisSet().getXAxis(0).getRange();
+		Range Yrange = ReSpefo.getChart().getAxisSet().getYAxis(0).getRange();
+		
+		
+		Range xr = new Range(p.x - (Xrange.upper - Xrange.lower) / 2, p.x + (Xrange.upper - Xrange.lower) / 2);
+		Range yr = new Range(p.y - (Yrange.upper - Yrange.lower) / 2, p.y + (Yrange.upper - Yrange.lower) / 2);
+			
+		for (IAxis a : ReSpefo.getChart().getAxisSet().getXAxes()) {
+			a.setRange(xr);
+		}
+		for (IAxis a : ReSpefo.getChart().getAxisSet().getYAxes()) {
+			a.setRange(yr);
+		}
+	}
+	
 	
 	@Override
 	public void widgetSelected(SelectionEvent event) {
@@ -117,6 +134,8 @@ public class RectifyItemListener implements SelectionListener {
 		cont = new TreeSet<>();
 		cont.add(new Point(spectrum.getX(0), spectrum.getY(0)));
 		cont.add(new Point(spectrum.getX(spectrum.size() - 1), spectrum.getY(spectrum.size() - 1)));
+		
+		index = 0;
 		
 		for (Listener l : ReSpefo.getShell().getListeners(SWT.KeyDown)) {
 			ReSpefo.getShell().removeListener(SWT.KeyDown, l);
@@ -177,6 +196,8 @@ public class RectifyItemListener implements SelectionListener {
 
 		});
         
+        ReSpefo.getShell().addKeyListener(new DefaultMovementListener());
+        
         ReSpefo.getShell().addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				Chart chart = ReSpefo.getChart();
@@ -189,63 +210,6 @@ public class RectifyItemListener implements SelectionListener {
 				Range Xrange = chart.getAxisSet().getXAxis(0).getRange();
 
 				switch (e.keyCode) {
-				case 'w':
-				case SWT.ARROW_UP: // arrow up
-					for (IAxis i : chart.getAxisSet().getYAxes()) {
-						i.scrollUp();
-					}
-					break;
-				case 'a':
-				case SWT.ARROW_LEFT: // arrow left
-					for (IAxis i : chart.getAxisSet().getXAxes()) {
-						i.scrollDown();
-					}
-					break;
-				case 's':
-				case SWT.ARROW_DOWN: // arrow down
-					for (IAxis i : chart.getAxisSet().getYAxes()) {
-						i.scrollDown();
-					}
-					break;
-				case 'd':
-				case SWT.ARROW_RIGHT: // arrow right
-					for (IAxis i : chart.getAxisSet().getXAxes()) {
-						i.scrollUp();
-					}
-					break;
-				case SWT.SPACE: // space
-					ChartBuilder.adjustRange(chart);
-					break;
-				case '+': // +
-				case 16777259:
-				case 49:
-					chart.getAxisSet().zoomIn();
-					break;
-				case '-': // -
-				case 16777261:
-				case 47:
-					chart.getAxisSet().zoomOut();
-					break;
-				case SWT.KEYPAD_8: // NumPad up
-					for (IAxis i : chart.getAxisSet().getYAxes()) {
-						i.zoomIn();;
-					}
-					break;
-				case SWT.KEYPAD_2: // NumPad down
-					for (IAxis i : chart.getAxisSet().getYAxes()) {
-						i.zoomOut();;
-					}
-					break;
-				case SWT.KEYPAD_4: // NumPad left
-					for (IAxis i : chart.getAxisSet().getXAxes()) {
-						i.zoomOut();;
-					}
-					break;
-				case SWT.KEYPAD_6: // NumPad right
-					for (IAxis i : chart.getAxisSet().getXAxes()) {
-						i.zoomIn();;
-					}
-					break;
 				case 'i':
 					getAt(index).y += (Yrange.upper - Yrange.lower) / 400;
 					points.setYSeries(getYData());
@@ -275,6 +239,10 @@ public class RectifyItemListener implements SelectionListener {
 						index--;
 						selected.setXSeries(new double[] { getAt(index).x });
 						selected.setYSeries(new double[] { getAt(index).y });
+						Point p = getAt(index);
+						if (Xrange.lower > p.x || Xrange.upper < p.x || Yrange.lower > p.y || Yrange.upper < p.y) {
+							adjustView();
+						}
 					}
 					break;
 				case 'm':
@@ -282,7 +250,14 @@ public class RectifyItemListener implements SelectionListener {
 						index++;
 						selected.setXSeries(new double[] { getAt(index).x });
 						selected.setYSeries(new double[] { getAt(index).y });
+						Point q = getAt(index);
+						if (Xrange.lower > q.x || Xrange.upper < q.x || Yrange.lower > q.y || Yrange.upper < q.y) {
+							adjustView();
+						}
 					}
+					break;
+				case 'p':
+					adjustView();
 					break;
 				case SWT.DEL:
 					if (cont.size() > 1) {
@@ -297,6 +272,27 @@ public class RectifyItemListener implements SelectionListener {
 						selected.setXSeries(new double[] { getAt(index).x });
 						selected.setYSeries(new double[] { getAt(index).y });
 					}
+					break;
+				case SWT.CR:
+					MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+					mb.setMessage("Are you sure?");
+					if (mb.open() == SWT.YES) {			
+						double[] YSeries = Util.divideArrayValues(spectrum.getYSeries(), continuum.getYSeries());
+						Spectrum s = new Spectrum(spectrum.getXSeries(), YSeries, spectrum.name());
+						
+						ReSpefo.setSpectrum(s);
+						if (chart != null) {
+							chart.dispose();
+						}
+						chart = new ChartBuilder(ReSpefo.getShell()).setTitle(s.name()).setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux")
+								.addSeries(LineStyle.SOLID, "series", ChartBuilder.green, s.getXSeries(), s.getYSeries())
+								.adjustRange().pack();
+						
+						ReSpefo.setChart(chart);
+						
+						ReSpefo.getShell().removeKeyListener(this);
+					}
+					
 					break;
 				}
 				chart.redraw();

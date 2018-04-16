@@ -66,56 +66,7 @@ public class FileImportItemListener implements SelectionListener {
 		
 		ReSpefo.setChart(chart);
 
-		ReSpefo.getShell().addKeyListener(new KeyAdapter() {
-			public void keyPressed(KeyEvent e) {
-				Chart chart = ReSpefo.getChart();
-
-				switch (e.keyCode) {
-				case 'w':
-				case SWT.ARROW_UP: // arrow up
-					chart.getAxisSet().getYAxis(0).scrollUp();
-					break;
-				case 'a':
-				case SWT.ARROW_LEFT: // arrow left
-					chart.getAxisSet().getXAxis(0).scrollDown();
-					break;
-				case 's':
-				case SWT.ARROW_DOWN: // arrow down
-					chart.getAxisSet().getYAxis(0).scrollDown();
-					break;
-				case 'd':
-				case SWT.ARROW_RIGHT: // arrow right
-					chart.getAxisSet().getXAxis(0).scrollUp();
-					break;
-				case SWT.SPACE: // space
-					chart.getAxisSet().adjustRange();
-					break;
-				case '+': // +
-				case 16777259:
-				case 49:
-					chart.getAxisSet().zoomIn();
-					break;
-				case '-': // -
-				case 16777261:
-				case 47:
-					chart.getAxisSet().zoomOut();
-					break;
-				case SWT.KEYPAD_8: // NumPad up
-					chart.getAxisSet().getYAxis(0).zoomIn();
-					break;
-				case SWT.KEYPAD_2: // NumPad down
-					chart.getAxisSet().getYAxis(0).zoomOut();
-					break;
-				case SWT.KEYPAD_4: // NumPad left
-					chart.getAxisSet().getXAxis(0).zoomOut();
-					break;
-				case SWT.KEYPAD_6: // NumPad right
-					chart.getAxisSet().getXAxis(0).zoomIn();
-					break;
-				}
-				chart.redraw();
-			}
-		});
+		ReSpefo.getShell().addKeyListener(new DefaultMovementListener());
 
 	}
 
