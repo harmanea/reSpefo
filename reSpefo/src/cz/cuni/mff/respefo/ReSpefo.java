@@ -1,17 +1,8 @@
 package cz.cuni.mff.respefo;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -22,6 +13,8 @@ import cz.cuni.mff.respefo.Listeners.MeasureRVItemListener;
 import cz.cuni.mff.respefo.Listeners.RectifyItemListener;
 
 public class ReSpefo {
+	
+  public static final String version = "0.4.2";
 
   static Display display;
 
@@ -41,11 +34,12 @@ public class ReSpefo {
 
     display = new Display();
     shell = new Shell(display);
-    shell.setText("reSpefo");
+    shell.setText("reSpefo (v" + version + ")");
     shell.setSize(1000, 1000);
     shell.setLayout(new FillLayout());
 
     menuBar = new Menu(shell, SWT.BAR);
+    
     fileMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
     fileMenuHeader.setText("&File");
 
@@ -53,10 +47,12 @@ public class ReSpefo {
     fileMenuHeader.setMenu(fileMenu);
 
     fileImportItem = new MenuItem(fileMenu, SWT.PUSH);
-    fileImportItem.setText("&Import");
-
+    fileImportItem.setText("&Import\tCtrl+I");
+    fileImportItem.setAccelerator('I' | SWT.CTRL);
+    
     fileExportItem = new MenuItem(fileMenu, SWT.PUSH);
-    fileExportItem.setText("&Export");
+    fileExportItem.setText("&Export\tCtrl+E");
+    fileExportItem.setAccelerator('E' | SWT.CTRL);
 
     toolsMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
     toolsMenuHeader.setText("&Tools");
@@ -65,10 +61,12 @@ public class ReSpefo {
     toolsMenuHeader.setMenu(toolsMenu);
 
     rectifyItem = new MenuItem(toolsMenu, SWT.PUSH);
-    rectifyItem.setText("&Rectify");
+    rectifyItem.setText("&Rectify\tCtrl+R");
+    rectifyItem.setAccelerator('R' | SWT.CTRL);
     
     measureRVItem = new MenuItem(toolsMenu, SWT.PUSH);
-    measureRVItem.setText("&Measure RV");
+    measureRVItem.setText("&Measure RV\tCtrl+M");
+    measureRVItem.setAccelerator('M' | SWT.CTRL);
 
     fileExportItem.addSelectionListener(new FileExportItemListener());
     fileImportItem.addSelectionListener(new FileImportItemListener());
