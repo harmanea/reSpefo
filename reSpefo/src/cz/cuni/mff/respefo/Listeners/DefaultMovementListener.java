@@ -53,21 +53,25 @@ public class DefaultMovementListener implements KeyListener {
 		case 47:
 			chart.getAxisSet().zoomOut();
 			break;
+		case '8':
 		case SWT.KEYPAD_8: // NumPad up
 			for (IAxis i : chart.getAxisSet().getYAxes()) {
 				i.zoomIn();
 			}
 			break;
+		case '2':
 		case SWT.KEYPAD_2: // NumPad down
 			for (IAxis i : chart.getAxisSet().getYAxes()) {
 				i.zoomOut();
 			}
 			break;
+		case '4':
 		case SWT.KEYPAD_4: // NumPad left
 			for (IAxis i : chart.getAxisSet().getXAxes()) {
 				i.zoomOut();
 			}
 			break;
+		case '6':
 		case SWT.KEYPAD_6: // NumPad right
 			for (IAxis i : chart.getAxisSet().getXAxes()) {
 				i.zoomIn();
