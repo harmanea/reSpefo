@@ -49,7 +49,7 @@ public class RectifyItemListener implements SelectionListener {
 	private static TreeSet<Point> cont = new TreeSet<>();
 	private static int index = 0;
 	
-	public Point getAt(int index) {
+	private Point getAt(int index) {
 		if (index < 0 || index >= cont.size()) {
 			return null;
 		}
@@ -162,7 +162,7 @@ public class RectifyItemListener implements SelectionListener {
 				.addSeries(LineStyle.SOLID, "continuum", ChartBuilder.yellow, spectrum.getXSeries(), this.getIntepData(spectrum.getXSeries()))
 				.addSeries(LineStyle.NONE, "points", ChartBuilder.white, this.getXData(), this.getYData())
 				.addSeries(LineStyle.NONE, "selected", ChartBuilder.red, new double[] { getAt(index).x }, new double[] { getAt(index).y })
-				.adjustRange().pack();
+				.adjustRange().build();
         
         chart.getPlotArea().addMouseListener(new MouseListener() {
 
@@ -215,7 +215,7 @@ public class RectifyItemListener implements SelectionListener {
 		this.widgetSelected(event);
 	}
 
-	class RectifyKeyAdapter extends KeyAdapter {
+	private class RectifyKeyAdapter extends KeyAdapter {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			Chart chart = ReSpefo.getChart();
@@ -337,9 +337,9 @@ public class RectifyItemListener implements SelectionListener {
 				if (chart != null) {
 					chart.dispose();
 				}
-				chart = new ChartBuilder(ReSpefo.getShell()).setTitle(s.name()).setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux")
+				chart = new ChartBuilder(ReSpefo.getShell()).setTitle(s.name()).setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux I(λ)")
 						.addSeries(LineStyle.SOLID, "series", ChartBuilder.green, s.getXSeries(), s.getYSeries())
-						.adjustRange().pack();
+						.adjustRange().build();
 					
 				ReSpefo.setChart(chart);
 				

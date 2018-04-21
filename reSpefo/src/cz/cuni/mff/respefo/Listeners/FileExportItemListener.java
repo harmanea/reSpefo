@@ -15,8 +15,6 @@ import cz.cuni.mff.respefo.SpectrumPrinter;
 import nom.tam.fits.FitsException;
 
 public class FileExportItemListener implements SelectionListener {
-
-	public FileExportItemListener() {}
 	
 	@Override
 	public void widgetSelected(SelectionEvent event) {
@@ -31,9 +29,10 @@ public class FileExportItemListener implements SelectionListener {
 		}
 		
 		FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.SAVE);
+		dialog.setText("Export File");
 		
 		String[] filterNames = new String[] { "Spectrum Files", "All Files (*)" };
-		String[] filterExtensions = new String[] { "*.txt;*.fits;*.fit;*.fts;*.rui;*.uui", "*" };
+		String[] filterExtensions = new String[] { "*.fits;*.fit;*.fts;*.txt;*.rui;*.uui", "*" };
 		//String platform = SWT.getPlatform();
 
 		dialog.setFilterNames(filterNames);
@@ -54,6 +53,7 @@ public class FileExportItemListener implements SelectionListener {
 		}
 		
 		switch (extension) {
+		case "":
 		case "txt":
 			PrintWriter writer;
 			try {

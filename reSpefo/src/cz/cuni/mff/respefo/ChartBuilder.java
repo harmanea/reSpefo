@@ -129,7 +129,7 @@ public class ChartBuilder {
 		return this;
 	}
 	
-	public Chart pack() {
+	public Chart build() {
 		setTheme(chart);
 		return chart;
 	}

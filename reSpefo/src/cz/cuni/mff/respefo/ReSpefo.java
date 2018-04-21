@@ -14,7 +14,7 @@ import cz.cuni.mff.respefo.Listeners.RectifyItemListener;
 
 public class ReSpefo {
 	
-  public static final String version = "0.4.2";
+  public static final String version = "0.4.3";
 
   static Display display;
 

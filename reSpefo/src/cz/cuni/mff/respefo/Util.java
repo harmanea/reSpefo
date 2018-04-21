@@ -255,8 +255,10 @@ public class Util {
 		Spectrum spectrum;
 		
 		FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN);
+		dialog.setText("Import file");
+		
 		String[] filterNames = new String[] { "Spectrum Files", "All Files (*)" };
-		String[] filterExtensions = new String[] { "*.txt;*.fits;*.fit;*.fts;*.rui;*.uui", "*" };
+		String[] filterExtensions = new String[] { "*.fits;*.fit;*.fts;*.txt;*.rui;*.uui", "*" };
 		//String platform = SWT.getPlatform();
 
 		dialog.setFilterNames(filterNames);
@@ -278,6 +280,7 @@ public class Util {
 		MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
 		
 		switch (extension) {
+		case "":
 		case "txt":
 			spectrum = SpectrumBuilder.importFromASCIIFile(s);
 			if (spectrum == null) {
