@@ -3,16 +3,10 @@ package cz.cuni.mff.respefo;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import nom.tam.fits.AsciiTable;
-import nom.tam.fits.AsciiTableHDU;
 import nom.tam.fits.BasicHDU;
-import nom.tam.fits.BinaryTableHDU;
-import nom.tam.fits.Data;
 import nom.tam.fits.Fits;
 import nom.tam.fits.FitsException;
 import nom.tam.fits.FitsFactory;
-import nom.tam.fits.Header;
-import nom.tam.fits.TableHDU;
 import nom.tam.util.BufferedFile;
 
 public final class SpectrumPrinter {
@@ -49,7 +43,7 @@ public final class SpectrumPrinter {
 		double[] data = spectrum.getYSeries();
 
 		Fits f = new Fits();
-		BasicHDU hdu = FitsFactory.hduFactory(data);
+		BasicHDU<?> hdu = FitsFactory.hduFactory(data);
 		hdu.addValue("SIMPLE", true, "Created by reSpefo");
 		hdu.addValue("CRPIX1", 1, "Reference pixel");
 		hdu.addValue("CRVAL1", spectrum.getX(0), "Coordinate at reference pixel");

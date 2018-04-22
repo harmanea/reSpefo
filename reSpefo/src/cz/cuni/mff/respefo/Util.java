@@ -1,33 +1,11 @@
 package cz.cuni.mff.respefo;
 
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowData;
-import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TabFolder;
-import org.eclipse.swt.widgets.TabItem;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeColumn;
-import org.eclipse.swt.widgets.TreeItem;
-import org.swtchart.Chart;
-import org.swtchart.IAxis;
-import org.swtchart.IAxis.Position;
-import org.swtchart.ILineSeries;
-import org.swtchart.ISeries.SeriesType;
-import org.swtchart.LineStyle;
 
 public class Util {
 	
@@ -256,7 +234,8 @@ public class Util {
 		
 		FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN);
 		dialog.setText("Import file");
-		
+		dialog.setFilterPath(ReSpefo.getFilterPath());
+			
 		String[] filterNames = new String[] { "Spectrum Files", "All Files (*)" };
 		String[] filterExtensions = new String[] { "*.fits;*.fit;*.fts;*.txt;*.rui;*.uui", "*" };
 		//String platform = SWT.getPlatform();
@@ -265,6 +244,11 @@ public class Util {
 		dialog.setFilterExtensions(filterExtensions);
 
 		String s = dialog.open();
+		
+		if (Paths.get(s).getParent() != null) {
+			ReSpefo.setFilterPath(Paths.get(s).getParent().toString());
+		}
+		
 		String extension;
 		if (s == null) {
 			return null;
