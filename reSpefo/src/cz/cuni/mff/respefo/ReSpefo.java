@@ -10,6 +10,7 @@ import org.swtchart.Chart;
 
 import cz.cuni.mff.respefo.Listeners.FileExportItemListener;
 import cz.cuni.mff.respefo.Listeners.FileImportItemListener;
+import cz.cuni.mff.respefo.Listeners.FileQuitItemListener;
 import cz.cuni.mff.respefo.Listeners.MeasureRVItemListener;
 import cz.cuni.mff.respefo.Listeners.RectifyItemListener;
 
@@ -25,7 +26,7 @@ public class ReSpefo {
 
 	private static MenuItem fileMenuHeader, toolsMenuHeader;
 
-	private static MenuItem fileExportItem, fileImportItem, rectifyItem, measureRVItem;
+	private static MenuItem fileQuitItem, fileExportItem, fileImportItem, rectifyItem, measureRVItem;
 
 	private static Spectrum spectrum;
 
@@ -56,6 +57,12 @@ public class ReSpefo {
 		fileExportItem = new MenuItem(fileMenu, SWT.PUSH);
 		fileExportItem.setText("&Export\tCtrl+E");
 		fileExportItem.setAccelerator('E' | SWT.CTRL);
+		
+		new MenuItem(fileMenu, SWT.SEPARATOR);
+		
+		fileQuitItem = new MenuItem(fileMenu, SWT.PUSH);
+		fileQuitItem.setText("&Quit\tCtrl+Q");
+		fileQuitItem.setAccelerator('Q' | SWT.CTRL);
 
 		toolsMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
 		toolsMenuHeader.setText("&Tools");
@@ -73,6 +80,8 @@ public class ReSpefo {
 
 		fileExportItem.addSelectionListener(new FileExportItemListener());
 		fileImportItem.addSelectionListener(new FileImportItemListener());
+		fileQuitItem.addSelectionListener(new FileQuitItemListener());
+		
 		rectifyItem.addSelectionListener(new RectifyItemListener());
 		measureRVItem.addSelectionListener(new MeasureRVItemListener());
 
