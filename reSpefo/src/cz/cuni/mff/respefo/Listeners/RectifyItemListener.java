@@ -292,6 +292,20 @@ public class RectifyItemListener implements SelectionListener {
 					}	
 				}
 				break;
+			case SWT.INSERT:
+				Point p = new Point((Xrange.upper + Xrange.lower)/2, (Yrange.upper + Yrange.lower)/2);
+				cont.add(p);
+				
+				points.setXSeries(getXData());
+				points.setYSeries(getYData());
+				
+				continuum.setYSeries(getIntepData(spectrum.getXSeries()));
+				
+				index = cont.headSet(p).size();
+				
+				selected.setXSeries(new double[] { p.x });
+				selected.setYSeries(new double[] { p.y });
+				break;
 			case SWT.DEL:
 				if (cont.size() > 1) {
 					cont.remove(getAt(index));

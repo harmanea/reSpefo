@@ -3,6 +3,7 @@ package cz.cuni.mff.respefo.Listeners;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Paths;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -30,6 +31,7 @@ public class FileExportItemListener implements SelectionListener {
 		
 		FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.SAVE);
 		dialog.setText("Export File");
+		dialog.setFilterPath(ReSpefo.getFilterPath());
 		
 		String[] filterNames = new String[] { "Spectrum Files", "All Files (*)" };
 		String[] filterExtensions = new String[] { "*.fits;*.fit;*.fts;*.txt;*.rui;*.uui", "*" };
@@ -40,6 +42,11 @@ public class FileExportItemListener implements SelectionListener {
 		dialog.setFileName(spectrum.name());
 
 		String s = dialog.open();
+		
+		if (Paths.get(s).getParent() != null) {
+			ReSpefo.setFilterPath(Paths.get(s).getParent().toString());
+		}
+		
 		String extension;
 		if (s == null) {
 			return;

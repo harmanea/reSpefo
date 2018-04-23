@@ -245,7 +245,7 @@ public class Util {
 
 		String s = dialog.open();
 		
-		if (Paths.get(s).getParent() != null) {
+		if (s != null && Paths.get(s).getParent() != null) {
 			ReSpefo.setFilterPath(Paths.get(s).getParent().toString());
 		}
 		

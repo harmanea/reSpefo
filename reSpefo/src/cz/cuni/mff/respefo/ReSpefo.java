@@ -16,27 +16,23 @@ import cz.cuni.mff.respefo.Listeners.RectifyItemListener;
 
 public class ReSpefo {
 
-	public static final String version = "0.4.4";
+	public static final String version = "0.4.5";
 
 	private static Display display;
-
 	private static Shell shell;
 
 	private static Menu menuBar, fileMenu, toolsMenu;
-
 	private static MenuItem fileMenuHeader, toolsMenuHeader;
-
 	private static MenuItem fileQuitItem, fileExportItem, fileImportItem, rectifyItem, measureRVItem;
 
 	private static Spectrum spectrum;
-
 	private static Chart chart;
-
-	private static String filterPath = "";
+	private static String filterPath = System.getProperty("user.dir");
 
 	public ReSpefo() {
 
 		display = new Display();
+		Display.setAppName("reSpefo");
 		shell = new Shell(display);
 		shell.setText("reSpefo (v" + version + ")");
 		shell.setSize(1000, 1000);
