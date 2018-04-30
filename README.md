@@ -20,4 +20,4 @@ The project isn't ready to be contributed to just yet.
 - **Adam Harmanec** - *initial work* - first project contributor
 
 ## License
-The project is being developed under Eclipse Public License v1.0 ([EPL](http://www.eclipse.org/legal/epl-v10.html))
+The project is being developed under Eclipse Public License v2.0 ([EPL](https://github.com/harmanea/reSpefo/blob/master/LICENSE))
