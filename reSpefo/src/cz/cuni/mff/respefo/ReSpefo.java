@@ -22,7 +22,7 @@ import cz.cuni.mff.respefo.Listeners.RectifyItemListener;
  */
 public class ReSpefo {
 
-	public static final String version = "0.5.1";
+	public static final String version = "0.5.2";
 
 	private static Display display;
 	private static Shell shell;
@@ -46,6 +46,7 @@ public class ReSpefo {
 
 		menuBar = new Menu(shell, SWT.BAR);
 
+		// File menu
 		fileMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
 		fileMenuHeader.setText("&File");
 
@@ -55,17 +56,21 @@ public class ReSpefo {
 		fileImportItem = new MenuItem(fileMenu, SWT.PUSH);
 		fileImportItem.setText("&Import\tCtrl+I");
 		fileImportItem.setAccelerator('I' | SWT.CTRL);
+		fileImportItem.addSelectionListener(new FileImportItemListener());
 
 		fileExportItem = new MenuItem(fileMenu, SWT.PUSH);
 		fileExportItem.setText("&Export\tCtrl+E");
 		fileExportItem.setAccelerator('E' | SWT.CTRL);
+		fileExportItem.addSelectionListener(new FileExportItemListener());
 		
 		new MenuItem(fileMenu, SWT.SEPARATOR);
 		
 		fileQuitItem = new MenuItem(fileMenu, SWT.PUSH);
 		fileQuitItem.setText("&Quit\tCtrl+Q");
 		fileQuitItem.setAccelerator('Q' | SWT.CTRL);
+		fileQuitItem.addSelectionListener(new FileQuitItemListener());
 
+		// Tools menu
 		toolsMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
 		toolsMenuHeader.setText("&Tools");
 
@@ -75,18 +80,14 @@ public class ReSpefo {
 		rectifyItem = new MenuItem(toolsMenu, SWT.PUSH);
 		rectifyItem.setText("&Rectify\tCtrl+R");
 		rectifyItem.setAccelerator('R' | SWT.CTRL);
+		rectifyItem.addSelectionListener(new RectifyItemListener());
 
 		measureRVItem = new MenuItem(toolsMenu, SWT.PUSH);
 		measureRVItem.setText("&Measure RV\tCtrl+M");
-		measureRVItem.setAccelerator('M' | SWT.CTRL);
-
-		fileExportItem.addSelectionListener(new FileExportItemListener());
-		fileImportItem.addSelectionListener(new FileImportItemListener());
-		fileQuitItem.addSelectionListener(new FileQuitItemListener());
-		
-		rectifyItem.addSelectionListener(new RectifyItemListener());
+		measureRVItem.setAccelerator('M' | SWT.CTRL);	
 		measureRVItem.addSelectionListener(new MeasureRVItemListener());
 
+		
 		shell.setMenuBar(menuBar);
 		
 		shell.open();

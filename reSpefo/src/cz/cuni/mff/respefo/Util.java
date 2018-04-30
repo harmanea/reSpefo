@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 
 public class Util {
@@ -262,6 +263,16 @@ public class Util {
 	        output[i] = input[i];
 	    }
 	    return output;
+	}
+	
+	public static void clearListeners() {
+		for (Listener l : ReSpefo.getShell().getListeners(SWT.KeyDown)) {
+			ReSpefo.getShell().removeListener(SWT.KeyDown, l);
+		}
+		
+		for (Listener l : ReSpefo.getShell().getListeners(SWT.MouseDown)) {
+			ReSpefo.getShell().removeListener(SWT.MouseDown, l);
+		}
 	}
 	
 	public static Spectrum importSpectrum() {

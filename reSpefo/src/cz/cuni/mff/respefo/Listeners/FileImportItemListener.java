@@ -24,9 +24,7 @@ public class FileImportItemListener implements SelectionListener {
 			return;
 		}
 
-		for (Listener l : ReSpefo.getShell().getListeners(SWT.KeyDown)) {
-			ReSpefo.getShell().removeListener(SWT.KeyDown, l);
-		}
+		Util.clearListeners();
 
 		ReSpefo.setSpectrum(spectrum);
 

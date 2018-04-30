@@ -137,13 +137,7 @@ public class RectifyItemListener implements SelectionListener {
 		
 		index = 0;
 		
-		for (Listener l : ReSpefo.getShell().getListeners(SWT.KeyDown)) {
-			ReSpefo.getShell().removeListener(SWT.KeyDown, l);
-		}
-		
-		for (Listener l : ReSpefo.getShell().getListeners(SWT.MouseDown)) {
-			ReSpefo.getShell().removeListener(SWT.MouseDown, l);
-		}
+		Util.clearListeners();
 		
 		Chart chart = ReSpefo.getChart();
 		

@@ -9,6 +9,25 @@ import org.swtchart.IAxis;
 import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.ReSpefo;
 
+/**
+ * Adds the default movement capabilities
+ * 
+ * Listens for:
+ * 'w' / Arrow Up = Move the view up
+ * 'a' / Arrow Left = Move the view left
+ * 's' / Arrow Down = Move the view down
+ * 'd' / Arrow Right = Move the view right
+ * 
+ * '+' = Zoom in
+ * '-' = Zoom out
+ * 
+ * '8' / Numpad 8 = Zoom in Y Axis
+ * '2' / Numpad 2 = Zoom Out Y Axis
+ * '6' / Numpad 6 = Zoom in X Axis
+ * '4' / Numpad 4 = Zoom Out X Axis
+ * 
+ * Space = Adjust the view so that all series are visible
+ */
 public class DefaultMovementListener implements KeyListener {
 
 	@Override
@@ -43,36 +62,36 @@ public class DefaultMovementListener implements KeyListener {
 		case SWT.SPACE:
 			ChartBuilder.adjustRange(chart);
 			break;
-		case '+': // +
+		case '+':
 		case 16777259:
 		case 49:
 			chart.getAxisSet().zoomIn();
 			break;
-		case '-': // -
+		case '-':
 		case 16777261:
 		case 47:
 			chart.getAxisSet().zoomOut();
 			break;
 		case '8':
-		case SWT.KEYPAD_8: // NumPad up
+		case SWT.KEYPAD_8:
 			for (IAxis i : chart.getAxisSet().getYAxes()) {
 				i.zoomIn();
 			}
 			break;
 		case '2':
-		case SWT.KEYPAD_2: // NumPad down
+		case SWT.KEYPAD_2:
 			for (IAxis i : chart.getAxisSet().getYAxes()) {
 				i.zoomOut();
 			}
 			break;
 		case '4':
-		case SWT.KEYPAD_4: // NumPad left
+		case SWT.KEYPAD_4:
 			for (IAxis i : chart.getAxisSet().getXAxes()) {
 				i.zoomOut();
 			}
 			break;
 		case '6':
-		case SWT.KEYPAD_6: // NumPad right
+		case SWT.KEYPAD_6:
 			for (IAxis i : chart.getAxisSet().getXAxes()) {
 				i.zoomIn();
 			}
