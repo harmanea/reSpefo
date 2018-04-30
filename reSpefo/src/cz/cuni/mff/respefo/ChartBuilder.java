@@ -11,10 +11,10 @@ import org.swtchart.Chart;
 import org.swtchart.IAxis;
 import org.swtchart.IAxisSet;
 import org.swtchart.ILineSeries;
-import org.swtchart.LineStyle;
-import org.swtchart.Range;
 import org.swtchart.ILineSeries.PlotSymbolType;
 import org.swtchart.ISeries.SeriesType;
+import org.swtchart.LineStyle;
+import org.swtchart.Range;
 
 /**
  * Class for easier creation of charts

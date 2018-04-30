@@ -1,11 +1,10 @@
 package cz.cuni.mff.respefo.Listeners;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Listener;
 import org.swtchart.Chart;
 import org.swtchart.LineStyle;
+
 import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
