@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import cz.cuni.mff.respefo.Spectrum.Type;
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.Fits;
 import nom.tam.fits.FitsException;
@@ -57,7 +58,9 @@ public final class SpectrumBuilder {
 		} catch (Exception e) {
 			return null;
 		}
-		return new Spectrum(XSeries, YSeries, name);
+		Spectrum s = new Spectrum(XSeries, YSeries, name);
+		s.setType(Type.ASCII);
+		return s;
 	}
 	
 	public static Spectrum importFromFitsFile(String file) {
@@ -137,7 +140,9 @@ public final class SpectrumBuilder {
 					
 					XSeries = Util.fillArray(YSeries.length, (CRPIX - 1) * CDELT + CRVAL, CDELT);
 					
-					return new Spectrum(XSeries, YSeries, name);
+					Spectrum s = new Spectrum(XSeries, YSeries, name);
+					s.setType(Type.FITS);
+					return s;
 				}
 			}
 			

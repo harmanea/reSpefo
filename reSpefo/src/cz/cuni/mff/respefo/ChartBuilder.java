@@ -16,6 +16,10 @@ import org.swtchart.Range;
 import org.swtchart.ILineSeries.PlotSymbolType;
 import org.swtchart.ISeries.SeriesType;
 
+/**
+ * Class for easier creation of charts
+ *
+ */
 public class ChartBuilder {
 	public static final Color black = new Color(Display.getDefault(), 0, 0, 0);
 	public static final Color blue = new Color(Display.getDefault(), 0, 0, 255);
@@ -51,31 +55,69 @@ public class ChartBuilder {
 		chart.getLegend().setVisible(false);
 	}
 	
+	/**
+	 * Instantiates new chart with the shell as parent
+	 * 
+	 * @param shell to be set as chart's parent
+	 */
 	public ChartBuilder(Shell shell) {
 		chart = new Chart(shell, SWT.NONE);
 		series = new ArrayList<>();
 	}
 	
+	/**
+	 * Instantiates new chart with the composite as parent
+	 * 
+	 * @param parent to be set as chart's parent
+	 */
 	public ChartBuilder(Composite parent) {
 		chart = new Chart(parent, SWT.NONE);
 		series = new ArrayList<>();
 	}
 	
+	/**
+	 * Sets the chart's title
+	 * 
+	 * @param title to be set as the chart's title
+	 * @return the adjusted ChartBuilder
+	 */
 	public ChartBuilder setTitle(String title) {
 		chart.getTitle().setText(title);
 		return this;
 	}
 	
+	/**
+	 * Sets the chart's XAxis label
+	 * 
+	 * @param label to be set as the chart's XAxis label
+	 * @return the adjusted ChartBuilder
+	 */
 	public ChartBuilder setXAxisLabel(String label) {
 		chart.getAxisSet().getXAxis(0).getTitle().setText(label);
 		return this;
 	}
 	
+	/**
+	 * Sets the chart's YAxis label
+	 * 
+	 * @param label to be set as the chart's YAxis label
+	 * @return the adjusted ChartBuilder
+	 */
 	public ChartBuilder setYAxisLabel(String label) {
 		chart.getAxisSet().getYAxis(0).getTitle().setText(label);
 		return this;
 	}
 	
+	/**
+	 * Adds a new series to the chart
+	 * 
+	 * @param style of the added series, LineStyle.NONE implies the series will be scatter type
+	 * @param name of the added series
+	 * @param color of the added series
+	 * @param XSeries of the added series
+	 * @param YSeries of the added series
+	 * @return the adjusted ChartBuilder
+	 */
 	public ChartBuilder addSeries(LineStyle style, String name, Color color, double[] XSeries, double[] YSeries) {
 		ILineSeries ser = (ILineSeries) chart.getSeriesSet().createSeries(SeriesType.LINE, name);
 		ser.setXSeries(XSeries);
@@ -117,28 +159,55 @@ public class ChartBuilder {
 		return this;
 	}
 	
+	/**
+	 * Adjusts the view so that all series are fully visible
+	 * 
+	 * @return the adjusted ChartBuilder
+	 */
 	public ChartBuilder adjustRange() {
 		adjustRange(chart);
 		return this;
 	}
 	
-	public ChartBuilder adjustRange(int index) { // where index means position in which it was added
+	/**
+	 * Adjusts the view so that one series is fully visible
+	 * 
+	 * @param index of the series to be centered (as order of insertion)
+	 * @return the adjusted ChartBuilder
+	 */
+	public ChartBuilder adjustRange(int index) {
 		int XAxisId = series.get(index).getXAxisId();
 		int YAxisId = series.get(index).getXAxisId();
 		adjustRange(chart, XAxisId, YAxisId);
 		return this;
 	}
 	
+	/**
+	 * Returns the created chart
+	 * 
+	 * @return the created Chart
+	 */
 	public Chart build() {
 		setTheme(chart);
 		return chart;
 	}
 	
-	
+	/**
+	 * Adjusts the chart range so that all series are fully visible
+	 * 
+	 * @param c chart to be adjusted
+	 */
 	public static void adjustRange(Chart c) {
 		adjustRange(c, 0, 0);
 	}
 	
+	/**
+	 * Adjusts the chart so that one of the series is fully visible
+	 * 
+	 * @param c chart to be adjusted
+	 * @param XAxisId to be adjusted around
+	 * @param YAxisId to be adjusted around
+	 */
 	public static void adjustRange(Chart c, int XAxisId, int YAxisId) {
 		c.getAxisSet().adjustRange();
 		if (c.getAxisSet().getAxes().length > 2) {

@@ -145,13 +145,22 @@ public class Util {
 	}
 	
 	public static double[] applyBScale(double[] array, double BZero, double BScale) {
-		for(int i = 0; i < array.length; i++) {
-			array[i] *= BScale;
-			array[i] += BZero;
+		double[] result = new double[array.length];
+		for(int i = 0; i < result.length; i++) {
+			result[i] = array[i] * BScale;
+			result[i] += BZero;
 		}
-		return array;
+		return result;
 	}
 	
+	/**
+	 * Creates a new array and fills it with values
+	 * 
+	 * @param size of the new array
+	 * @param from first value in the array
+	 * @param step difference between two values
+	 * @return the created array
+	 */
 	public static double[] fillArray(int size, double from, double step) {
 		double[] result = new double[size];
 		for (int i = 0; i < size; i++) {
@@ -160,6 +169,11 @@ public class Util {
 		return result;
 	}
 	
+	/**
+	 * 
+	 * @param input array of floats to be converted to doubles
+	 * @return array of doubles
+	 */
 	public static double[] convertFloatsToDoubles(float[] input)
 	{
 	    if (input == null)
@@ -173,6 +187,12 @@ public class Util {
 	    }
 	    return output;
 	}
+	
+	/**
+	 * 
+	 * @param input array of ints to be converted to doubles
+	 * @return array of doubles
+	 */
 	public static double[] convertIntsToDoubles(int[] input)
 	{
 	    if (input == null)
@@ -187,6 +207,11 @@ public class Util {
 	    return output;
 	}
 	
+	/**
+	 * 
+	 * @param input array of shorts to be converted to doubles
+	 * @return array of doubles
+	 */
 	public static double[] convertShortsToDoubles(short[] input)
 	{
 	    if (input == null)
@@ -201,6 +226,11 @@ public class Util {
 	    return output;
 	}
 	
+	/**
+	 * 
+	 * @param input array of longs to be converted to doubles
+	 * @return array of doubles
+	 */
 	public static double[] convertLongsToDoubles(long[] input)
 	{
 	    if (input == null)
@@ -215,6 +245,11 @@ public class Util {
 	    return output;
 	}
 	
+	/**
+	 * 
+	 * @param input array of bytes to be converted to doubles
+	 * @return array of doubles
+	 */
 	public static double[] convertBytesToDoubles(byte[] input)
 	{
 	    if (input == null)

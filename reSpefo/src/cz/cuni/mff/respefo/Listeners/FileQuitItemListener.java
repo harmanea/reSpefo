@@ -15,7 +15,7 @@ public class FileQuitItemListener implements SelectionListener {
 		MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_INFORMATION | SWT.YES | SWT.NO);
 		mb.setMessage("Are you sure you want to quit?");
 		if (mb.open() == SWT.YES) {
-			System.exit(0);
+			ReSpefo.getShell().dispose();
 		}	
 	}
 	

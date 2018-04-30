@@ -14,9 +14,15 @@ import cz.cuni.mff.respefo.Listeners.FileQuitItemListener;
 import cz.cuni.mff.respefo.Listeners.MeasureRVItemListener;
 import cz.cuni.mff.respefo.Listeners.RectifyItemListener;
 
+/**
+ * Main class responsible for creating a display and a shell for the application
+ * 
+ * @author Adam Harmanec
+ *
+ */
 public class ReSpefo {
 
-	public static final String version = "0.4.5";
+	public static final String version = "0.5.1";
 
 	private static Display display;
 	private static Shell shell;
@@ -82,16 +88,13 @@ public class ReSpefo {
 		measureRVItem.addSelectionListener(new MeasureRVItemListener());
 
 		shell.setMenuBar(menuBar);
+		
 		shell.open();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())
 				display.sleep();
 		}
 		display.dispose();
-	}
-
-	public static void main(String[] args) {
-		new ReSpefo();
 	}
 
 	public static Shell getShell() {
@@ -120,5 +123,9 @@ public class ReSpefo {
 
 	public static void setFilterPath(String path) {
 		ReSpefo.filterPath = path;
+	}
+	
+	public static void main(String[] args) {
+		new ReSpefo();
 	}
 }
