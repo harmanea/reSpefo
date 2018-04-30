@@ -1,6 +1,5 @@
 package cz.cuni.mff.respefo.Listeners;
 
-import java.awt.EventQueue;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,23 +7,17 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -36,13 +29,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.swtchart.Chart;
 import org.swtchart.IAxis;
-import org.swtchart.IAxis.Position;
-import org.swtchart.IAxisSet;
 import org.swtchart.ILineSeries;
 import org.swtchart.LineStyle;
-import org.swtchart.Range;
-import org.swtchart.ILineSeries.PlotSymbolType;
-import org.swtchart.ISeries.SeriesType;
 
 import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.ReSpefo;
@@ -75,8 +63,8 @@ public class MeasureRVItemListener implements SelectionListener {
 	}
 
 	private class EmptyResult extends Result {
-		public EmptyResult(double RV, int category, String comment) {
-			super(RV, category, comment);
+		public EmptyResult() {
+			super(0, 0, null);
 		}
 	}
 
@@ -199,10 +187,26 @@ public class MeasureRVItemListener implements SelectionListener {
 
 			try (PrintWriter writer = new PrintWriter(
 					ReSpefo.getFilterPath() + File.separator + ReSpefo.getSpectrum().name() + ".rv")) {
+				
+				String format = " %1.10E";
+				writer.println(String.format(format, ReSpefo.getSpectrum().getX(0)));
+				ILineSeries ser = (ILineSeries) ReSpefo.getChart().getSeriesSet().getSeries("mirrored");
+				writer.println(String.format(format, ser.getXSeries()[1] - ser.getXSeries()[0]));
+				
+				// polynomial coefficients
+				writer.println(String.format(format, (double) 0));
+				writer.println(String.format(format, (double) 0));
+				writer.println(String.format(format, (double) 0));
+				writer.println(String.format(format, (double) 0));
+				writer.println(String.format(format, (double) 1));
+				
+				int i = 0;
 				for (Result r : results) {
 					if (!(r instanceof EmptyResult)) {
-						writer.println(r.RV + "\t" + r.category + "\t" + r.comment);
+						Measurement m = measures.get(i);
+						writer.println(r.RV + "\t" + m.radius + "\t" + (double) 0 + "\t" + r.category + "\t" + m.l0 + "\t" + m.name + "\t" + r.comment);
 					}
+					i++;
 				}
 			} catch (FileNotFoundException e) {
 				MessageBox warning = new MessageBox(ReSpefo.getShell(), SWT.ICON_ERROR | SWT.OK);
@@ -350,7 +354,7 @@ public class MeasureRVItemListener implements SelectionListener {
 				break;
 
 			case 'q':
-				results.add(new EmptyResult(0, 0, null));
+				results.add(new EmptyResult());
 				measureNext();
 				return;
 
