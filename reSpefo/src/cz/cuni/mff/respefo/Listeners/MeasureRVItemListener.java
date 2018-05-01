@@ -39,7 +39,6 @@ import cz.cuni.mff.respefo.Util;
 public class MeasureRVItemListener implements SelectionListener {
 	private class Measurement {
 		public Measurement(double l0, double radius, String name) {
-			super();
 			this.l0 = l0;
 			this.radius = radius;
 			this.name = name;
@@ -149,12 +148,11 @@ public class MeasureRVItemListener implements SelectionListener {
 			double[] XSeries = spectrum.getXSeries();
 			double[] YSeries = spectrum.getYSeries();
 			
-			// TODO needs to be adjusted
 			double middle = m.l0;
 			double radius = m.radius;
 			
 			double[] mirroredXSeries = spectrum.getTrimmedXSeries(middle - radius, middle + radius);
-			double[] mirroredYSeries = spectrum.getTrimmedXSeries(middle - radius, middle + radius);
+			double[] mirroredYSeries = spectrum.getTrimmedYSeries(middle - radius, middle + radius);
 			
 			Util.mirrorArray(mirroredYSeries);
 
@@ -163,7 +161,7 @@ public class MeasureRVItemListener implements SelectionListener {
 			if (chart != null) {
 				chart.dispose();
 			}
-			chart = new ChartBuilder(ReSpefo.getShell()).setTitle(m.name).setXAxisLabel("RV (km/s)")
+			chart = new ChartBuilder(ReSpefo.getShell()).setTitle(m.name).setXAxisLabel("wavelength (Å)")
 					.setYAxisLabel("relative flux I(λ)")
 					.addSeries(LineStyle.SOLID, "original", ChartBuilder.green, XSeries, YSeries)
 					.addSeries(LineStyle.SOLID, "mirrored", ChartBuilder.blue, mirroredXSeries, mirroredYSeries).adjustRange(1)
@@ -180,7 +178,7 @@ public class MeasureRVItemListener implements SelectionListener {
 			
 			double[] X = new double[measures.size()];
 			for (int i = 0; i < X.length; i++) {
-				X[i] = measures.get(i).l0; // TODO these need to be adjusted
+				X[i] = measures.get(i).l0;
 			}
 			double Y[] = Util.intep(spectrum.getXSeries(), spectrum.getYSeries(), X);
 			
@@ -229,6 +227,8 @@ public class MeasureRVItemListener implements SelectionListener {
 							widgetSelected(null);
 
 						} else {
+							measures = null;
+							
 							Chart chart = ReSpefo.getChart();
 
 							if (chart != null) {
@@ -265,7 +265,6 @@ public class MeasureRVItemListener implements SelectionListener {
 			writer.println(String.format(format, (double) 1));
 			
 			for (Result r : results) {
-				// TODO first two values need to be adjusted
 				writer.println(r.rV + "\t"
 							+ r.radius + "\t"
 							+ (double) 0 + "\t"
@@ -286,7 +285,7 @@ public class MeasureRVItemListener implements SelectionListener {
 
 		Util.clearListeners();
 
-		if (measures == null) { // only happens the first time
+		if (event != null) { // only happens the first time
 			measures = getMeasurements();
 			if (measures == null) {
 				return;
@@ -309,7 +308,7 @@ public class MeasureRVItemListener implements SelectionListener {
 		double[] XSeries = spectrum.getXSeries();
 		double[] YSeries = spectrum.getYSeries();
 		
-		double deltaRV = (XSeries[1] - XSeries[0]) / 3;
+		double deltaRV = ((XSeries[1] - XSeries[0]) * c) / (XSeries[0] * 3);
 		
 		double[] newXSeries = new double[XSeries.length * 3 - 2];
 		newXSeries[0] = XSeries[0];
@@ -445,8 +444,8 @@ public class MeasureRVItemListener implements SelectionListener {
 					Measurement m = measures.get(index);
 
 					double l0 = m.l0;
-					double rV = (c * diff) / l0; // TODO l0 needs to be adjusted
-					double radius = m.radius; // TODO needs to be adjusted
+					double rV = (c * diff) / l0;
+					double radius = m.radius;
 					int category = result;
 					String name = m.name;
 					String comment = dialog.getComment();
