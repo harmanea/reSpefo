@@ -4,7 +4,7 @@ An online repository for the school project reSpefo.
 It is an attempt to rewrite the old program [Spefo](http://stelweb.asu.cas.cz/retarchive/pages/software/spefo/spefo.html) written in Turbo Pascal into Java using modern tools.
 
 ## Getting Started
-To run the program simply download the code and compile it with the following libraries:
+To run the program simply download the code and compile it.
 ### Prerequisites
 reSpefo uses the following libraries:
 - [SWT](https://www.eclipse.org/swt/)
