@@ -134,8 +134,8 @@ public final class SpectrumBuilder {
 						name = name.substring(0, pos);
 					}
 					
-					double CRPIX = HDUs[i].getHeader().getDoubleValue("CRPIX" + (i + 1), 0);
-					double CDELT = HDUs[i].getHeader().getDoubleValue("CDELT" + (i + 1), 1);
+					double CRPIX = HDUs[i].getHeader().getDoubleValue("CRPIX" + (i + 1), 1);
+					double CDELT = HDUs[i].getHeader().getDoubleValue("CRDELT" + (i + 1), 1);
 					double CRVAL = HDUs[i].getHeader().getDoubleValue("CRVAL" + (i + 1), 0);
 					
 					XSeries = Util.fillArray(YSeries.length, (CRPIX - 1) * CDELT + CRVAL, CDELT);
