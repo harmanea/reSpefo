@@ -2,6 +2,9 @@ package cz.cuni.mff.respefo;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.Fits;
@@ -44,11 +47,11 @@ public final class SpectrumPrinter {
 
 		Fits f = new Fits();
 		BasicHDU<?> hdu = FitsFactory.hduFactory(data);
-		hdu.addValue("SIMPLE", true, "Created by reSpefo");
 		hdu.addValue("CRPIX1", 1, "Reference pixel");
 		hdu.addValue("CRVAL1", spectrum.getX(0), "Coordinate at reference pixel");
-		hdu.addValue("CRDELT1", spectrum.getX(1) - spectrum.getX(0), "Coordinate increment");
+		hdu.addValue("CDELT1", spectrum.getX(1) - spectrum.getX(0), "Coordinate increment");
 		f.addHDU(hdu);
+		f.getHDU(0).addValue("SIMPLE", true, "Created by reSpefo v" + ReSpefo.version + " on " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 
 		BufferedFile bf = new BufferedFile(file, "rw");
 		f.write(bf);

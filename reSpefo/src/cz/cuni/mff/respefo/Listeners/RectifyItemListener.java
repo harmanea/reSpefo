@@ -8,9 +8,13 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.MessageBox;
 import org.swtchart.Chart;
 import org.swtchart.IAxis;
@@ -39,8 +43,13 @@ public class RectifyItemListener implements SelectionListener {
 		}
 	}
 	
-	private static TreeSet<Point> cont = new TreeSet<>();
-	private static int index = 0;
+	private TreeSet<Point> cont = new TreeSet<>();
+	private int index = 0;
+	
+	private boolean drag = false;
+	private long startMillis;
+	private int startX, startY;
+	private int prevX, prevY;
 	
 	private Point getAt(int index) {
 		if (index < 0 || index >= cont.size()) {
@@ -155,6 +164,55 @@ public class RectifyItemListener implements SelectionListener {
 
 			@Override
 			public void mouseDown(MouseEvent e) {
+				drag = true;
+				startMillis = System.currentTimeMillis();
+				
+				startX = e.x;
+				startY = e.y;
+				
+				prevX = e.x;
+				prevY = e.y;
+			}
+
+			@Override
+			public void mouseUp(MouseEvent e) {
+				drag = false;
+				
+				if (System.currentTimeMillis() - startMillis > 50) {
+					Chart chart = ReSpefo.getChart();
+					Range ChartXRange = chart.getAxisSet().getXAxis(0).getRange();
+					Range ChartYRange = chart.getAxisSet().getYAxis(0).getRange();
+					
+					Rectangle bounds = chart.getPlotArea().getBounds();
+					
+					Range XRange = new Range(ChartXRange.lower + (ChartXRange.upper - ChartXRange.lower) * startX / bounds.width,
+							ChartXRange.lower + (ChartXRange.upper - ChartXRange.lower) * e.x / bounds.width);
+					Range YRange = new Range(ChartYRange.lower + (ChartYRange.upper - ChartYRange.lower) * (bounds.height - startY) / bounds.height,
+							ChartYRange.lower + (ChartYRange.upper - ChartYRange.lower) * (bounds.height - e.y) / bounds.height);
+					
+					Point selected = null;
+					int i = 0;
+					for (Point p : cont) {
+						if (XRange.lower < p.x && XRange.upper > p.x && YRange.lower < p.y && YRange.upper > p.y) {
+							selected = p;
+							index = i;
+							break;
+						}
+						i++;
+					}
+					
+					if (selected != null) {
+						ILineSeries ser = (ILineSeries) chart.getSeriesSet().getSeries("selected");
+						ser.setXSeries(new double[] {selected.x} );
+						ser.setYSeries(new double[] {selected.y} );
+					}
+					
+					chart.redraw();
+				}
+			}
+
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
 				Chart chart = ReSpefo.getChart();
 				Rectangle bounds = chart.getPlotArea().getBounds();
 				Range XRange = chart.getAxisSet().getXAxis(0).getRange();
@@ -179,15 +237,28 @@ public class RectifyItemListener implements SelectionListener {
 				
 				chart.redraw();
 			}
-
+		});
+        
+        chart.getPlotArea().addMouseMoveListener(new MouseMoveListener() {
+			
 			@Override
-			public void mouseUp(MouseEvent e) {
+			public void mouseMove(MouseEvent arg0) {
+				if (drag) {
+					prevX = arg0.x;
+					prevY = arg0.y;
+					ReSpefo.getChart().redraw();
+				}
 			}
-
+		});
+        
+        chart.getPlotArea().addPaintListener(new PaintListener() {
+			
 			@Override
-			public void mouseDoubleClick(MouseEvent e) {
+			public void paintControl(PaintEvent arg0) {
+				if (drag) {
+					arg0.gc.drawRectangle(startX, startY, prevX - startX, prevY - startY);
+				}
 			}
-
 		});
         
         ReSpefo.getShell().addKeyListener(new DefaultMovementListener());

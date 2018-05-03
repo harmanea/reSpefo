@@ -1,5 +1,6 @@
 package cz.cuni.mff.respefo.Listeners;
 
+import java.awt.MouseInfo;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,8 +11,17 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -30,10 +40,12 @@ import org.swtchart.Chart;
 import org.swtchart.IAxis;
 import org.swtchart.ILineSeries;
 import org.swtchart.LineStyle;
+import org.swtchart.Range;
 
 import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
+import cz.cuni.mff.respefo.SpectrumPrinter;
 import cz.cuni.mff.respefo.Util;
 
 public class MeasureRVItemListener implements SelectionListener {
@@ -68,9 +80,17 @@ public class MeasureRVItemListener implements SelectionListener {
 	}
 
 	private static final double c = 299792.458; // speed of light
-	private static ArrayList<Measurement> measures;
-	private static ArrayList<Result> results;
-	private static int index;
+	private ArrayList<Measurement> measures;
+	private ArrayList<Result> results;
+	private int index;
+	
+	// for drag and drop
+	private boolean drag = false;
+	private int prevX;
+	
+	private int prevTime = 0; // to filter multiple events fired at the same time
+	
+	private double diff = 0; // to measure rv
 
 	private ArrayList<Measurement> getMeasurements() {
 		FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN);
@@ -151,8 +171,13 @@ public class MeasureRVItemListener implements SelectionListener {
 			double middle = m.l0;
 			double radius = m.radius;
 			
-			double[] mirroredXSeries = spectrum.getTrimmedXSeries(middle - radius, middle + radius);
+			double[] temp = spectrum.getTrimmedXSeries(middle - radius, middle + radius);
 			double[] mirroredYSeries = spectrum.getTrimmedYSeries(middle - radius, middle + radius);
+			
+			double[] mirroredXSeries = new double[temp.length];
+			for (int i = 0; i < temp.length; i++) {
+				mirroredXSeries[i] = 2 * m.l0 - temp[temp.length - 1 - i];
+			}
 			
 			Util.mirrorArray(mirroredYSeries);
 
@@ -168,6 +193,43 @@ public class MeasureRVItemListener implements SelectionListener {
 					.build();
 
 			ReSpefo.setChart(chart);
+			
+			ReSpefo.getChart().getPlotArea().addMouseListener(new MouseAdapter() {
+
+				@Override
+				public void mouseDown(MouseEvent arg0) {
+					prevX = arg0.x;
+					drag = true;
+				}
+
+				@Override
+				public void mouseUp(MouseEvent arg0) {
+					drag = false;
+				}
+			
+			});
+			
+			ReSpefo.getChart().getPlotArea().addMouseMoveListener(new MouseMoveListener() {
+				
+				@Override
+				public void mouseMove(MouseEvent arg0) {
+					if (drag) {				
+						Chart chart = ReSpefo.getChart();
+						ILineSeries ser = (ILineSeries) chart.getSeriesSet().getSeries("mirrored");
+						Range XRange = chart.getAxisSet().getXAxis(ser.getXAxisId()).getRange();
+						
+						double diff = ((arg0.x - prevX) * (XRange.upper - XRange.lower)) / ReSpefo.getChart().getPlotArea().getBounds().width;
+						
+						ser.setXSeries(Util.adjustArrayValues(ser.getXSeries(), diff));
+						
+						chart.redraw();
+						
+						prevX = arg0.x;
+					}
+				}
+			});
+			
+			diff = 0;
 		} else {
 			Chart chart = ReSpefo.getChart();
 
@@ -264,6 +326,8 @@ public class MeasureRVItemListener implements SelectionListener {
 			writer.println(String.format(format, (double) 0));
 			writer.println(String.format(format, (double) 1));
 			
+			writer.println("rv\tradius\tnull\tcategory\tlambda\tname\tcomment");
+			
 			for (Result r : results) {
 				writer.println(r.rV + "\t"
 							+ r.radius + "\t"
@@ -319,11 +383,12 @@ public class MeasureRVItemListener implements SelectionListener {
 		double[] newYSeries = Util.intep(XSeries, YSeries, newXSeries);
 		
 		ReSpefo.setSpectrum(new Spectrum(newXSeries, newYSeries, spectrum.name()));
-
+		
 		results = new ArrayList<>();
 		index = 0;
 
 		ReSpefo.getShell().addKeyListener(new MeasureRVKeyAdapter());
+		ReSpefo.getShell().addKeyListener(new MeasureRVKeyAdapterNoRepeat());
 
 		measureNext();
 	}
@@ -332,19 +397,10 @@ public class MeasureRVItemListener implements SelectionListener {
 	public void widgetDefaultSelected(SelectionEvent event) {
 		this.widgetSelected(event);
 	}
-
-	static protected int prevTime = 0; // to filter multiple events fired at the same time
-
+	
 	private class MeasureRVKeyAdapter extends KeyAdapter {
-		double diff = 0;
 
-		public void keyPressed(KeyEvent e) {
-			if (e.time == prevTime) {
-				return;
-			} else {
-				prevTime = e.time;
-			}
-			
+		public void keyPressed(KeyEvent e) {			
 			Chart chart = ReSpefo.getChart();
 
 			int s = 1;
@@ -414,18 +470,31 @@ public class MeasureRVItemListener implements SelectionListener {
 					i.zoomIn();
 				}
 				break;
-
+			}
+			chart.redraw();
+		}
+	}
+	
+	private class MeasureRVKeyAdapterNoRepeat extends KeyAdapter {
+		public void keyPressed(KeyEvent e) {
+			if (e.time == prevTime) {
+				return;
+			} else {
+				prevTime = e.time;
+			}
+			
+			switch (e.keyCode) {
 			case 'm':
 				index++;
 				measureNext();
-				return;
+				break;
 				
 			case 'n':
 				if (index > 0) {
 					index--;
 					measureNext();
 				}
-				return;
+				break;
 
 			case SWT.BS:
 				if (results.size() > 0) {
@@ -435,7 +504,7 @@ public class MeasureRVItemListener implements SelectionListener {
 					index--;
 					measureNext();
 				}
-				return;
+				break;
 
 			case SWT.CR:
 				InputDialog dialog = new InputDialog(ReSpefo.getShell());
@@ -454,10 +523,8 @@ public class MeasureRVItemListener implements SelectionListener {
 					index++;
 					measureNext();
 				}
-				return;
-
+				break;
 			}
-			chart.redraw();
 		}
 	}
 
