@@ -27,6 +27,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -79,7 +80,7 @@ public class MeasureRVItemListener implements SelectionListener {
 		String comment;
 	}
 
-	private static final double c = 299792.458; // speed of light
+	private static final double c = 299792.458; // speed of light (km/s)
 	private ArrayList<Measurement> measures;
 	private ArrayList<Result> results;
 	private int index;
@@ -218,9 +219,10 @@ public class MeasureRVItemListener implements SelectionListener {
 						ILineSeries ser = (ILineSeries) chart.getSeriesSet().getSeries("mirrored");
 						Range XRange = chart.getAxisSet().getXAxis(ser.getXAxisId()).getRange();
 						
-						double diff = ((arg0.x - prevX) * (XRange.upper - XRange.lower)) / ReSpefo.getChart().getPlotArea().getBounds().width;
+						double change = ((arg0.x - prevX) * (XRange.upper - XRange.lower)) / ReSpefo.getChart().getPlotArea().getBounds().width;
+						diff += change;
 						
-						ser.setXSeries(Util.adjustArrayValues(ser.getXSeries(), diff));
+						ser.setXSeries(Util.adjustArrayValues(ser.getXSeries(), change));
 						
 						chart.redraw();
 						
@@ -347,6 +349,8 @@ public class MeasureRVItemListener implements SelectionListener {
 	@Override
 	public void widgetSelected(SelectionEvent event) {
 
+		new FilesInputDialog(ReSpefo.getShell()).open();
+		
 		Util.clearListeners();
 
 		if (event != null) { // only happens the first time
@@ -507,7 +511,7 @@ public class MeasureRVItemListener implements SelectionListener {
 				break;
 
 			case SWT.CR:
-				InputDialog dialog = new InputDialog(ReSpefo.getShell());
+				MeasurementInputDialog dialog = new MeasurementInputDialog(ReSpefo.getShell());
 				Integer result = dialog.open();
 				if (result != null) {
 					Measurement m = measures.get(index);
@@ -528,11 +532,11 @@ public class MeasureRVItemListener implements SelectionListener {
 		}
 	}
 
-	private class InputDialog extends Dialog {
+	private class MeasurementInputDialog extends Dialog {
 		private Integer value;
 		private String comment = "";
 
-		public InputDialog(Shell parent) {
+		public MeasurementInputDialog(Shell parent) {
 			super(parent, 0);
 		}
 
@@ -606,5 +610,43 @@ public class MeasureRVItemListener implements SelectionListener {
 
 			return value;
 		}
+	}
+	
+	private class FilesInputDialog extends Dialog {
+		public FilesInputDialog(Shell parent) {
+			super(parent, 0);
+		}
+		
+		public void open() {
+			Shell parent = getParent();
+			Shell shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.TITLE);
+			shell.setText("Select files");
+			Display display = parent.getDisplay();
+			
+			GridLayout layout = new GridLayout(1, false);
+			shell.setLayout(layout);
+			
+			Composite group1 = new Composite(shell, SWT.BORDER);
+			GridData gridData = new GridData(SWT.FILL,SWT.FILL, true, false);
+			gridData.horizontalSpan = 2;
+			group1.setLayoutData(gridData);
+			group1.setLayout(new GridLayout(2, true));
+			
+			Text text = new Text(group1, SWT.SINGLE | SWT.BORDER);
+			text.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
+			text.setText("file dialog");
+			
+			Button button = new Button(group1, SWT.PUSH | SWT.CENTER);
+			//button.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			button.setText("...");
+			
+			shell.pack();
+			shell.open();
+			while (!shell.isDisposed()) {
+				if (!display.readAndDispatch())
+					display.sleep();
+			}
+		}
+	
 	}
 }
