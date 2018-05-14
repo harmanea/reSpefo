@@ -13,6 +13,9 @@ reSpefo uses the following libraries:
 
 You need to download and add them to the project for it to work.
 
+## Documentation
+[Documentation](https://github.com/harmanea/reSpefo/wiki/Documentation) available at the GitHub wiki.
+
 ## Contributing
 The project isn't ready to be contributed to just yet.
 
