@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
@@ -92,6 +93,7 @@ public class MeasureRVItemListener implements SelectionListener {
 	private int prevTime = 0; // to filter multiple events fired at the same time
 	
 	private double diff = 0; // to measure rv
+	private double deltaRV;
 
 	private ArrayList<Measurement> getMeasurements() {
 		FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN);
@@ -166,28 +168,35 @@ public class MeasureRVItemListener implements SelectionListener {
 			Measurement m = measures.get(index);
 			Spectrum spectrum = ReSpefo.getSpectrum();
 			
-			double[] XSeries = spectrum.getXSeries();
+			if (spectrum.getTrimmedXSeries(m.l0 - m.radius, m.l0 + m.radius).length == 0) {
+				index++;
+				measureNext();
+				return;
+			}
+			
 			double[] YSeries = spectrum.getYSeries();
+			double[] origXSeries = spectrum.getXSeries();
+			double[] XSeries = Util.fillArray(YSeries.length, 1, 1);
 			
-			double middle = m.l0;
-			double radius = m.radius;
+			double mid = Util.intep(origXSeries, XSeries, new double[] { m.l0 })[0];
 			
-			double[] temp = spectrum.getTrimmedXSeries(middle - radius, middle + radius);
-			double[] mirroredYSeries = spectrum.getTrimmedYSeries(middle - radius, middle + radius);
+			double[] mirroredYSeries = spectrum.getTrimmedYSeries(m.l0 - m.radius, m.l0 + m.radius);
+			Util.mirrorArray(mirroredYSeries);
+			
+			int j = Arrays.binarySearch(origXSeries, spectrum.getTrimmedXSeries(m.l0 - m.radius, m.l0 + m.radius)[0]);
+			double[] temp = Util.fillArray(mirroredYSeries.length, j, 1);
 			
 			double[] mirroredXSeries = new double[temp.length];
 			for (int i = 0; i < temp.length; i++) {
-				mirroredXSeries[i] = 2 * m.l0 - temp[temp.length - 1 - i];
+				mirroredXSeries[i] = 2 * mid - temp[temp.length - 1 - i];
 			}
-			
-			Util.mirrorArray(mirroredYSeries);
 
 			Chart chart = ReSpefo.getChart();
 
 			if (chart != null) {
 				chart.dispose();
 			}
-			chart = new ChartBuilder(ReSpefo.getShell()).setTitle(m.name).setXAxisLabel("wavelength (Å)")
+			chart = new ChartBuilder(ReSpefo.getShell()).setTitle(m.name + " #" + (index + 1) + " (" + m.l0 + ")").setXAxisLabel("index")
 					.setYAxisLabel("relative flux I(λ)")
 					.addSeries(LineStyle.SOLID, "original", ChartBuilder.green, XSeries, YSeries)
 					.addSeries(LineStyle.SOLID, "mirrored", ChartBuilder.blue, mirroredXSeries, mirroredYSeries).adjustRange(1)
@@ -272,6 +281,7 @@ public class MeasureRVItemListener implements SelectionListener {
 						index--;
 						Util.clearListeners();
 						ReSpefo.getShell().addKeyListener(new MeasureRVKeyAdapter());
+						ReSpefo.getShell().addKeyListener(new MeasureRVKeyAdapterNoRepeat());
 						measureNext();
 						break;
 						
@@ -279,6 +289,7 @@ public class MeasureRVItemListener implements SelectionListener {
 						index--;
 						Util.clearListeners();
 						ReSpefo.getShell().addKeyListener(new MeasureRVKeyAdapter());
+						ReSpefo.getShell().addKeyListener(new MeasureRVKeyAdapterNoRepeat());
 						measureNext();
 						break;
 						
@@ -328,6 +339,7 @@ public class MeasureRVItemListener implements SelectionListener {
 			writer.println(String.format(format, (double) 0));
 			writer.println(String.format(format, (double) 1));
 			
+			// header
 			writer.println("rv\tradius\tnull\tcategory\tlambda\tname\tcomment");
 			
 			for (Result r : results) {
@@ -349,7 +361,7 @@ public class MeasureRVItemListener implements SelectionListener {
 	@Override
 	public void widgetSelected(SelectionEvent event) {
 
-		new FilesInputDialog(ReSpefo.getShell()).open();
+		// new FilesInputDialog(ReSpefo.getShell()).open();
 		
 		Util.clearListeners();
 
@@ -375,13 +387,24 @@ public class MeasureRVItemListener implements SelectionListener {
 		
 		double[] XSeries = spectrum.getXSeries();
 		double[] YSeries = spectrum.getYSeries();
+		for (int i = 0; i < YSeries.length; i++) {
+			if (Double.isNaN(YSeries[i])) {
+				YSeries[i] = 1;
+			}
+		}
+		//Spectrum s = new Spectrum(XSeries, YSeries, spectrum.name());
+		//ReSpefo.setSpectrum(s);
 		
-		double deltaRV = ((XSeries[1] - XSeries[0]) * c) / (XSeries[0] * 3);
+		deltaRV = ((XSeries[1] - XSeries[0]) * c) / (XSeries[0] * 3);
 		
 		double[] newXSeries = new double[XSeries.length * 3 - 2];
 		newXSeries[0] = XSeries[0];
 		for (int i = 1; i < newXSeries.length; i++) {
 			newXSeries[i] = newXSeries[i - 1] * (1 + deltaRV / c);
+			if (newXSeries[i] > XSeries[XSeries.length - 1]) {
+				newXSeries = Arrays.copyOf(newXSeries, i);
+				break;
+			}
 		}
 		
 		double[] newYSeries = Util.intep(XSeries, YSeries, newXSeries);
@@ -517,7 +540,7 @@ public class MeasureRVItemListener implements SelectionListener {
 					Measurement m = measures.get(index);
 
 					double l0 = m.l0;
-					double rV = (c * diff) / l0;
+					double rV = deltaRV * (diff / 2);
 					double radius = m.radius;
 					int category = result;
 					String name = m.name;
@@ -613,6 +636,7 @@ public class MeasureRVItemListener implements SelectionListener {
 	}
 	
 	private class FilesInputDialog extends Dialog {
+		
 		public FilesInputDialog(Shell parent) {
 			super(parent, 0);
 		}
@@ -621,24 +645,66 @@ public class MeasureRVItemListener implements SelectionListener {
 			Shell parent = getParent();
 			Shell shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.TITLE);
 			shell.setText("Select files");
+			shell.setMinimumSize(500, 600);
 			Display display = parent.getDisplay();
 			
-			GridLayout layout = new GridLayout(1, false);
+			GridLayout layout = new GridLayout(1, true);
 			shell.setLayout(layout);
+			
+			Label label1 = new Label(shell, SWT.CENTER);
+			label1.setText("Choose .stl file(s):");
 			
 			Composite group1 = new Composite(shell, SWT.BORDER);
 			GridData gridData = new GridData(SWT.FILL,SWT.FILL, true, false);
 			gridData.horizontalSpan = 2;
 			group1.setLayoutData(gridData);
-			group1.setLayout(new GridLayout(2, true));
+			group1.setLayout(new GridLayout(1, false));
 			
-			Text text = new Text(group1, SWT.SINGLE | SWT.BORDER);
-			text.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
-			text.setText("file dialog");
+//			Composite first = new Composite(group1, SWT.NONE);
+//			first.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+//			first.setLayout(new GridLayout(3, false));
+//			
+//			Text text = new Text(first, SWT.SINGLE | SWT.BORDER);
+//			text.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
+//			//text.setText("file dialog");
+//			text.setEditable(false);
+//			text.setEnabled(false);
+//			
+//			Button button = new Button(first, SWT.PUSH | SWT.CENTER);
+//			button.setText("...");
+//			button.addListener(SWT.Selection, new Listener() {
+//				
+//				@Override
+//				public void handleEvent(Event arg0) {
+//					FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN);
+//					dialog.setText("Import .stl File");
+//					dialog.setFilterPath(ReSpefo.getFilterPath());
+//
+//					String[] filterNames = new String[] { "Stl Files" };
+//					String[] filterExtensions = new String[] { "*.stl" };
+//
+//					dialog.setFilterNames(filterNames);
+//					dialog.setFilterExtensions(filterExtensions);
+//
+//					String s = dialog.open();
+//					
+//					if (s != null) {
+//						text.setText(s);
+//					}
+//				}
+//			});
+//			
+//			Button cancel = new Button(first, SWT.PUSH | SWT.CENTER);
+//			cancel.setText("x");
+//			cancel.addListener(SWT.Selection, new Listener() {
+//				
+//				@Override
+//				public void handleEvent(Event arg0) {
+//					text.setText("");
+//				}
+//			});
 			
-			Button button = new Button(group1, SWT.PUSH | SWT.CENTER);
-			//button.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-			button.setText("...");
+			new ThreeButtons(group1);
 			
 			shell.pack();
 			shell.open();
@@ -648,5 +714,82 @@ public class MeasureRVItemListener implements SelectionListener {
 			}
 		}
 	
+	}
+	
+	private class ThreeButtons extends Composite {
+
+		ThreeButtons(Composite parent) {
+			super(parent, SWT.NONE);
+			setLayout(new GridLayout(3, false));
+			setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+			
+			Text hidden = new Text(this, SWT.SINGLE | SWT.BORDER);
+			hidden.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
+			hidden.setVisible(false);
+			hidden.setEditable(false);
+			hidden.setEnabled(false);
+			
+			Button add = new Button(this, SWT.PUSH | SWT.CENTER);
+			add.setLayoutData(new GridData(SWT.END, SWT.TOP, false, false));
+			add.setText("+");
+			
+			Button cancel = new Button(add.getParent(), SWT.PUSH | SWT.CENTER);
+			cancel.setVisible(false);
+			cancel.setText("x");
+			
+			add.addListener(SWT.Selection, new Listener() {
+				
+				@Override
+				public void handleEvent(Event arg0) {
+					hidden.setVisible(true);
+					
+					add.setText("...");
+					add.removeListener(SWT.Selection, this);
+					add.addListener(SWT.Selection, new Listener() {
+						
+						@Override
+						public void handleEvent(Event arg0) {
+							FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN);
+							dialog.setText("Import .stl File");
+							dialog.setFilterPath(ReSpefo.getFilterPath());
+
+							String[] filterNames = new String[] { "Stl Files" };
+							String[] filterExtensions = new String[] { "*.stl" };
+
+							dialog.setFilterNames(filterNames);
+							dialog.setFilterExtensions(filterExtensions);
+
+							String s = dialog.open();
+							
+							if (s != null) {
+								hidden.setText(s);
+							}
+						}
+					});
+					
+					cancel.setVisible(true);
+					cancel.addListener(SWT.Selection, new Listener() {
+						
+						@Override
+						public void handleEvent(Event arg0) {
+							if (parent.getChildren().length > 2) {
+								ThreeButtons.this.dispose();
+								//parent.getParent().layout(true);
+								
+								parent.layout(true);
+								//parent.getParent().redraw();
+								//parent.redraw();
+							} else {
+								hidden.setText("");
+							}
+						}
+					});
+					
+					new ThreeButtons(parent);
+					parent.getParent().layout(true);
+				}
+			});
+		}
+		
 	}
 }

@@ -15,14 +15,14 @@ import cz.cuni.mff.respefo.Listeners.MeasureRVItemListener;
 import cz.cuni.mff.respefo.Listeners.RectifyItemListener;
 
 /**
- * Main class responsible for creating a display and a shell for the application
+ * Main class responsible for creating a Display and a Shell for the application as well as the main menu
  * 
  * @author Adam Harmanec
  *
  */
 public class ReSpefo {
 
-	public static final String version = "0.5.5";
+	public static final String version = "0.5.6";
 
 	private static Display display;
 	private static Shell shell;

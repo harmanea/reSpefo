@@ -42,7 +42,7 @@ public final class SpectrumBuilder {
 
 			for (String line : lines) {
 				tokens = line.trim().replaceAll(" +", " ").split(" ");
-	
+				
 				X = Double.valueOf(tokens[0]);
 				Y = Double.valueOf(tokens[1]);
 		
