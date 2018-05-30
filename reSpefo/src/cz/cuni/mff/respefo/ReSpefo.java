@@ -22,7 +22,7 @@ import cz.cuni.mff.respefo.Listeners.RectifyItemListener;
  */
 public class ReSpefo {
 
-	public static final String version = "0.5.6";
+	public static final String version = "0.5.7";
 
 	private static Display display;
 	private static Shell shell;

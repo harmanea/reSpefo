@@ -164,21 +164,48 @@ public class RectifyItemListener implements SelectionListener {
 
 			@Override
 			public void mouseDown(MouseEvent e) {
-				drag = true;
 				startMillis = System.currentTimeMillis();
-				
-				startX = e.x;
-				startY = e.y;
-				
-				prevX = e.x;
-				prevY = e.y;
+				if ((e.stateMask & SWT.CTRL) == SWT.CTRL) {
+					drag = true;
+					
+					startX = e.x;
+					startY = e.y;
+					
+					prevX = e.x;
+					prevY = e.y;
+				}
 			}
 
 			@Override
 			public void mouseUp(MouseEvent e) {
 				drag = false;
-				
-				if (System.currentTimeMillis() - startMillis > 50) {
+				if ((e.stateMask & SWT.CTRL) != SWT.CTRL) { // single click
+					if (System.currentTimeMillis() - startMillis < 50) {
+						Chart chart = ReSpefo.getChart();
+						Rectangle bounds = chart.getPlotArea().getBounds();
+						Range XRange = chart.getAxisSet().getXAxis(0).getRange();
+						Range YRange = chart.getAxisSet().getYAxis(0).getRange();
+						double x = XRange.lower + ((XRange.upper - XRange.lower) * ((double) e.x / bounds.width));
+						double y = YRange.lower + ((YRange.upper - YRange.lower) * ((double) (bounds.height - e.y) / bounds.height));
+						Point p = new Point(x, y);
+						cont.add(p);
+						
+						ILineSeries continuum = (ILineSeries) chart.getSeriesSet().getSeries("continuum");
+						ILineSeries original = (ILineSeries) chart.getSeriesSet().getSeries("original");
+						continuum.setYSeries(getIntepData(original.getXSeries()));
+						
+						ILineSeries points = (ILineSeries) chart.getSeriesSet().getSeries("points");
+						points.setXSeries(getXData());
+						points.setYSeries(getYData());
+						
+						index = cont.headSet(p).size();
+						ILineSeries selected = (ILineSeries) chart.getSeriesSet().getSeries("selected");
+						selected.setXSeries(new double[] {x} );
+						selected.setYSeries(new double[] {y} );
+						
+						chart.redraw();
+					}
+				} else if (System.currentTimeMillis() - startMillis > 50) { // drag release
 					Chart chart = ReSpefo.getChart();
 					Range ChartXRange = chart.getAxisSet().getXAxis(0).getRange();
 					Range ChartYRange = chart.getAxisSet().getYAxis(0).getRange();
@@ -213,29 +240,6 @@ public class RectifyItemListener implements SelectionListener {
 
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
-				Chart chart = ReSpefo.getChart();
-				Rectangle bounds = chart.getPlotArea().getBounds();
-				Range XRange = chart.getAxisSet().getXAxis(0).getRange();
-				Range YRange = chart.getAxisSet().getYAxis(0).getRange();
-				double x = XRange.lower + ((XRange.upper - XRange.lower) * ((double) e.x / bounds.width));
-				double y = YRange.lower + ((YRange.upper - YRange.lower) * ((double) (bounds.height - e.y) / bounds.height));
-				Point p = new Point(x, y);
-				cont.add(p);
-				
-				ILineSeries continuum = (ILineSeries) chart.getSeriesSet().getSeries("continuum");
-				ILineSeries original = (ILineSeries) chart.getSeriesSet().getSeries("original");
-				continuum.setYSeries(getIntepData(original.getXSeries()));
-				
-				ILineSeries points = (ILineSeries) chart.getSeriesSet().getSeries("points");
-				points.setXSeries(getXData());
-				points.setYSeries(getYData());
-				
-				index = cont.headSet(p).size();
-				ILineSeries selected = (ILineSeries) chart.getSeriesSet().getSeries("selected");
-				selected.setXSeries(new double[] {x} );
-				selected.setYSeries(new double[] {y} );
-				
-				chart.redraw();
 			}
 		});
         

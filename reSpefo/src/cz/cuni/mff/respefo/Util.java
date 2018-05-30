@@ -265,6 +265,25 @@ public class Util {
 	    return output;
 	}
 	
+	/**
+	 * 
+	 * @param input array of Doubles to be converted to doubles
+	 * @return array of doubles
+	 */
+	public static double[] convertDoublesTodoubles(Double[] input)
+	{
+	    if (input == null)
+	    {
+	        return null;
+	    }
+	    double[] output = new double[input.length];
+	    for (int i = 0; i < input.length; i++)
+	    {
+	        output[i] = input[i];
+	    }
+	    return output;
+	}
+	
 	public static void clearListeners() {
 		for (Listener l : ReSpefo.getShell().getListeners(SWT.KeyDown)) {
 			ReSpefo.getShell().removeListener(SWT.KeyDown, l);
