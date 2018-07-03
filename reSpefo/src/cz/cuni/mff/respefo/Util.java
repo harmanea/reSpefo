@@ -265,25 +265,6 @@ public class Util {
 	    return output;
 	}
 	
-	/**
-	 * 
-	 * @param input array of Doubles to be converted to doubles
-	 * @return array of doubles
-	 */
-	public static double[] convertDoublesTodoubles(Double[] input)
-	{
-	    if (input == null)
-	    {
-	        return null;
-	    }
-	    double[] output = new double[input.length];
-	    for (int i = 0; i < input.length; i++)
-	    {
-	        output[i] = input[i];
-	    }
-	    return output;
-	}
-	
 	public static void clearListeners() {
 		for (Listener l : ReSpefo.getShell().getListeners(SWT.KeyDown)) {
 			ReSpefo.getShell().removeListener(SWT.KeyDown, l);
@@ -294,16 +275,29 @@ public class Util {
 		}
 	}
 	
-	public static Spectrum importSpectrum() {
-		Spectrum spectrum;
-		
+	public static final int Spectrum = 0;
+	public static final int Stl = 1;
+	
+	public static String openFileDialog(int type) {
 		FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN);
-		dialog.setText("Import file");
+		dialog.setText("Choose file");
 		dialog.setFilterPath(ReSpefo.getFilterPath());
 			
-		String[] filterNames = new String[] { "Spectrum Files", "All Files (*)" };
-		String[] filterExtensions = new String[] { "*.fits;*.fit;*.fts;*.txt;*.rui;*.uui", "*" };
-		//String platform = SWT.getPlatform();
+		String[] filterNames;
+		String[] filterExtensions;
+		
+		switch (type) {
+		case Spectrum:
+			filterNames = new String[] { "Spectrum Files", "All Files (*)" };
+			filterExtensions = new String[] { "*.fits;*.fit;*.fts;*.txt, *.ascii;*.rui;*.uui", "*" };
+			break;
+		case Stl:
+			filterNames = new String[] { "Stl Files", "All Files (*)" };
+			filterExtensions = new String[] { "*.stl", "*" };
+			break;
+		default:
+			return null;
+		}
 
 		dialog.setFilterNames(filterNames);
 		dialog.setFilterExtensions(filterExtensions);
@@ -314,13 +308,23 @@ public class Util {
 			ReSpefo.setFilterPath(Paths.get(s).getParent().toString());
 		}
 		
+		return s;
+	}
+	
+	public static Spectrum importSpectrum() {
+		return importSpectrum(Util.openFileDialog(Spectrum));
+	}
+	
+	public static Spectrum importSpectrum(String name) {
+		Spectrum spectrum;
+		
 		String extension;
-		if (s == null) {
+		if (name == null) {
 			return null;
 		} else {
-			int i = s.lastIndexOf('.');
-			if (i < s.length()) {
-				extension = s.substring(i + 1);
+			int i = name.lastIndexOf('.');
+			if (i < name.length()) {
+				extension = name.substring(i + 1);
 			} else {
 				extension = "";
 			}
@@ -331,7 +335,7 @@ public class Util {
 		switch (extension) {
 		case "":
 		case "txt":
-			spectrum = SpectrumBuilder.importFromASCIIFile(s);
+			spectrum = SpectrumBuilder.importFromASCIIFile(name);
 			if (spectrum == null) {
 				mb.setMessage("Couldn't import spectrum. File might be corrupt.");
 				mb.open();
@@ -340,7 +344,7 @@ public class Util {
 		case "fits":
 		case "fit":
 		case "fts":
-			spectrum = SpectrumBuilder.importFromFitsFile(s);
+			spectrum = SpectrumBuilder.importFromFitsFile(name);
 			if (spectrum == null) {
 				mb.setMessage("Couldn't import spectrum. File might be corrupt.");
 				mb.open();

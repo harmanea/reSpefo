@@ -1,12 +1,10 @@
 package cz.cuni.mff.respefo;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-
+import java.util.ArrayList;
 import cz.cuni.mff.respefo.Spectrum.Type;
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.Fits;
@@ -22,45 +20,52 @@ public final class SpectrumBuilder {
 	 * @return returns the {@code Spectrum} object or {@code null} if it encounters any errors
 	 */
 	public static Spectrum importFromASCIIFile(String file) {
-		double[] XSeries;
-		double[] YSeries;
-		
-		String name;
-		
-		try {
-			Path p = Paths.get(file);
-			List<String> lines = Files.readAllLines(p, StandardCharsets.UTF_8);
 
-			int n = lines.size();
-
-			XSeries = new double[n];
-			YSeries = new double[n];
-
-			double X, Y;
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+			
+			String line;
 			String[] tokens;
-			int i = 0;
-
-			for (String line : lines) {
+			
+			ArrayList<Double> XList = new ArrayList<>();
+			ArrayList<Double> YList = new ArrayList<>();
+			double X, Y;
+			
+			while ((line = br.readLine()) != null) {
 				tokens = line.trim().replaceAll(" +", " ").split(" ");
 				
-				X = Double.valueOf(tokens[0]);
-				Y = Double.valueOf(tokens[1]);
-		
-				XSeries[i] = X;
-				YSeries[i++] = Y;				
+				try {
+					X = Double.valueOf(tokens[0]);
+					Y = Double.valueOf(tokens[1]);
+					
+					XList.add(X);
+					YList.add(Y);
+				} catch (NumberFormatException e) {
+					continue;
+				}
 			}
 			
-			name = p.getFileName().toString();
+			String name = Paths.get(file).getFileName().toString();
 			int pos = name.lastIndexOf('.');
 			if (pos > 0 && pos < name.length() - 1) {
 				name = name.substring(0, pos);
 			}
-		} catch (Exception e) {
+
+			double[] XSeries = XList.stream().mapToDouble(Double::doubleValue).toArray();
+			double[] YSeries = YList.stream().mapToDouble(Double::doubleValue).toArray();
+			
+			/* pre-Java 8
+			for (int i = 0; i < XList.size() && i < YList.size(); i++) {
+				XSeries[i] = XList.get(i);
+				YSeries[i] = YList.get(i);
+			}
+			*/
+			
+			Spectrum s = new Spectrum(XSeries, YSeries, name);
+			s.setType(Type.ASCII);
+			return s;
+		} catch (IOException e) {
 			return null;
 		}
-		Spectrum s = new Spectrum(XSeries, YSeries, name);
-		s.setType(Type.ASCII);
-		return s;
 	}
 	
 	public static Spectrum importFromFitsFile(String file) {
@@ -138,10 +143,11 @@ public final class SpectrumBuilder {
 					double CDELT = HDUs[i].getHeader().getDoubleValue("CDELT" + (i + 1), 1);
 					double CRVAL = HDUs[i].getHeader().getDoubleValue("CRVAL" + (i + 1), 0);
 					
-					XSeries = Util.fillArray(YSeries.length, (CRPIX - 1) * CDELT + CRVAL, CDELT);
+					XSeries = Util.fillArray(YSeries.length, (1 - CRPIX) * CDELT + CRVAL, CDELT);
 					
 					Spectrum s = new Spectrum(XSeries, YSeries, name);
 					s.setType(Type.FITS);
+					s.setHeader(HDUs[i].getHeader());
 					return s;
 				}
 			}

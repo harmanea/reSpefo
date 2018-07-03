@@ -1,5 +1,6 @@
 package cz.cuni.mff.respefo.Listeners;
 
+import java.awt.FlowLayout;
 import java.awt.MouseInfo;
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,8 +26,11 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowData;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
@@ -34,6 +38,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -52,19 +58,21 @@ import cz.cuni.mff.respefo.Util;
 
 public class MeasureRVItemListener implements SelectionListener {
 	private class Measurement {
-		public Measurement(double l0, double radius, String name) {
+		public Measurement(double l0, double radius, String name, boolean corr) {
 			this.l0 = l0;
 			this.radius = radius;
 			this.name = name;
+			this.corr = corr;
 		}
 		
 		double l0;
 		double radius;
 		String name;
+		boolean corr;
 	}
 
 	private class Result {
-		public Result(double rV, double radius, int category, double l0, String name, String comment) {
+		public Result(double rV, double radius, String category, double l0, String name, String comment) {
 			this.rV = rV;
 			this.radius = radius;
 			this.category = category;
@@ -75,7 +83,7 @@ public class MeasureRVItemListener implements SelectionListener {
 		
 		double rV;
 		double radius;
-		int category;
+		String category;
 		double l0;
 		String name;
 		String comment;
@@ -84,6 +92,7 @@ public class MeasureRVItemListener implements SelectionListener {
 	private static final double c = 299792.458; // speed of light (km/s)
 	private ArrayList<Measurement> measures;
 	private ArrayList<Result> results;
+	private ArrayList<Result> corrections;
 	private int index;
 	
 	// for drag and drop
@@ -95,72 +104,37 @@ public class MeasureRVItemListener implements SelectionListener {
 	private double diff = 0; // to measure rv
 	private double deltaRV;
 
-	private ArrayList<Measurement> getMeasurements() {
-		FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN);
-		dialog.setText("Import .stl File");
-		dialog.setFilterPath(ReSpefo.getFilterPath());
+	private void getMeasurements(String[] a, boolean corr) {
+		if (a != null) {
+			for (String s : a) {
+				File f = new File(s);
+				try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+					String line;
+					String[] tokens;
+					
+					while ((line = br.readLine()) != null) {
+						tokens = line.trim().replaceAll(" +", " ").split(" ", 3);
+						if (tokens.length < 3) {
+							continue;
+						} else {
+							try {
+								double l0 = Double.valueOf(tokens[0]);
+								double radius = Double.valueOf(tokens[1]);
+								String name = tokens[2];
 
-		String[] filterNames = new String[] { "Stl Files" };
-		String[] filterExtensions = new String[] { "*.stl" };
-
-		dialog.setFilterNames(filterNames);
-		dialog.setFilterExtensions(filterExtensions);
-
-		String s = dialog.open();
-
-		if (s != null && Paths.get(s).getParent() != null) {
-			ReSpefo.setFilterPath(Paths.get(s).getParent().toString());
-		}
-
-		if (s == null) {
-			return null;
-		}
-
-		File f = new File(s);
-
-		ArrayList<Measurement> ret = new ArrayList<>();
-
-		try (BufferedReader b = new BufferedReader(new FileReader(f))) {
-			String line;
-			String[] tokens;
-
-			while ((line = b.readLine()) != null) {
-				tokens = line.trim().replaceAll(" +", " ").split(" ", 3);
-				if (tokens.length < 3) {
-					continue;
-				} else {
-					try {
-						double l0 = Double.valueOf(tokens[0]);
-						double radius = Double.valueOf(tokens[1]);
-						String name = tokens[2];
-
-						ret.add(new Measurement(l0, radius, name));
-					} catch (Exception e) {
-						continue;
+								measures.add(new Measurement(l0, radius, name, corr));
+							} catch (Exception e) {
+								continue;
+							}
+						}
 					}
+				} catch (IOException e1) {
+					MessageBox warning = new MessageBox(ReSpefo.getShell(), SWT.ICON_ERROR | SWT.OK);
+					warning.setText("Error loading file: " + s);
+					warning.open();
 				}
 			}
-
-		} catch (FileNotFoundException e) {
-			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			mb.setMessage("Couldn't open file.");
-			mb.open();
-			return null;
-		} catch (IOException e) {
-			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			mb.setMessage("Couldn't read file.");
-			mb.open();
-			return null;
 		}
-
-		if (ret.size() == 0) {
-			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			mb.setMessage("Nothing to measure in the file. It might be corrupt.");
-			mb.open();
-			return null;
-		}
-
-		return ret;
 	}
 
 	private void measureNext() {
@@ -255,7 +229,7 @@ public class MeasureRVItemListener implements SelectionListener {
 			}
 			double Y[] = Util.intep(spectrum.getXSeries(), spectrum.getYSeries(), X);
 			
-			chart = new ChartBuilder(ReSpefo.getShell()).setTitle(spectrum.name()).setXAxisLabel("wavelength (Å)")
+			chart = new ChartBuilder(ReSpefo.getShell()).setTitle("Press ENTER to finish").setXAxisLabel("wavelength (Å)")
 					.setYAxisLabel("relative flux I(λ)")
 					.addSeries(LineStyle.SOLID, "original", ChartBuilder.green, spectrum.getXSeries(), spectrum.getYSeries())
 					.addSeries(LineStyle.NONE, "measurements", ChartBuilder.pink, X, Y).adjustRange()
@@ -295,26 +269,17 @@ public class MeasureRVItemListener implements SelectionListener {
 						
 					case SWT.CR:
 						printResults();
-						MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-						mb.setMessage("Measure more?");
-
-						if (mb.open() == SWT.YES) {
-							widgetSelected(null);
-
-						} else {
-							measures = null;
 							
-							Chart chart = ReSpefo.getChart();
+						Chart chart = ReSpefo.getChart();
 
-							if (chart != null) {
-								chart.dispose();
-							}
-
-							ReSpefo.setChart(null);
-							ReSpefo.setSpectrum(null);
-
-							Util.clearListeners();
+						if (chart != null) {
+							chart.dispose();
 						}
+
+						ReSpefo.setChart(null);
+						ReSpefo.setSpectrum(null);
+
+						Util.clearListeners();
 						break;
 					}
 				}
@@ -342,6 +307,7 @@ public class MeasureRVItemListener implements SelectionListener {
 			// header
 			writer.println("rv\tradius\tnull\tcategory\tlambda\tname\tcomment");
 			
+			double sum = 0;
 			for (Result r : results) {
 				writer.println(r.rV + "\t"
 							+ r.radius + "\t"
@@ -350,7 +316,28 @@ public class MeasureRVItemListener implements SelectionListener {
 							+ r.l0 + "\t"
 							+ r.name + "\t"
 							+ r.comment);
+				
+				sum += r.rV;
 			}
+			double average = sum / results.size();
+			writer.println("Average RV: " + average);
+			writer.println();
+			
+			sum = 0;
+			for (Result r : corrections) {
+				writer.println(r.rV + "\t"
+							+ r.radius + "\t"
+							+ (double) 0 + "\t"
+							+ r.category + "\t"
+							+ r.l0 + "\t"
+							+ r.name + "\t"
+							+ r.comment);
+				
+				sum += r.rV;
+			}
+			average = sum / corrections.size();
+			writer.println("Average RV: " + average);
+			
 		} catch (FileNotFoundException e) {
 			MessageBox warning = new MessageBox(ReSpefo.getShell(), SWT.ICON_ERROR | SWT.OK);
 			warning.setText("Error occured while printing results.");
@@ -361,18 +348,22 @@ public class MeasureRVItemListener implements SelectionListener {
 	@Override
 	public void widgetSelected(SelectionEvent event) {
 
-		// new FilesInputDialog(ReSpefo.getShell()).open();
-		
-		Util.clearListeners();
-
-		if (event != null) { // only happens the first time
-			measures = getMeasurements();
-			if (measures == null) {
-				return;
-			}
+		MeasureRVDialog dialog = new MeasureRVDialog(ReSpefo.getShell());
+		if (!dialog.open()) {
+			return;
 		}
 
-		Spectrum spectrum = Util.importSpectrum();
+		Util.clearListeners();
+		
+		String s = dialog.getSpectrum();
+		String[] measurements = dialog.getMeasurements();
+		String[] corrections = dialog.getCorrections();
+
+		measures = new ArrayList<>();
+		getMeasurements(measurements, false);
+		getMeasurements(corrections, true);
+
+		Spectrum spectrum = Util.importSpectrum(s);
 		if (spectrum == null) {
 			return;
 		}
@@ -412,6 +403,7 @@ public class MeasureRVItemListener implements SelectionListener {
 		ReSpefo.setSpectrum(new Spectrum(newXSeries, newYSeries, spectrum.name()));
 		
 		results = new ArrayList<>();
+		this.corrections = new ArrayList<>();
 		index = 0;
 
 		ReSpefo.getShell().addKeyListener(new MeasureRVKeyAdapter());
@@ -511,6 +503,7 @@ public class MeasureRVItemListener implements SelectionListener {
 			}
 			
 			switch (e.keyCode) {
+			case SWT.ESC:
 			case 'm':
 				index++;
 				measureNext();
@@ -534,19 +527,23 @@ public class MeasureRVItemListener implements SelectionListener {
 				break;
 
 			case SWT.CR:
-				MeasurementInputDialog dialog = new MeasurementInputDialog(ReSpefo.getShell());
-				Integer result = dialog.open();
+			case SWT.INSERT:
+				Measurement m = measures.get(index);
+				MeasurementInputDialog dialog = new MeasurementInputDialog(ReSpefo.getShell(), m.corr);
+				String result = dialog.open();
 				if (result != null) {
-					Measurement m = measures.get(index);
-
 					double l0 = m.l0;
 					double rV = deltaRV * (diff / 2);
 					double radius = m.radius;
-					int category = result;
+					String category = result;
 					String name = m.name;
 					String comment = dialog.getComment();
 
-					results.add(new Result(rV, radius, category, l0, name, comment));
+					if (m.corr) {
+						corrections.add(new Result(rV, radius, category, l0, name, comment));
+					} else {
+						results.add(new Result(rV, radius, category, l0, name, comment));
+					}
 					index++;
 					measureNext();
 				}
@@ -556,63 +553,82 @@ public class MeasureRVItemListener implements SelectionListener {
 	}
 
 	private class MeasurementInputDialog extends Dialog {
-		private Integer value;
+		private String value;
 		private String comment = "";
+		private boolean corr;
 
 		public MeasurementInputDialog(Shell parent) {
 			super(parent, 0);
+			corr = false;
+		}
+		
+		public MeasurementInputDialog(Shell parent, boolean corr) {
+			super(parent, 0);
+			this.corr = corr;
 		}
 
 		public String getComment() {
 			return comment;
 		}
 
-		public Integer open() {
+		public String open() {
 			Shell parent = getParent();
-			Shell shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.TITLE);
-			shell.setText("Select category");
+			Shell shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.TITLE | SWT.RESIZE);
+			shell.setText("Confirm measurement");
 
-			GridLayout l = new GridLayout(2, false);
-			shell.setLayout(l);
+			GridLayout layout = new GridLayout(2, false);
+			shell.setLayout(layout);
 
-			Label label = new Label(shell, SWT.NULL);
-			label.setText("Category:");
+			Label labelOne = new Label(shell, SWT.LEFT);
+			labelOne.setText("Category:");
+			labelOne.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 
-			final Text text = new Text(shell, SWT.SINGLE | SWT.BORDER);
-			text.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-			text.setText("");
+			Text textOne = new Text(shell, SWT.SINGLE | SWT.BORDER);
+			textOne.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+			if (corr) {
+				textOne.setText("corr");
+				textOne.setEnabled(false);
+			} else {
+				textOne.setText("");
+			}
 
-			Label label2 = new Label(shell, SWT.NULL);
-			label2.setText("Comment:");
+			Label labelTwo = new Label(shell, SWT.LEFT);
+			labelTwo.setText("Comment:");
+			labelTwo.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 
-			final Text text2 = new Text(shell, SWT.SINGLE | SWT.BORDER);
-			text2.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-			text2.setText("");
+			Text textTwo = new Text(shell, SWT.SINGLE | SWT.BORDER);
+			textTwo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+			textTwo.setText("");
 
 			final Button buttonConfirm = new Button(shell, SWT.PUSH | SWT.CENTER);
 			buttonConfirm.setText("Confirm");
-			buttonConfirm.setEnabled(false);
+			buttonConfirm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			if (!corr) {
+				buttonConfirm.setEnabled(false);
+			}
 
 			Button buttonCancel = new Button(shell, SWT.PUSH | SWT.CENTER);
 			buttonCancel.setText("Cancel");
-
+			buttonCancel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			
 			shell.setDefaultButton(buttonConfirm);
 
-			text.addListener(SWT.Modify, new Listener() {
-				public void handleEvent(Event event) {
-					try {
-						Integer.parseInt(text.getText());
-						buttonConfirm.setEnabled(true);
-					} catch (Exception e) {
-						buttonConfirm.setEnabled(false);
+			if (!corr) {
+				textOne.addListener(SWT.Modify, new Listener() {
+					public void handleEvent(Event event) {
+						if (!textOne.getText().equals("")){
+							buttonConfirm.setEnabled(true);
+						} else {
+							buttonConfirm.setEnabled(false);
+						}
 					}
-				}
-			});
+				});
+			}
 
 			buttonConfirm.addListener(SWT.Selection, new Listener() {
 				public void handleEvent(Event event) {
-					value = Integer.parseInt(text.getText());
-					comment = text2.getText();
+					value = textOne.getText();
+					comment = textTwo.getText();
 					shell.dispose();
 				}
 			});
@@ -635,161 +651,230 @@ public class MeasureRVItemListener implements SelectionListener {
 		}
 	}
 	
-	private class FilesInputDialog extends Dialog {
+	private class MeasureRVDialog extends Dialog {
+		private Shell parent;
+		private boolean status;
 		
-		public FilesInputDialog(Shell parent) {
+		private String s;
+		private String[] itemsOne, itemsTwo;
+		
+		public MeasureRVDialog(Shell parent) {
 			super(parent, 0);
+			this.parent = parent;
+			status = false;
 		}
 		
-		public void open() {
-			Shell parent = getParent();
-			Shell shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.TITLE);
-			shell.setText("Select files");
-			shell.setMinimumSize(500, 600);
+		public String getSpectrum() {
+			return s;
+		}
+		
+		public String[] getMeasurements() {
+			return itemsOne;
+		}
+		
+		public String[] getCorrections() {
+			return itemsTwo;
+		}
+		
+		public boolean open() {
 			Display display = parent.getDisplay();
+			Shell shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.TITLE | SWT.RESIZE);
+			shell.setText("Measure radial velocity");
 			
-			GridLayout layout = new GridLayout(1, true);
-			shell.setLayout(layout);
+			// Part one
+			Composite comp1 = new Composite(shell, SWT.NONE);
+	        Label one = new Label(comp1, SWT.LEFT);
+	        one.setText("Select spectrum to measure");
+	        one.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+	        Text textOne = new Text(comp1, SWT.BORDER);
+	        textOne.setText("");
+	        textOne.setEnabled(false);
+	        Button buttonOne = new Button(comp1, SWT.PUSH | SWT.CENTER);
+	        buttonOne.setText("...");
+
+	        // Part two
+	        Composite comp2 = new Composite(shell, SWT.NONE);
+	        Label two = new Label(comp2, SWT.LEFT);
+	        two.setText("Select .stl file(s) with measurements");
+	        two.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+	        List listOne = new List(comp2, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL);
+	        Composite buttonCompOne = new Composite(comp2, SWT.NONE);
+	        Button buttonTwoOne = new Button(buttonCompOne, SWT.PUSH | SWT.CENTER);
+	        buttonTwoOne.setText("Add");
+	        Button buttonTwoTwo = new Button(buttonCompOne, SWT.PUSH | SWT.CENTER);
+	        buttonTwoTwo.setText("Remove");
+
+	        // Part three
+	        Composite comp3 = new Composite(shell, SWT.NONE);
+	        Label three = new Label(comp3, SWT.LEFT);
+	        three.setText("Select .stl file(s) with corrections");
+	        three.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+	        List listTwo = new List(comp3, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL);
+
+	        Composite buttonCompTwo = new Composite(comp3, SWT.NONE);
+	        Button buttonThreeOne = new Button(buttonCompTwo, SWT.PUSH | SWT.CENTER);
+	        buttonThreeOne.setText("Add");
+	        Button buttonThreeTwo = new Button(buttonCompTwo, SWT.PUSH | SWT.CENTER);
+	        buttonThreeTwo.setText("Remove");
+	        
+	        // Part four
+	        Composite comp4 = new Composite(shell, SWT.NONE);
+	        Button buttonFourOne = new Button(comp4, SWT.PUSH | SWT.CENTER);
+	        buttonFourOne.setText("Ok");
+	        buttonFourOne.setEnabled(false);
+	        Button buttonFourTwo = new Button(comp4, SWT.PUSH | SWT.CENTER);
+	        buttonFourTwo.setText("  Cancel  ");
+	        
+
+	        // Layout stuff
+	        GridLayout layout = new GridLayout(1, false);
+	        layout.marginBottom = 15;
+	        layout.marginLeft = 15;
+	        layout.marginRight = 15;
+	        layout.marginTop = 15;
+	        layout.verticalSpacing = 10;
+	        shell.setLayout(layout);
+	        
+	        layout = new GridLayout(2, false);
+	        comp1.setLayout(layout);
+	        comp1.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+	        comp2.setLayout(layout);
+	        comp2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+	        comp3.setLayout(layout);
+	        comp3.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+	        
+	        layout = new GridLayout(2, true);
+	        comp4.setLayout(layout);
+	        comp4.setLayoutData(new GridData(SWT.RIGHT, SWT.BOTTOM, true, false));
+	        layout = new GridLayout(1, true);
+	        layout.marginWidth = 0;
+	        layout.marginHeight = 0;
+	        buttonCompOne.setLayout(layout);
+	        buttonTwoOne.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+	        buttonTwoTwo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+	        
+	        layout = new GridLayout(1, true);
+	        layout.marginWidth = 0;
+	        layout.marginHeight = 0;
+	        buttonCompTwo.setLayout(layout);
+	        buttonThreeOne.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+	        buttonThreeTwo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+	        
+	        textOne.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+	        buttonOne.setLayoutData(new GridData(SWT.END, SWT.FILL, false, true));
+	        listOne.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+	        listTwo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+	        buttonCompOne.setLayoutData(new GridData(SWT.END, SWT.TOP, false, true));
+	        buttonCompTwo.setLayoutData(new GridData(SWT.END, SWT.TOP, false, true));
+	        buttonFourOne.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, false));
+	        buttonFourTwo.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, false));
+	        
+	        // Listeners
+			buttonOne.addListener(SWT.Selection, new Listener() {
+
+				@Override
+				public void handleEvent(Event e) {
+					String s = Util.openFileDialog(Util.Spectrum);
+					
+					if (s != null) {
+						textOne.setText(s);
+						textOne.setSelection(textOne.getText().length());
+						
+						if (listOne.getItemCount() > 0) {
+							buttonFourOne.setEnabled(true);
+						}
+					}
+				}
+
+			});
 			
-			Label label1 = new Label(shell, SWT.CENTER);
-			label1.setText("Choose .stl file(s):");
+			buttonTwoOne.addListener(SWT.Selection, new Listener() {
+
+				@Override
+				public void handleEvent(Event e) {
+					String s = Util.openFileDialog(Util.Stl);
+					
+					if (s != null) {
+						listOne.add(s);
+						
+						if (!textOne.getText().equals("")) {
+							buttonFourOne.setEnabled(true);
+						}
+					}
+				}
+
+			});
 			
-			Composite group1 = new Composite(shell, SWT.BORDER);
-			GridData gridData = new GridData(SWT.FILL,SWT.FILL, true, false);
-			gridData.horizontalSpan = 2;
-			group1.setLayoutData(gridData);
-			group1.setLayout(new GridLayout(1, false));
+			buttonTwoTwo.addListener(SWT.Selection, new Listener() {
+
+				@Override
+				public void handleEvent(Event e) {
+					if (listOne.getSelectionIndex() != -1) {
+						listOne.remove(listOne.getSelectionIndex());
+						
+						if (listOne.getItemCount() == 0) {
+							buttonFourOne.setEnabled(false);
+						}
+					}
+				}
+
+			});
 			
-//			Composite first = new Composite(group1, SWT.NONE);
-//			first.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-//			first.setLayout(new GridLayout(3, false));
-//			
-//			Text text = new Text(first, SWT.SINGLE | SWT.BORDER);
-//			text.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
-//			//text.setText("file dialog");
-//			text.setEditable(false);
-//			text.setEnabled(false);
-//			
-//			Button button = new Button(first, SWT.PUSH | SWT.CENTER);
-//			button.setText("...");
-//			button.addListener(SWT.Selection, new Listener() {
-//				
-//				@Override
-//				public void handleEvent(Event arg0) {
-//					FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN);
-//					dialog.setText("Import .stl File");
-//					dialog.setFilterPath(ReSpefo.getFilterPath());
-//
-//					String[] filterNames = new String[] { "Stl Files" };
-//					String[] filterExtensions = new String[] { "*.stl" };
-//
-//					dialog.setFilterNames(filterNames);
-//					dialog.setFilterExtensions(filterExtensions);
-//
-//					String s = dialog.open();
-//					
-//					if (s != null) {
-//						text.setText(s);
-//					}
-//				}
-//			});
-//			
-//			Button cancel = new Button(first, SWT.PUSH | SWT.CENTER);
-//			cancel.setText("x");
-//			cancel.addListener(SWT.Selection, new Listener() {
-//				
-//				@Override
-//				public void handleEvent(Event arg0) {
-//					text.setText("");
-//				}
-//			});
+			buttonThreeOne.addListener(SWT.Selection, new Listener() {
+
+				@Override
+				public void handleEvent(Event e) {
+					String s = Util.openFileDialog(Util.Stl);
+					
+					if (s != null) {
+						listTwo.add(s);
+					}
+				}
+
+			});
 			
-			new ThreeButtons(group1);
+			buttonThreeTwo.addListener(SWT.Selection, new Listener() {
+
+				@Override
+				public void handleEvent(Event e) {
+					if (listTwo.getSelectionIndex() != -1) {
+						listTwo.remove(listTwo.getSelectionIndex());
+					}
+				}
+
+			});
 			
+			buttonFourOne.addListener(SWT.Selection, new Listener() {
+				
+				@Override
+				public void handleEvent(Event arg0) {
+					status = true;
+					itemsOne = listOne.getItems();
+					itemsTwo = listTwo.getItems();
+					s = textOne.getText();
+					shell.dispose();
+				}
+			});
+			
+			buttonFourTwo.addListener(SWT.Selection, new Listener() {
+				
+				@Override
+				public void handleEvent(Event arg0) {
+					status = false;
+					shell.dispose();
+				}
+			});
+			
+			// Pack and open
 			shell.pack();
 			shell.open();
+			shell.setSize(600, 700);
 			while (!shell.isDisposed()) {
 				if (!display.readAndDispatch())
 					display.sleep();
 			}
+			
+			return status;
 		}
-	
-	}
-	
-	private class ThreeButtons extends Composite {
-
-		ThreeButtons(Composite parent) {
-			super(parent, SWT.NONE);
-			setLayout(new GridLayout(3, false));
-			setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-			
-			Text hidden = new Text(this, SWT.SINGLE | SWT.BORDER);
-			hidden.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
-			hidden.setVisible(false);
-			hidden.setEditable(false);
-			hidden.setEnabled(false);
-			
-			Button add = new Button(this, SWT.PUSH | SWT.CENTER);
-			add.setLayoutData(new GridData(SWT.END, SWT.TOP, false, false));
-			add.setText("+");
-			
-			Button cancel = new Button(add.getParent(), SWT.PUSH | SWT.CENTER);
-			cancel.setVisible(false);
-			cancel.setText("x");
-			
-			add.addListener(SWT.Selection, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					hidden.setVisible(true);
-					
-					add.setText("...");
-					add.removeListener(SWT.Selection, this);
-					add.addListener(SWT.Selection, new Listener() {
-						
-						@Override
-						public void handleEvent(Event arg0) {
-							FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN);
-							dialog.setText("Import .stl File");
-							dialog.setFilterPath(ReSpefo.getFilterPath());
-
-							String[] filterNames = new String[] { "Stl Files" };
-							String[] filterExtensions = new String[] { "*.stl" };
-
-							dialog.setFilterNames(filterNames);
-							dialog.setFilterExtensions(filterExtensions);
-
-							String s = dialog.open();
-							
-							if (s != null) {
-								hidden.setText(s);
-							}
-						}
-					});
-					
-					cancel.setVisible(true);
-					cancel.addListener(SWT.Selection, new Listener() {
-						
-						@Override
-						public void handleEvent(Event arg0) {
-							if (parent.getChildren().length > 2) {
-								ThreeButtons.this.dispose();
-								//parent.getParent().layout(true);
-								
-								parent.layout(true);
-								//parent.getParent().redraw();
-								//parent.redraw();
-							} else {
-								hidden.setText("");
-							}
-						}
-					});
-					
-					new ThreeButtons(parent);
-					parent.getParent().layout(true);
-				}
-			});
-		}
-		
 	}
 }

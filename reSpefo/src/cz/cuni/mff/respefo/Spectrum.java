@@ -2,6 +2,10 @@ package cz.cuni.mff.respefo;
 
 import java.util.Arrays;
 
+import nom.tam.fits.BasicHDU;
+import nom.tam.fits.Data;
+import nom.tam.fits.Header;
+
 /**
  * Class representing a spectrum file
  *
@@ -16,6 +20,8 @@ public class Spectrum {
 	private String name;
 	
 	private Type type;
+	
+	private Header header;
 
 	public enum Type {
 		FITS, ASCII, RUI, UUI
@@ -234,5 +240,13 @@ public class Spectrum {
 		}
 		
 		return Arrays.copyOfRange(YSeries, lo_index, hi_index);
+	}
+
+	public Header getHeader() {
+		return header;
+	}
+
+	public void setHeader(Header header) {
+		this.header = header;
 	}
 }
