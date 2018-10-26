@@ -1,4 +1,4 @@
-package cz.cuni.mff.respefo.Listeners;
+package cz.cuni.mff.respefo.legacy;
 
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -24,10 +24,11 @@ import org.swtchart.Range;
 
 import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.ReSpefo;
-import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.Util;
+import cz.cuni.mff.respefo.Listeners.DefaultMovementListener;
 
-public class RectifyItemListener implements SelectionListener {
+@Deprecated
+public class OldRectifyItemListener implements SelectionListener {	
 	private class Point implements Comparable<Point>{
 		protected double x;
 		protected double y;
@@ -125,7 +126,7 @@ public class RectifyItemListener implements SelectionListener {
 	
 	@Override
 	public void widgetSelected(SelectionEvent event) {
-		Spectrum spectrum;
+		OldSpectrum spectrum;
 		
 		if (event != null) {
 			spectrum = Util.importSpectrum();
@@ -134,9 +135,9 @@ public class RectifyItemListener implements SelectionListener {
 				return;
 			}
 			
-			ReSpefo.setSpectrum(spectrum);
+			ReSpefo.setOldSpectrum(spectrum);
 		} else {
-			spectrum = ReSpefo.getSpectrum();
+			spectrum = ReSpefo.getOldSpectrum();
 		}
 		
 		if (cont.size() == 0) {
@@ -146,18 +147,18 @@ public class RectifyItemListener implements SelectionListener {
 		
 		index = 0;
 		
-		Util.clearListeners();
+		Util.clearShellListeners();
 		
 		Chart chart = ReSpefo.getChart();
 		
 		if (chart != null) {
 			chart.dispose();
 		}
-		chart = new ChartBuilder(ReSpefo.getShell()).setTitle(spectrum.name()).setXAxisLabel("wavelength (Å)").setYAxisLabel("flux")
-				.addSeries(LineStyle.SOLID, "original", ChartBuilder.green, spectrum.getXSeries(), spectrum.getYSeries())
-				.addSeries(LineStyle.SOLID, "continuum", ChartBuilder.yellow, spectrum.getXSeries(), this.getIntepData(spectrum.getXSeries()))
-				.addSeries(LineStyle.NONE, "points", ChartBuilder.white, this.getXData(), this.getYData())
-				.addSeries(LineStyle.NONE, "selected", ChartBuilder.red, new double[] { getAt(index).x }, new double[] { getAt(index).y })
+		chart = new ChartBuilder(ReSpefo.getScene()).setTitle(spectrum.name()).setXAxisLabel("wavelength (Å)").setYAxisLabel("flux")
+				.addSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN, spectrum.getXSeries(), spectrum.getYSeries())
+				.addSeries(LineStyle.SOLID, "continuum", ChartBuilder.YELLOW, spectrum.getXSeries(), this.getIntepData(spectrum.getXSeries()))
+				.addSeries(LineStyle.NONE, "points", ChartBuilder.WHITE, this.getXData(), this.getYData())
+				.addSeries(LineStyle.NONE, "selected", ChartBuilder.RED, new double[] { getAt(index).x }, new double[] { getAt(index).y })
 				.adjustRange().build();
         
         chart.getPlotArea().addMouseListener(new MouseListener() {
@@ -281,7 +282,7 @@ public class RectifyItemListener implements SelectionListener {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			Chart chart = ReSpefo.getChart();
-			Spectrum spectrum = ReSpefo.getSpectrum();
+			OldSpectrum spectrum = ReSpefo.getOldSpectrum();
 			
 			ILineSeries points = (ILineSeries) chart.getSeriesSet().getSeries("points");
 			ILineSeries continuum = (ILineSeries) chart.getSeriesSet().getSeries("continuum");
@@ -394,12 +395,12 @@ public class RectifyItemListener implements SelectionListener {
 				break;
 			case SWT.CR:
 				ReSpefo.getShell().addKeyListener(new KeyAdapter() {
-					Spectrum old = spectrum;
+					OldSpectrum old = spectrum;
 					
 					@Override
 					public void keyPressed(KeyEvent e) {
 						if (e.keyCode == SWT.BS) {
-							ReSpefo.setSpectrum(old);
+							ReSpefo.setOldSpectrum(old);
 							ReSpefo.getShell().removeKeyListener(this);
 							widgetSelected(null);
 						}
@@ -407,14 +408,14 @@ public class RectifyItemListener implements SelectionListener {
 				});
 					
 				double[] YSeries = Util.divideArrayValues(spectrum.getYSeries(), continuum.getYSeries());
-				Spectrum s = new Spectrum(spectrum.getXSeries(), YSeries, spectrum.name());
+				OldSpectrum s = new OldSpectrum(spectrum.getXSeries(), YSeries, spectrum.name());
 					
-				ReSpefo.setSpectrum(s);
+				ReSpefo.setOldSpectrum(s);
 				if (chart != null) {
 					chart.dispose();
 				}
 				chart = new ChartBuilder(ReSpefo.getShell()).setTitle(s.name()).setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux I(λ)")
-						.addSeries(LineStyle.SOLID, "series", ChartBuilder.green, s.getXSeries(), s.getYSeries())
+						.addSeries(LineStyle.SOLID, "series", ChartBuilder.GREEN, s.getXSeries(), s.getYSeries())
 						.adjustRange().build();
 					
 				ReSpefo.setChart(chart);

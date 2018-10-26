@@ -1,0 +1,74 @@
+package cz.cuni.mff.respefo.measureRV;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+
+import cz.cuni.mff.respefo.ChartBuilder;
+import cz.cuni.mff.respefo.ReSpefo;
+import cz.cuni.mff.respefo.Listeners.DefaultKeyListener;
+import cz.cuni.mff.respefo.legacy.OldMeasureRVItemListener;
+
+public class MeasureRVKeyListener extends DefaultKeyListener {
+	
+	public MeasureRVKeyListener() {
+		super();
+		
+		handlers.put((int) SWT.SPACE, MeasureRVKeyListener::adjustView);
+		
+		handlers.put((int) 'a', MeasureRVKeyListener::moveLeft);
+		handlers.put(SWT.ARROW_LEFT, MeasureRVKeyListener::moveLeft);
+		
+		handlers.put((int) 'd', MeasureRVKeyListener::moveRight);
+		handlers.put(SWT.ARROW_RIGHT, MeasureRVKeyListener::moveRight);
+		
+		handlers.put((int) SWT.CR, MeasureRVKeyListener::enter); // Enter
+		
+		handlers.put(SWT.INSERT, MeasureRVKeyListener::insert);
+		
+		handlers.put((int) SWT.ESC, MeasureRVKeyListener::skip); // Escape
+		
+		handlers.put((int) SWT.BS, MeasureRVKeyListener::delete); // Backspace
+		handlers.put((int) SWT.DEL, MeasureRVKeyListener::delete); // Delete
+		
+		handlers.put((int) SWT.TAB, MeasureRVKeyListener::changeRadius);
+	}
+	
+	public static void adjustView(KeyEvent e) {
+		ChartBuilder.adjustRange(ReSpefo.getChart(), 1, 1);
+		ReSpefo.getChart().getAxisSet().zoomOut();
+	}
+	
+	public static void moveRight(KeyEvent e) {
+		MeasureRVItemListener.getInstance().moveRight();
+	}
+	
+	public static void moveLeft(KeyEvent e) {
+		MeasureRVItemListener.getInstance().moveLeft();
+	}
+	
+	public static void enter(KeyEvent e) {
+		MeasureRVItemListener.getInstance().enter();
+	}
+	
+	public static void insert(KeyEvent e) {
+		MeasureRVItemListener.getInstance().insert();
+	}
+	
+	public static void skip(KeyEvent e) {
+		MeasureRVItemListener.getInstance().skip();
+	}
+	
+	public static void delete(KeyEvent e) {
+		MeasureRVItemListener.getInstance().delete();
+	}
+	
+	public static void changeRadius(KeyEvent e) {
+		if ((e.stateMask & SWT.CTRL) == SWT.CTRL) {
+			MeasureRVItemListener.getInstance().decreaseRadius();
+		} else {
+			MeasureRVItemListener.getInstance().increaseRadius();
+		}
+	}
+}

@@ -1,108 +1,135 @@
 package cz.cuni.mff.respefo.Listeners;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.File;
 import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
-import cz.cuni.mff.respefo.SpectrumPrinter;
-import nom.tam.fits.FitsException;
+import cz.cuni.mff.respefo.Util;
 
 public class FileExportItemListener implements SelectionListener {
+	private static FileExportItemListener instance;
+	
+	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
+	
+	private FileExportItemListener() {
+		LOGGER.log(Level.FINEST, "Creating a new FileExportItemListener");
+	}
+	
+	public static FileExportItemListener getInstance() {
+		if (instance == null) {
+			instance = new FileExportItemListener();
+		}
+		
+		return instance;
+	}
 	
 	@Override
 	public void widgetSelected(SelectionEvent event) {
-		MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-		
+		LOGGER.log(Level.FINEST, "Export file widget selected");
+		handle(event);
+	}
+	
+	@Override
+	public void widgetDefaultSelected(SelectionEvent event) {
+		LOGGER.log(Level.FINEST, "Import file default widget selected");
+		handle(event);
+	}
+	
+	private void handle(SelectionEvent event) {
 		Spectrum spectrum = ReSpefo.getSpectrum();
 		
 		if (spectrum == null) { 
+			LOGGER.log(Level.WARNING, "Nothing to export");
+			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
 			mb.setMessage("No file loaded, nothing to export.");
 			mb.open();
 			return;
 		}
 		
-		FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.SAVE);
-		dialog.setText("Export File");
-		dialog.setFilterPath(ReSpefo.getFilterPath());
-		
-		String[] filterNames = new String[] { "Spectrum Files", "All Files (*)" };
-		String[] filterExtensions = new String[] { "*.fits;*.fit;*.fts;*.txt;*.rui;*.uui", "*" };
-		//String platform = SWT.getPlatform();
+		export(spectrum);
+	}
 
-		dialog.setFilterNames(filterNames);
-		dialog.setFilterExtensions(filterExtensions);
-		dialog.setFileName(spectrum.name());
-
-		String s = dialog.open();
+	
+	public boolean export(Spectrum spectrum) {
+		String fileName = Util.openFileDialog(Util.SPECTRUM_SAVE);
 		
-		if (Paths.get(s).getParent() != null) {
-			ReSpefo.setFilterPath(Paths.get(s).getParent().toString());
+		if (fileName == null) {
+			LOGGER.log(Level.FINER, "File dialog returned null");
+			return false;
+		} else if (Paths.get(fileName).getParent() != null) {
+			ReSpefo.setFilterPath(Paths.get(fileName).getParent().toString());
 		}
 		
-		String extension;
-		if (s == null) {
-			return;
-		} else {
-			int i = s.lastIndexOf('.');
-			if (i < s.length()) {
-				extension = s.substring(i + 1);
-			} else {
-				extension = "";
+		File destFile = new File(fileName);
+		if (destFile.exists()) {
+			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+			mb.setMessage("File already exists. Would you like to overwrite it?");
+			if (mb.open() != SWT.YES) {
+				LOGGER.log(Level.FINER, "Overwrite dialog didn't return yes");
+				return false;
 			}
 		}
 		
+		String extension = Util.getFileExtension(fileName);
+		
+		// TODO remove code repetition
 		switch (extension) {
 		case "":
 		case "txt":
-			PrintWriter writer;
-			try {
-				writer = new PrintWriter(s);
-			} catch (FileNotFoundException e) {
-				mb.setMessage("Couldn't find file.");
+			if (spectrum.exportToAscii(fileName)) {
+				LOGGER.log(Level.INFO, "File was successfully saved");
+				MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_INFORMATION | SWT.OK);
+				mb.setMessage("File was successfully saved.");
 				mb.open();
-				return;
-			}
-			try {
-				SpectrumPrinter.exportToASCIIFIle(writer, spectrum);
-			} catch (IOException e) {
-				mb.setMessage("Error occured while printing to file.");
+			} else {
+				LOGGER.log(Level.WARNING, "Couldn't save file");
+				MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
+				mb.setMessage("Couldn't save file.");
 				mb.open();
+				return false;
 			}
 			break;
 		case "fits":
 		case "fit":
 		case "fts":
-			try {
-				SpectrumPrinter.exportToFitsFile(s, spectrum);
-			} catch (IOException | FitsException e) {
-				mb.setMessage("Error occured while printing to file.");
+			if (spectrum.exportToFits(fileName)) {
+				LOGGER.log(Level.INFO, "File was successfully saved");
+				MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_INFORMATION | SWT.OK);
+				mb.setMessage("File was successfully saved.");
 				mb.open();
+			} else {
+				LOGGER.log(Level.WARNING, "Couldn't save file");
+				MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
+				mb.setMessage("Couldn't save file.");
+				mb.open();
+				return false;
 			}
 			break;
 		case "rui":
 		case "uui":
+		case "rci":
+		case "rfi":
+			LOGGER.log(Level.WARNING, "Old Spefo formats aren't supported yet");
+			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
 			mb.setMessage("Old Spefo formats aren't supported yet.");
 			mb.open();
-			break;
+			return false;
 		default:
-			mb.setMessage("Not a supported file type.");
-			mb.open();
-			break;
+			LOGGER.log(Level.WARNING, "Old Spefo formats aren't supported yet");
+			MessageBox mbb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
+			mbb.setMessage("Old Spefo formats aren't supported yet.");
+			mbb.open();
+			return false;
 		}
+		
+		return true;
 	}
-	
-	@Override
-	public void widgetDefaultSelected(SelectionEvent event) {
-		this.widgetSelected(event);
-	}
-
 }

@@ -1,16 +1,21 @@
-package cz.cuni.mff.respefo;
+package cz.cuni.mff.respefo.legacy;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import cz.cuni.mff.respefo.Spectrum.Type;
+
+import cz.cuni.mff.respefo.legacy.OldSpectrum.Type;
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.Fits;
 import nom.tam.fits.FitsException;
+import nom.tam.fits.Header;
+import nom.tam.fits.HeaderCard;
 import nom.tam.fits.ImageHDU;
+import nom.tam.util.Cursor;
 
+@Deprecated
 public final class SpectrumBuilder {
 	
 	/**
@@ -19,7 +24,7 @@ public final class SpectrumBuilder {
 	 * @param file {@code String} path to the file
 	 * @return returns the {@code Spectrum} object or {@code null} if it encounters any errors
 	 */
-	public static Spectrum importFromASCIIFile(String file) {
+	public static OldSpectrum importFromASCIIFile(String file) {
 
 		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			
@@ -60,7 +65,7 @@ public final class SpectrumBuilder {
 			}
 			*/
 			
-			Spectrum s = new Spectrum(XSeries, YSeries, name);
+			OldSpectrum s = new OldSpectrum(XSeries, YSeries, name);
 			s.setType(Type.ASCII);
 			return s;
 		} catch (IOException e) {
@@ -68,7 +73,8 @@ public final class SpectrumBuilder {
 		}
 	}
 	
-	public static Spectrum importFromFitsFile(String file) {
+	/*
+	public static OldSpectrum importFromFitsFile(String file) {
 		try (Fits f = new Fits(file);) {
 			BasicHDU<?>[] HDUs = f.read();
 			
@@ -145,9 +151,10 @@ public final class SpectrumBuilder {
 					
 					XSeries = Util.fillArray(YSeries.length, (1 - CRPIX) * CDELT + CRVAL, CDELT);
 					
-					Spectrum s = new Spectrum(XSeries, YSeries, name);
+					OldSpectrum s = new OldSpectrum(XSeries, YSeries, name);
 					s.setType(Type.FITS);
 					s.setHeader(HDUs[i].getHeader());
+					
 					return s;
 				}
 			}
@@ -165,6 +172,6 @@ public final class SpectrumBuilder {
 			return null;
 		}
 	}
-	
+	*/
 	private SpectrumBuilder() {}
 }

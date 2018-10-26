@@ -1,252 +1,267 @@
 package cz.cuni.mff.respefo;
 
+import java.nio.file.Paths;
 import java.util.Arrays;
-
-import nom.tam.fits.BasicHDU;
-import nom.tam.fits.Data;
-import nom.tam.fits.Header;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Class representing a spectrum file
- *
+ * A base class for all formats.
  */
-public class Spectrum {
-	private double[] XSeries;
-	private double[] YSeries;
-
-	private double max_X, min_X;
-	private double max_Y, min_Y;
+public abstract class Spectrum {
+	protected String name;
 	
-	private String name;
+	protected double[] xSeries;
+	protected double[] ySeries;
 	
-	private Type type;
+	protected String xLabel;
+	protected String yLabel;
 	
-	private Header header;
-
-	public enum Type {
-		FITS, ASCII, RUI, UUI
-	}
-
-	/**
-	 * 
-	 * @param XSeries {@code double[]} array representing the XSeries
-	 * @param YSeries {@code double[]} array representing the YSeries
-	 * @param name {@code String} name of the Spectrum
-	 */
-	public Spectrum(double[] XSeries, double[] YSeries, String name) {
-		this.XSeries = XSeries;
-		this.YSeries = YSeries;
-		
-		double max_Y = Double.MIN_VALUE;
-		double min_Y = Double.MAX_VALUE;
-		
-		double max_X = Double.MIN_VALUE;
-		double min_X = Double.MAX_VALUE;
-		
-		for (int i = 0; i < YSeries.length; i++) {
-			if (XSeries[i] > max_X) {
-				max_X = XSeries[i];
-			} else if (XSeries[i] < min_X) {
-				min_X = XSeries[i];
-			}
-			if (YSeries[i] > max_Y) {
-				max_Y = YSeries[i];
-			} else if (YSeries[i] < min_Y) {
-				min_Y = YSeries[i];
-			}
+	protected static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
+	
+	protected Spectrum(String fileName) {
+		name = Paths.get(fileName).getFileName().toString();
+		int pos = name.lastIndexOf('.');
+		if (pos > 0 && pos < name.length() - 1) {
+			name = name.substring(0, pos);
 		}
 		
-		this.max_Y = max_Y;
-		this.min_Y = min_Y;
-		
-		this.max_X = max_X;
-		this.min_X = min_X;
-		
-		this.name = name;
+		xLabel = "xAxis";
+		yLabel = "yAxis";
+	}
+	
+	protected Spectrum(String fileName, double[] xSeries, double[] ySeries) {
+		this(fileName);
+		this.xSeries = xSeries;
+		this.ySeries = ySeries;
 	}
 	
 	/**
-	 * Gets the length of the series
+	 * Returns the name of the spectrum.
 	 * 
-	 * @return {@code int} size of the spectrum
+	 * This should correspond to the original filename.
+	 * @return name of the spectrum
 	 */
-	public int size() {
-		return YSeries.length;
-	}
-	
-	
-	/**
-	 * Gets the name of the spectrum
-	 * 
-	 * @return {@code String} name of the spectrum
-	 */
-	public String name() {
+	public String getName() {
 		return name;
 	}
 	
 	/**
-	 * @return the type
-	 */
-	public Type getType() {
-		return type;
-	}
-
-	/**
-	 * @param type the type to set
-	 */
-	public void setType(Type type) {
-		this.type = type;
-	}
-
-	/**
-	 * Gets the highest X value in the series
+	 * Returns the file extensions associated with the class.
 	 * 
-	 * @return {@code double} maximum X value
+	 * @return array of file extensions
 	 */
-	public double getMaxX() {
-		return max_X;
+	public abstract String[] getFileExtensions();
+
+	/**
+	 * Returns the number of points that the spectrum holds.
+	 * 
+	 * Should be zero for an empty spectrum.
+	 * @return length of the spectrum
+	 */
+	public int getSize() {
+		return xSeries.length;
 	}
 
 	/**
-	 * Gets the lowest X value in the series
+	 * Returns the x value at the specified index.
 	 * 
-	 * @return {@code double} minimum X value
+	 * Throws an exception if the index is smaller than zero or greater than the spectrum's size.
+	 * @param index location of the x value
+	 * @return x value at the specified index
+	 * @throws IndexOutOfBoundsException if the index is smaller than zero or greater than the spectrum's size
 	 */
-	public double getMinX() {
-		return min_X;
-	}
-
-	/**
-	 * Gets the highest Y value in the series
-	 * 
-	 * @return {@code double} maximum Y value
-	 */
-	public double getMaxY() {
-		return max_Y;
-	}
-
-	/**
-	 * Gets the lowest Y value in the series
-	 * 
-	 * @return {@code double} minimum Y value
-	 */
-	public double getMinY() {
-		return min_Y;
-	}
-
-	/**
-	 * Gets the X value at the specified index.
-	 * <p>
-	 * Note: Throws {@code IndexOutOfBoundsException} if the specified index is lower than 0 or larger than the number of points in the spectrum
-	 * 
-	 * @param at index of the point
-	 * @return {@code double} X value
-	 * @throws IndexOutOfBoundsException
-	 */
-	public double getX(int at) throws IndexOutOfBoundsException {
-		if ((at >= 0) && (at < XSeries.length)) {
-			return XSeries[at];
+	public double getX(int index) throws IndexOutOfBoundsException {
+		if (index >= 0 && index < xSeries.length) {
+			return xSeries[index];
 		} else {
 			throw new IndexOutOfBoundsException();
 		}
 	}
 
 	/**
-	 * Gets the Y value at the specified index.
-	 * <p>
-	 * Note: Throws {@code IndexOutOfBoundsException} if the specified index is lower than 0 or larger than the number of points in the spectrum
+	 * Returns the y value at the specified index.
 	 * 
-	 * @param at index of the point
-	 * @return {@code double} Y value
-	 * @throws IndexOutOfBoundsException
+	 * Throws an exception if the index is smaller than zero or greater than the spectrum's size.
+	 * @param index location of the y value
+	 * @return y value at the specified index
+	 * @throws IndexOutOfBoundsException if the index is smaller than zero or greater than the spectrum's size
 	 */
-	public double getY(int at) throws IndexOutOfBoundsException {
-		if ((at >= 0) && (at < YSeries.length)) {
-			return YSeries[at];
+	public double getY(int index) throws IndexOutOfBoundsException {
+		if (index >= 0 && index < ySeries.length) {
+			return ySeries[index];
 		} else {
 			throw new IndexOutOfBoundsException();
 		}
 	}
-	
+
 	/**
-	 * Gets the array {@code double[]} representing the XSeries.
+	 * Returns the x series.
 	 * 
-	 * @return array {@code Point[]} representing the XSeries
+	 * @return the x series
 	 */
 	public double[] getXSeries() {
-		return XSeries;
+		return xSeries.clone();
 	}
-	
+
 	/**
-	 * Gets the XSeries trimmed by the specified arguments
+	 * Returns the x series values that are between the specified arguments.
 	 * 
-	 * @param from {@code double} lower bound value
-	 * @param to {@code double} upper bound value
-	 * @return {@code double[]} representing the trimmed XSeries
+	 * @param from lower bound
+	 * @param to upper bound
+	 * @return the trimmed x series
 	 */
 	public double[] getTrimmedXSeries(double from, double to) {
-		int lo_index = Arrays.binarySearch(XSeries, from);
-		int hi_index = Arrays.binarySearch(XSeries, to);
+		int lowerIndex = Arrays.binarySearch(xSeries, from);
+		int upperIndex = Arrays.binarySearch(xSeries, to);
 		
-		if (lo_index < 0) {
-			lo_index *= -1;
-			lo_index -= 1;
-		} else if (lo_index >= XSeries.length) {
-			lo_index = XSeries.length - 1;
+		if (lowerIndex < 0) {
+			lowerIndex *= -1;
+			lowerIndex -= 1;
+		} else if (lowerIndex >= xSeries.length) {
+			lowerIndex = xSeries.length - 1;
 		}
 		
-		if (hi_index < 0) {
-			hi_index *= -1;
-			hi_index -= 1;
-		} else if (hi_index >= XSeries.length) {
-			hi_index = XSeries.length - 1;
+		if (upperIndex < 0) {
+			upperIndex *= -1;
+			upperIndex -= 1;
+		} else if (upperIndex >= xSeries.length) {
+			upperIndex = xSeries.length - 1;
 		}
 		
-		return Arrays.copyOfRange(XSeries, lo_index, hi_index);
+		return Arrays.copyOfRange(xSeries, lowerIndex, upperIndex);
 	}
 	
 	/**
-	 * Gets the array {@code double[]} representing the YSeries.
+	 * Sets the spectrum x values.
+	 * @param xSeries new x values
+	 */
+	public void setXSeries(double[] xSeries) {
+		this.xSeries = xSeries;
+	}
+
+	/**
+	 * Returns the y series.
 	 * 
-	 * @return array {@code Point[]} representing the YSeries
+	 * @return the y series
 	 */
 	public double[] getYSeries() {
-		return YSeries;
+		return ySeries.clone();
+	}
+
+	/**
+	 * Returns the y series values of the points whose x values are between the specified arguments.
+	 * @param from lower bound
+	 * @param to upper bound
+	 * @return the trimmed y series
+	 */
+	public double[] getTrimmedYSeries(double from, double to) {
+		int lowerIndex = Arrays.binarySearch(xSeries, from);
+		int upperIndex = Arrays.binarySearch(xSeries, to);
+		
+		if (lowerIndex < 0) {
+			lowerIndex *= -1;
+			lowerIndex -= 1;
+		} else if (lowerIndex >= ySeries.length) {
+			lowerIndex = ySeries.length - 1;
+		}
+		
+		if (upperIndex < 0) {
+			upperIndex *= -1;
+			upperIndex -= 1;
+		} else if (upperIndex >= ySeries.length) {
+			upperIndex = ySeries.length - 1;
+		}
+		
+		return Arrays.copyOfRange(ySeries, lowerIndex, upperIndex);
 	}
 	
 	/**
-	 * Gets the YSeries trimmed by the specified arguments respective to the XSeries
-	 * 
-	 * @param from {@code double} lower bound value for the XSeries
-	 * @param to {@code double} upper bound value for the XSeries
-	 * @return {@code double[]} representing the trimmed YSeries respective to the XSeries
+	 * Sets the spectrum y values.
+	 * @param ySeries new y values
 	 */
-	public double[] getTrimmedYSeries(double from, double to) {
-		int lo_index = Arrays.binarySearch(XSeries, from);
-		int hi_index = Arrays.binarySearch(XSeries, to);
-		
-		if (lo_index < 0) {
-			lo_index *= -1;
-			lo_index -= 2;
-		} else if (lo_index >= XSeries.length) {
-			lo_index = XSeries.length - 1;
-		}
-		
-		if (hi_index < 0) {
-			hi_index *= -1;
-			hi_index -= 2;
-		} else if (hi_index >= XSeries.length) {
-			hi_index = XSeries.length - 1;
-		}
-		
-		return Arrays.copyOfRange(YSeries, lo_index, hi_index);
+	public void setYSeries(double[] ySeries) {
+		this.ySeries = ySeries;
+	}
+	
+	/**
+	 * @return the xLabel
+	 */
+	public String getxLabel() {
+		return xLabel;
 	}
 
-	public Header getHeader() {
-		return header;
+	/**
+	 * @param xLabel the xLabel to set
+	 */
+	public void setxLabel(String xLabel) {
+		this.xLabel = xLabel;
 	}
 
-	public void setHeader(Header header) {
-		this.header = header;
+	/**
+	 * @return the yLabel
+	 */
+	public String getyLabel() {
+		return yLabel;
+	}
+
+	/**
+	 * @param yLabel the yLabel to set
+	 */
+	public void setyLabel(String yLabel) {
+		this.yLabel = yLabel;
+	}
+
+	/**
+	 * Exports and saves the spectrum to a ASCII file.
+	 * @param fileName the name of the new file
+	 * @return True if export was successful, False if it failed
+	 */
+	public abstract boolean exportToAscii(String fileName);
+	
+	/**
+	 * Exports and saves the spectrum to a FITS file.
+	 * @param fileName the name of the new file
+	 * @return True if export was successful, False if it failed
+	 */
+	public abstract boolean exportToFits(String fileName);
+
+	/**
+	 * Returns a new Spectrum instance imported from the specified file.
+	 * 
+	 * This method creates an instance of a derived class based on the file extension.
+	 * @param fileName the name of the spectrum file
+	 * @return the imported spectrum
+	 * @throws SpefoException if an error occurred while loading file
+	 */
+	public static final Spectrum createFromFile(String fileName) throws SpefoException {
+		String extension = Util.getFileExtension(fileName);
+		
+		Spectrum result;
+		
+		// TODO specialized exceptions?
+		switch (extension) {
+		case "":
+		case "txt":
+		case "ascii":
+			result = new AsciiSpectrum(fileName);
+			break;
+		case "fits":
+		case "fit":
+		case "fts":
+			result = new FitsSpectrum(fileName);
+			break;
+		case "uui":
+		case "rui":
+		case "rci":
+		case "rfi":
+			LOGGER.log(Level.WARNING, "Old Spefo formats aren't supported yet");
+			throw new SpefoException("Old Spefo formats aren't supported yet");
+		default:
+			LOGGER.log(Level.WARNING, "Not a valid file extension");
+			throw new SpefoException("Not a valid file extension");
+		}
+		
+		return result;
 	}
 }

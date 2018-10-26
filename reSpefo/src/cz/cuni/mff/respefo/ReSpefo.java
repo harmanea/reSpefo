@@ -1,8 +1,16 @@
 package cz.cuni.mff.respefo;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -11,8 +19,11 @@ import org.swtchart.Chart;
 import cz.cuni.mff.respefo.Listeners.FileExportItemListener;
 import cz.cuni.mff.respefo.Listeners.FileImportItemListener;
 import cz.cuni.mff.respefo.Listeners.FileQuitItemListener;
-import cz.cuni.mff.respefo.Listeners.MeasureRVItemListener;
-import cz.cuni.mff.respefo.Listeners.RectifyItemListener;
+import cz.cuni.mff.respefo.legacy.OldMeasureRVItemListener;
+import cz.cuni.mff.respefo.legacy.OldRectifyItemListener;
+import cz.cuni.mff.respefo.legacy.OldSpectrum;
+import cz.cuni.mff.respefo.measureRV.MeasureRVItemListener;
+import cz.cuni.mff.respefo.rectify.RectifyItemListener;
 
 /**
  * Main class responsible for creating a Display and a Shell for the application as well as the main menu
@@ -21,28 +32,51 @@ import cz.cuni.mff.respefo.Listeners.RectifyItemListener;
  *
  */
 public class ReSpefo {
+	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 
-	public static final String version = "0.5.7";
+	public static final String version = "0.7.0";
 
 	private static Display display;
 	private static Shell shell;
+	
+	private static Scene scene;
 
 	private static Menu menuBar, fileMenu, toolsMenu;
 	private static MenuItem fileMenuHeader, toolsMenuHeader;
 	private static MenuItem fileQuitItem, fileExportItem, fileImportItem, rectifyItem, measureRVItem;
 
 	private static Spectrum spectrum;
+
 	private static Chart chart;
-	private static String filterPath = System.getProperty("user.dir");
+	private static String filterPath;
+	static {
+		try {
+			filterPath = System.getProperty("user.dir");
+			LOGGER.log(Level.FINEST, "Filter path set to " + filterPath);
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Couldn't determine current user directory", e);
+			filterPath = "";
+		}
+	}
+	 
 
 	public ReSpefo() {
 
 		display = new Display();
 		Display.setAppName("reSpefo");
-		shell = new Shell(display);
+		shell = new Shell(display, SWT.RESIZE);
 		shell.setText("reSpefo (v" + version + ")");
-		shell.setSize(1000, 1000);
-		shell.setLayout(new FillLayout());
+		GridLayout layout = new GridLayout();
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		shell.setLayout(layout);
+		
+		scene = new Scene(shell, SWT.NONE);
+		scene.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		layout = new GridLayout();
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		scene.setLayout(layout);
 
 		menuBar = new Menu(shell, SWT.BAR);
 
@@ -56,19 +90,19 @@ public class ReSpefo {
 		fileImportItem = new MenuItem(fileMenu, SWT.PUSH);
 		fileImportItem.setText("&Import\tCtrl+I");
 		fileImportItem.setAccelerator('I' | SWT.CTRL);
-		fileImportItem.addSelectionListener(new FileImportItemListener());
+		fileImportItem.addSelectionListener(FileImportItemListener.getInstance());
 
 		fileExportItem = new MenuItem(fileMenu, SWT.PUSH);
 		fileExportItem.setText("&Export\tCtrl+E");
 		fileExportItem.setAccelerator('E' | SWT.CTRL);
-		fileExportItem.addSelectionListener(new FileExportItemListener());
+		fileExportItem.addSelectionListener(FileExportItemListener.getInstance());
 		
 		new MenuItem(fileMenu, SWT.SEPARATOR);
 		
 		fileQuitItem = new MenuItem(fileMenu, SWT.PUSH);
 		fileQuitItem.setText("&Quit\tCtrl+Q");
 		fileQuitItem.setAccelerator('Q' | SWT.CTRL);
-		fileQuitItem.addSelectionListener(new FileQuitItemListener());
+		fileQuitItem.addSelectionListener(FileQuitItemListener.getInstance());
 
 		// Tools menu
 		toolsMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
@@ -80,16 +114,18 @@ public class ReSpefo {
 		rectifyItem = new MenuItem(toolsMenu, SWT.PUSH);
 		rectifyItem.setText("&Rectify\tCtrl+R");
 		rectifyItem.setAccelerator('R' | SWT.CTRL);
-		rectifyItem.addSelectionListener(new RectifyItemListener());
+		rectifyItem.addSelectionListener(RectifyItemListener.getInstance());
 
 		measureRVItem = new MenuItem(toolsMenu, SWT.PUSH);
 		measureRVItem.setText("&Measure RV\tCtrl+M");
 		measureRVItem.setAccelerator('M' | SWT.CTRL);	
-		measureRVItem.addSelectionListener(new MeasureRVItemListener());
+		measureRVItem.addSelectionListener(MeasureRVItemListener.getInstance());
 
 		
 		shell.setMenuBar(menuBar);
 		
+		shell.pack();
+		shell.setSize(1000, 1000);
 		shell.open();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())
@@ -101,13 +137,42 @@ public class ReSpefo {
 	public static Shell getShell() {
 		return shell;
 	}
+	
+	public static Scene getScene() {
+		return scene;
+	}
+	
+	/**
+	 * Disposes of all of it's children controls and removes all saved listeners
+	 */
+	public static void clearScene() {
+		for (Control control : scene.getChildren()) {
+			control.dispose();
+		}
+		
+		scene.removeSavedListeners();
+	}
+	
+	/**
+	 * Clears the scene and nulls all saved values
+	 */
+	public static void reset() {
+		clearScene();
 
+		spectrum = null;
+		
+		if (chart != null && !chart.isDisposed()) {
+			chart.dispose();
+		}
+		chart = null;
+	}
+	
 	public static Spectrum getSpectrum() {
 		return spectrum;
 	}
 
-	public static void setSpectrum(Spectrum s) {
-		ReSpefo.spectrum = s;
+	public static void setSpectrum(Spectrum spectrum) {
+		ReSpefo.spectrum = spectrum;
 	}
 
 	public static Chart getChart() {
@@ -127,6 +192,15 @@ public class ReSpefo {
 	}
 	
 	public static void main(String[] args) {
+		/* for testing purposes
+		double[] values = {11.1677, 11.1996, 11.2256, 10.8078, 11.2517, 11.3894, 11.0871, 11.5193, 10.1170, 11.4623, 10.8452, 11.5980, 12.3255, 
+				11.6454, 9.2660, 11.2712, 11.1386, 11.0935, 11.1053, 11.4201, 11.2883, 11.3738};
+		double middle = 11.2616;
+		System.out.println(Util.rms(values, middle));
+		*/
+		
+		LOGGER.log(Level.INFO, "This is ReSpefo " + version);
 		new ReSpefo();
+		LOGGER.log(Level.INFO, "Program terminated");
 	}
 }

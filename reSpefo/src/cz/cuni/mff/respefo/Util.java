@@ -1,14 +1,23 @@
 package cz.cuni.mff.respefo;
 
+import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 
+import cz.cuni.mff.respefo.legacy.OldSpectrum;
+import cz.cuni.mff.respefo.legacy.SpectrumBuilder;
+
 public class Util {
+	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 	
 	/**
 	 * The INTEP interpolation algorithm
@@ -108,6 +117,41 @@ public class Util {
 		return result;
 	}
 	
+	/**
+	 * Calculate root mean square.
+	 * @param values
+	 * @return root mean square
+	 */
+	public static double rms(double[] values) {
+		if (values.length == 0) {
+			return Double.NaN;
+		}
+		
+		double sum = 0;
+		for (int i = 0; i < values.length; i++) {
+			sum += Math.pow(values[i], 2);
+		}
+		
+		sum /= values.length;
+		
+		return Math.sqrt(sum);
+	}
+	
+	public static double rms(double[] values, double middle) {
+		if (values.length == 0) {
+			return Double.NaN;
+		}
+		
+		double sum = 0;
+		for (int i = 0; i < values.length; i++) {
+			sum += Math.pow(values[i] - middle, 2);
+		}
+		
+		sum /= values.length;
+		
+		return Math.sqrt(sum);
+	}
+	
 	public static int findFirstGreaterThen(double[] array, double target) { // returns array.length if all values are smaller or equal than target
         int index = Arrays.binarySearch(array, target);
         if (index >= 0) {
@@ -171,137 +215,142 @@ public class Util {
 	}
 	
 	/**
-	 * 
-	 * @param input array of floats to be converted to doubles
-	 * @return array of doubles
+	 * Returns the array values that are between the specified arguments.
+	 * @param array to be trimmed
+	 * @param from lower bound
+	 * @param to upper bound
+	 * @return trimmed array
 	 */
-	public static double[] convertFloatsToDoubles(float[] input)
-	{
-	    if (input == null)
-	    {
-	        return null;
-	    }
-	    double[] output = new double[input.length];
-	    for (int i = 0; i < input.length; i++)
-	    {
-	        output[i] = input[i];
-	    }
-	    return output;
+	public static double[] trimArray(double[] array, double from, double to) {
+		return trimArray(array, array, from, to);
 	}
 	
 	/**
-	 * 
-	 * @param input array of ints to be converted to doubles
-	 * @return array of doubles
+	 * Returns the array values of the points whose respective image values are between the specified arguments.
+	 * @param array to be trimmed
+	 * @param pattern values
+	 * @param from lower bound
+	 * @param to upper bounds
+	 * @return trimmed array
 	 */
-	public static double[] convertIntsToDoubles(int[] input)
-	{
-	    if (input == null)
-	    {
-	        return null;
-	    }
-	    double[] output = new double[input.length];
-	    for (int i = 0; i < input.length; i++)
-	    {
-	        output[i] = input[i];
-	    }
-	    return output;
-	}
-	
-	/**
-	 * 
-	 * @param input array of shorts to be converted to doubles
-	 * @return array of doubles
-	 */
-	public static double[] convertShortsToDoubles(short[] input)
-	{
-	    if (input == null)
-	    {
-	        return null;
-	    }
-	    double[] output = new double[input.length];
-	    for (int i = 0; i < input.length; i++)
-	    {
-	        output[i] = input[i];
-	    }
-	    return output;
-	}
-	
-	/**
-	 * 
-	 * @param input array of longs to be converted to doubles
-	 * @return array of doubles
-	 */
-	public static double[] convertLongsToDoubles(long[] input)
-	{
-	    if (input == null)
-	    {
-	        return null;
-	    }
-	    double[] output = new double[input.length];
-	    for (int i = 0; i < input.length; i++)
-	    {
-	        output[i] = input[i];
-	    }
-	    return output;
-	}
-	
-	/**
-	 * 
-	 * @param input array of bytes to be converted to doubles
-	 * @return array of doubles
-	 */
-	public static double[] convertBytesToDoubles(byte[] input)
-	{
-	    if (input == null)
-	    {
-	        return null;
-	    }
-	    double[] output = new double[input.length];
-	    for (int i = 0; i < input.length; i++)
-	    {
-	        output[i] = input[i];
-	    }
-	    return output;
-	}
-	
-	public static void clearListeners() {
-		for (Listener l : ReSpefo.getShell().getListeners(SWT.KeyDown)) {
-			ReSpefo.getShell().removeListener(SWT.KeyDown, l);
+	public static double[] trimArray(double[] array, double[] pattern, double from, double to) {
+		if (array.length != pattern.length) {
+			return null;
 		}
 		
-		for (Listener l : ReSpefo.getShell().getListeners(SWT.MouseDown)) {
-			ReSpefo.getShell().removeListener(SWT.MouseDown, l);
+		int lowerIndex = Arrays.binarySearch(pattern, from);
+		int upperIndex = Arrays.binarySearch(pattern, to);
+		
+		if (lowerIndex < 0) {
+			lowerIndex *= -1;
+			lowerIndex -= 1;
+		} else if (lowerIndex >= array.length) {
+			lowerIndex = array.length - 1;
 		}
+		
+		if (upperIndex < 0) {
+			upperIndex *= -1;
+			upperIndex -= 1;
+		} else if (upperIndex >= array.length) {
+			upperIndex = array.length - 1;
+		}
+		
+		return Arrays.copyOfRange(array, lowerIndex, upperIndex);
 	}
 	
-	public static final int Spectrum = 0;
-	public static final int Stl = 1;
+	/**
+	 * Removes all listeners registered on the main shell.
+	 */
+	public static void clearShellListeners() {
+		int[] eventTypes = { 3007, 3011, SWT.Resize, SWT.Move, SWT.Dispose,
+	            SWT.DragDetect, 3000, SWT.FocusIn, SWT.FocusOut, SWT.Gesture,
+	            SWT.Help, SWT.KeyUp, SWT.KeyDown, 3001, 3002, SWT.MenuDetect,
+	            SWT.Modify, SWT.MouseDown, SWT.MouseUp, SWT.MouseDoubleClick,
+	            SWT.MouseMove, SWT.MouseEnter, SWT.MouseExit, SWT.MouseHover,
+	            SWT.MouseWheel, SWT.Paint, 3008, SWT.Selection, SWT.Touch,
+	            SWT.Traverse, 3005, SWT.Verify, 3009, 3010 };
+
+	    for (int eventType : eventTypes) {
+	        Listener[] listeners = ReSpefo.getShell().getListeners(eventType);
+	        for (Listener listener : listeners) {
+	        	LOGGER.log(Level.FINER, "Removing listener " + eventType + " " + listener);
+	        	ReSpefo.getShell().removeListener(eventType, listener);
+	        }
+	    }
+	}
+	
+	/**
+	 * Remove all listeners registered on the control.
+	 * @param control to clear listeners from
+	 */
+	public static void clearControlListeners(Control control) {
+		int[] eventTypes = { 3007, 3011, SWT.Resize, SWT.Move, SWT.Dispose,
+	            SWT.DragDetect, 3000, SWT.FocusIn, SWT.FocusOut, SWT.Gesture,
+	            SWT.Help, SWT.KeyUp, SWT.KeyDown, 3001, 3002, SWT.MenuDetect,
+	            SWT.Modify, SWT.MouseDown, SWT.MouseUp, SWT.MouseDoubleClick,
+	            SWT.MouseMove, SWT.MouseEnter, SWT.MouseExit, SWT.MouseHover,
+	            SWT.MouseWheel, SWT.Paint, 3008, SWT.Selection, SWT.Touch,
+	            SWT.Traverse, 3005, SWT.Verify, 3009, 3010 };
+
+	    for (int eventType : eventTypes) {
+	        Listener[] listeners = control.getListeners(eventType);
+	        for (Listener listener : listeners) {
+	        	LOGGER.log(Level.FINER, "Removing listener " + eventType + " " + listener);
+	        	ReSpefo.getShell().removeListener(eventType, listener);
+	        }
+	    }
+	}
+	
+	public static final int SPECTRUM_LOAD = 0;
+	public static final int SPECTRUM_SAVE = 1;
+	public static final int STL_LOAD = 2;
+	public static final int LST_LOAD = 3;
 	
 	public static String openFileDialog(int type) {
-		FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN);
-		dialog.setText("Choose file");
-		dialog.setFilterPath(ReSpefo.getFilterPath());
-			
+		FileDialog dialog;
+		
+		String text;
 		String[] filterNames;
 		String[] filterExtensions;
 		
 		switch (type) {
-		case Spectrum:
+		case SPECTRUM_LOAD:
+			dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN);
+			text = "Import file";
 			filterNames = new String[] { "Spectrum Files", "All Files (*)" };
-			filterExtensions = new String[] { "*.fits;*.fit;*.fts;*.txt, *.ascii;*.rui;*.uui", "*" };
+			filterExtensions = new String[] { "*.fits;*.fit;*.fts;*.txt;*.ascii;*.rui;*.uui;*.rci;*.rfi", "*" };
 			break;
-		case Stl:
+		case SPECTRUM_SAVE:
+			dialog = new FileDialog(ReSpefo.getShell(), SWT.SAVE);
+			if (ReSpefo.getSpectrum() != null) {
+				dialog.setFileName(ReSpefo.getSpectrum().getName());
+			}
+			text = "Export file";
+			filterNames = new String[] { "Spectrum Files", "All Files (*)" };
+			filterExtensions = new String[] { "*.fits;*.fit;*.fts;*.txt;*.ascii;*.rui;*.uui;*.rci;*.rfi", "*" };
+			break;
+		case STL_LOAD:
+			dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN);
+			text = "Open file";
 			filterNames = new String[] { "Stl Files", "All Files (*)" };
 			filterExtensions = new String[] { "*.stl", "*" };
+			break;
+		case LST_LOAD:
+			dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN);
+			text = "Open file";
+			filterNames = new String[] { "Lst Files", "All Files (*)" };
+			filterExtensions = new String[] { "*.lst", "*" };
 			break;
 		default:
 			return null;
 		}
 
+		dialog.setText(text);
 		dialog.setFilterNames(filterNames);
 		dialog.setFilterExtensions(filterExtensions);
 
+		dialog.setFilterPath(ReSpefo.getFilterPath());
+		
 		String s = dialog.open();
 		
 		if (s != null && Paths.get(s).getParent() != null) {
@@ -311,12 +360,14 @@ public class Util {
 		return s;
 	}
 	
-	public static Spectrum importSpectrum() {
-		return importSpectrum(Util.openFileDialog(Spectrum));
+	@Deprecated
+	public static OldSpectrum importSpectrum() {
+		return importSpectrum(Util.openFileDialog(SPECTRUM_LOAD));
 	}
 	
-	public static Spectrum importSpectrum(String name) {
-		Spectrum spectrum;
+	@Deprecated
+	public static OldSpectrum importSpectrum(String name) {
+		OldSpectrum spectrum;
 		
 		String extension;
 		if (name == null) {
@@ -344,12 +395,14 @@ public class Util {
 		case "fits":
 		case "fit":
 		case "fts":
+			/*
 			spectrum = SpectrumBuilder.importFromFitsFile(name);
 			if (spectrum == null) {
 				mb.setMessage("Couldn't import spectrum. File might be corrupt.");
 				mb.open();
 			}
 			break;
+			*/
 		case "rui":
 		case "uui":
 			mb.setMessage("Old Spefo formats aren't supported yet.");
@@ -364,6 +417,19 @@ public class Util {
 		}
 		
 		return spectrum;
+	}
+	
+	public static String getFileExtension(String fileName) {
+		if (fileName == null) {
+			return null;
+		} else {
+			int i = fileName.lastIndexOf('.');
+			if (i < fileName.length()) {
+				return fileName.substring(i + 1);
+			} else {
+				return "";
+			}
+		}
 	}
 	
 	private Util() {}

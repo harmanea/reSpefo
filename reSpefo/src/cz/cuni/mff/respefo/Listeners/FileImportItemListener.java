@@ -1,131 +1,120 @@
 package cz.cuni.mff.respefo.Listeners;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.swtchart.Chart;
-import org.swtchart.IAxis;
 import org.swtchart.LineStyle;
 import org.swtchart.Range;
 
 import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
+import cz.cuni.mff.respefo.SpefoException;
 import cz.cuni.mff.respefo.Util;
 
 public class FileImportItemListener implements SelectionListener {
-
-	private boolean drag = false;
-	private long startMillis;
-	private int startX, startY;
-	private int prevX, prevY;
+	private static FileImportItemListener instance;
 	
-	public FileImportItemListener() {
+	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
+	
+	private FileImportItemListener() {
+		LOGGER.log(Level.FINEST, "Creating a new FileImportItemListener");
+	}
+	
+	public static FileImportItemListener getInstance() {
+		if (instance == null) {
+			instance = new FileImportItemListener();
+		}
+		
+		return instance;
 	}
 
 	@Override
 	public void widgetSelected(SelectionEvent event) {
-		Spectrum spectrum = Util.importSpectrum();
+		LOGGER.log(Level.FINEST, "Import file widget selected");
+		handle(event);
+	}
 
-		if (spectrum == null) {
+	@Override
+	public void widgetDefaultSelected(SelectionEvent event) {
+		LOGGER.log(Level.FINEST, "Import file widget default selected");
+		handle(event);
+	}
+	
+	private void handle(SelectionEvent event) {	
+		String fileName = Util.openFileDialog(Util.SPECTRUM_LOAD);
+
+		if (fileName == null) {
+			LOGGER.log(Level.FINER, "File dialog returned null");
 			return;
 		}
-
-		Util.clearListeners();
-
-		ReSpefo.setSpectrum(spectrum);
-
-		Chart chart = ReSpefo.getChart();
-
-		if (chart != null) {
-			chart.dispose();
+		
+		Spectrum spectrum;
+		
+		try {
+			spectrum = Spectrum.createFromFile(fileName);
+		} catch (SpefoException e) {
+			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
+			mb.setMessage("Couldn't import file.\n\nDebug message:\n" + e.getMessage());
+			mb.open();
+			return;
 		}
 		
-		chart = new ChartBuilder(ReSpefo.getShell()).setTitle(spectrum.name()).setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux I(λ)")
-				.addSeries(LineStyle.SOLID, "series", ChartBuilder.green, spectrum.getXSeries(), spectrum.getYSeries()).adjustRange().build();
+		ReSpefo.reset();
+
+		ReSpefo.setSpectrum(spectrum);
+		
+		Chart chart = new ChartBuilder(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux I(λ)")
+				.addSeries(LineStyle.SOLID, "series", ChartBuilder.GREEN, spectrum.getXSeries(), spectrum.getYSeries()).adjustRange().build();
 		
 		ReSpefo.setChart(chart);
 
-		ReSpefo.getShell().addKeyListener(new DefaultMovementListener());
+		ReSpefo.getScene().addSavedKeyListener(new DefaultKeyListener());
+		ReSpefo.getScene().addSavedMouseWheelListener(new MouseWheelZoomListener());
 		
-		chart.getPlotArea().addMouseListener(new MouseListener() {
-
-			@Override
-			public void mouseDown(MouseEvent e) {
-				startMillis = System.currentTimeMillis();
-				if ((e.stateMask & SWT.CTRL) == SWT.CTRL) {
-					drag = true;
-					
-					startX = e.x;
-					startY = e.y;
-					
-					prevX = e.x;
-					prevY = e.y;
-				}
-			}
-
-			@Override
-			public void mouseUp(MouseEvent e) {
-				drag = false;
-				if ((e.stateMask & SWT.CTRL) == SWT.CTRL && System.currentTimeMillis() - startMillis > 50) { // drag release
-					Chart chart = ReSpefo.getChart();
-					Range ChartXRange = chart.getAxisSet().getXAxis(0).getRange();
-					Range ChartYRange = chart.getAxisSet().getYAxis(0).getRange();
-					
-					Rectangle bounds = chart.getPlotArea().getBounds();
-					
-					Range XRange = new Range(ChartXRange.lower + (ChartXRange.upper - ChartXRange.lower) * startX / bounds.width,
-							ChartXRange.lower + (ChartXRange.upper - ChartXRange.lower) * e.x / bounds.width);
-					Range YRange = new Range(ChartYRange.lower + (ChartYRange.upper - ChartYRange.lower) * (bounds.height - startY) / bounds.height,
-							ChartYRange.lower + (ChartYRange.upper - ChartYRange.lower) * (bounds.height - e.y) / bounds.height);
-					
-					for (IAxis x : chart.getAxisSet().getXAxes()) {
-						x.setRange(XRange);
-					}
-					for (IAxis y : chart.getAxisSet().getYAxes()) {
-						y.setRange(YRange);
-					}
-				
-					chart.redraw();
-				}
-			}
-
-			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-			}
-		});
+		MouseDragListener dragListener = new MouseDragListener(true);
+		chart.getPlotArea().addMouseListener(dragListener);
+		chart.getPlotArea().addMouseMoveListener(dragListener);
+		
+		SelectionBoxListener boxListener = new SelectionBoxListener();
+		chart.getPlotArea().addMouseListener(boxListener);
+        chart.getPlotArea().addMouseMoveListener(boxListener);
+        chart.getPlotArea().addPaintListener(boxListener);
+		
+        // Proof of concept, might get removed
+        Label label = new Label(ReSpefo.getScene(), SWT.RIGHT);
+        label.setText("0,0");
+        label.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, false));
         
         chart.getPlotArea().addMouseMoveListener(new MouseMoveListener() {
 			
 			@Override
 			public void mouseMove(MouseEvent e) {
-				if (drag) {
-					prevX = e.x;
-					prevY = e.y;
-					ReSpefo.getChart().redraw();
-				}
+				Chart chart = ReSpefo.getChart();
+				
+				Rectangle bounds = chart.getPlotArea().getBounds();
+				
+				Range chartXRange = chart.getAxisSet().getXAxis(0).getRange();
+				double realX = chartXRange.lower + ((chartXRange.upper - chartXRange.lower) * ((double)e.x / bounds.width));
+				
+				Range chartYRange = chart.getAxisSet().getYAxis(0).getRange();
+				double realY = chartYRange.upper - ((chartYRange.upper - chartYRange.lower) * ((double)e.y / bounds.height));
+				
+				label.setText("x: " + (double)Math.round(realX * 100) / 100 + ", y: " + (double)Math.round(realY * 100) / 100);
 			}
 		});
         
-        chart.getPlotArea().addPaintListener(new PaintListener() {
-			
-			@Override
-			public void paintControl(PaintEvent e) {
-				if (drag) {
-					e.gc.drawRectangle(startX, startY, prevX - startX, prevY - startY);
-				}
-			}
-		});
+        ReSpefo.getScene().layout();
 	}
-
-	@Override
-	public void widgetDefaultSelected(SelectionEvent event) {
-		this.widgetSelected(event);
-	}
+	
 }

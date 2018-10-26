@@ -1,10 +1,11 @@
-package cz.cuni.mff.respefo.Listeners;
+package cz.cuni.mff.respefo.legacy;
 
 import java.awt.FlowLayout;
 import java.awt.MouseInfo;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -52,11 +53,9 @@ import org.swtchart.Range;
 
 import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.ReSpefo;
-import cz.cuni.mff.respefo.Spectrum;
-import cz.cuni.mff.respefo.SpectrumPrinter;
 import cz.cuni.mff.respefo.Util;
 
-public class MeasureRVItemListener implements SelectionListener {
+public class OldMeasureRVItemListener implements SelectionListener {
 	private class Measurement {
 		public Measurement(double l0, double radius, String name, boolean corr) {
 			this.l0 = l0;
@@ -140,7 +139,7 @@ public class MeasureRVItemListener implements SelectionListener {
 	private void measureNext() {
 		if (index < measures.size()) {
 			Measurement m = measures.get(index);
-			Spectrum spectrum = ReSpefo.getSpectrum();
+			OldSpectrum spectrum = ReSpefo.getOldSpectrum();
 			
 			if (spectrum.getTrimmedXSeries(m.l0 - m.radius, m.l0 + m.radius).length == 0) {
 				index++;
@@ -172,8 +171,8 @@ public class MeasureRVItemListener implements SelectionListener {
 			}
 			chart = new ChartBuilder(ReSpefo.getShell()).setTitle(m.name + " #" + (index + 1) + " (" + m.l0 + ")").setXAxisLabel("index")
 					.setYAxisLabel("relative flux I(λ)")
-					.addSeries(LineStyle.SOLID, "original", ChartBuilder.green, XSeries, YSeries)
-					.addSeries(LineStyle.SOLID, "mirrored", ChartBuilder.blue, mirroredXSeries, mirroredYSeries).adjustRange(1)
+					.addSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN, XSeries, YSeries)
+					.addSeries(LineStyle.SOLID, "mirrored", ChartBuilder.BLUE, mirroredXSeries, mirroredYSeries).adjustRange(1)
 					.build();
 
 			ReSpefo.setChart(chart);
@@ -221,7 +220,7 @@ public class MeasureRVItemListener implements SelectionListener {
 			if (chart != null) {
 				chart.dispose();
 			}
-			Spectrum spectrum = ReSpefo.getSpectrum();
+			OldSpectrum spectrum = ReSpefo.getOldSpectrum();
 			
 			double[] X = new double[measures.size()];
 			for (int i = 0; i < X.length; i++) {
@@ -231,13 +230,13 @@ public class MeasureRVItemListener implements SelectionListener {
 			
 			chart = new ChartBuilder(ReSpefo.getShell()).setTitle("Press ENTER to finish").setXAxisLabel("wavelength (Å)")
 					.setYAxisLabel("relative flux I(λ)")
-					.addSeries(LineStyle.SOLID, "original", ChartBuilder.green, spectrum.getXSeries(), spectrum.getYSeries())
-					.addSeries(LineStyle.NONE, "measurements", ChartBuilder.pink, X, Y).adjustRange()
+					.addSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN, spectrum.getXSeries(), spectrum.getYSeries())
+					.addSeries(LineStyle.NONE, "measurements", ChartBuilder.PINK, X, Y).adjustRange()
 					.build();
 
 			ReSpefo.setChart(chart);
 			
-			Util.clearListeners();
+			Util.clearShellListeners();
 			
 			ReSpefo.getShell().addKeyListener(new KeyAdapter() {
 				public void keyPressed(KeyEvent e) {
@@ -253,7 +252,7 @@ public class MeasureRVItemListener implements SelectionListener {
 							results.remove(results.size() - 1);
 						}
 						index--;
-						Util.clearListeners();
+						Util.clearShellListeners();
 						ReSpefo.getShell().addKeyListener(new MeasureRVKeyAdapter());
 						ReSpefo.getShell().addKeyListener(new MeasureRVKeyAdapterNoRepeat());
 						measureNext();
@@ -261,25 +260,26 @@ public class MeasureRVItemListener implements SelectionListener {
 						
 					case 'n':
 						index--;
-						Util.clearListeners();
+						Util.clearShellListeners();
 						ReSpefo.getShell().addKeyListener(new MeasureRVKeyAdapter());
 						ReSpefo.getShell().addKeyListener(new MeasureRVKeyAdapterNoRepeat());
 						measureNext();
 						break;
 						
 					case SWT.CR:
-						printResults();
-							
-						Chart chart = ReSpefo.getChart();
-
-						if (chart != null) {
-							chart.dispose();
+						if (printResults()) {
+								
+							Chart chart = ReSpefo.getChart();
+	
+							if (chart != null) {
+								chart.dispose();
+							}
+	
+							ReSpefo.setChart(null);
+							ReSpefo.setOldSpectrum(null);
+	
+							Util.clearShellListeners();
 						}
-
-						ReSpefo.setChart(null);
-						ReSpefo.setSpectrum(null);
-
-						Util.clearListeners();
 						break;
 					}
 				}
@@ -288,10 +288,30 @@ public class MeasureRVItemListener implements SelectionListener {
 		}
 	}
 	
-	private void printResults() {
-		try (PrintWriter writer = new PrintWriter(
-				ReSpefo.getFilterPath() + File.separator + ReSpefo.getSpectrum().name() + ".rv")) {
+	private boolean printResults() {
+		File f = new File(ReSpefo.getFilterPath() + File.separator + ReSpefo.getOldSpectrum().name() + ".rv");
+		boolean append = false;
+		if (f.exists()) {
+			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+			mb.setMessage("File already exists, do you wish to append to it?");
+			int result = mb.open();
+			if (result < 0) {
+				return false;
+			} else {
+				append = result == SWT.YES;
+			}
+		}
+		
+		try (PrintWriter writer = new PrintWriter(new FileOutputStream(
+			    f, append))) {
 			
+			writer.println("# Summary of radial velocities measured on " + ReSpefo.getOldSpectrum().name());
+			writer.println("_This file was generated automatically, please do not edit_");
+			writer.println();
+			writer.println("Heliocentric correction: " + "[not implemented yet]");
+			writer.println();
+			
+			/*
 			String format = " %1.10E";
 			writer.println(String.format(format, ReSpefo.getSpectrum().getX(0)));
 			ILineSeries ser = (ILineSeries) ReSpefo.getChart().getSeriesSet().getSeries("original");
@@ -337,12 +357,14 @@ public class MeasureRVItemListener implements SelectionListener {
 			}
 			average = sum / corrections.size();
 			writer.println("Average RV: " + average);
-			
+			*/
 		} catch (FileNotFoundException e) {
 			MessageBox warning = new MessageBox(ReSpefo.getShell(), SWT.ICON_ERROR | SWT.OK);
 			warning.setText("Error occured while printing results.");
 			warning.open();
 		}
+		
+		return true;
 	}
 
 	@Override
@@ -353,7 +375,7 @@ public class MeasureRVItemListener implements SelectionListener {
 			return;
 		}
 
-		Util.clearListeners();
+		Util.clearShellListeners();
 		
 		String s = dialog.getSpectrum();
 		String[] measurements = dialog.getMeasurements();
@@ -363,7 +385,7 @@ public class MeasureRVItemListener implements SelectionListener {
 		getMeasurements(measurements, false);
 		getMeasurements(corrections, true);
 
-		Spectrum spectrum = Util.importSpectrum(s);
+		OldSpectrum spectrum = Util.importSpectrum(s);
 		if (spectrum == null) {
 			return;
 		}
@@ -400,7 +422,7 @@ public class MeasureRVItemListener implements SelectionListener {
 		
 		double[] newYSeries = Util.intep(XSeries, YSeries, newXSeries);
 		
-		ReSpefo.setSpectrum(new Spectrum(newXSeries, newYSeries, spectrum.name()));
+		ReSpefo.setOldSpectrum(new OldSpectrum(newXSeries, newYSeries, spectrum.name()));
 		
 		results = new ArrayList<>();
 		this.corrections = new ArrayList<>();
@@ -774,7 +796,7 @@ public class MeasureRVItemListener implements SelectionListener {
 
 				@Override
 				public void handleEvent(Event e) {
-					String s = Util.openFileDialog(Util.Spectrum);
+					String s = Util.openFileDialog(Util.SPECTRUM_LOAD);
 					
 					if (s != null) {
 						textOne.setText(s);
@@ -792,7 +814,7 @@ public class MeasureRVItemListener implements SelectionListener {
 
 				@Override
 				public void handleEvent(Event e) {
-					String s = Util.openFileDialog(Util.Stl);
+					String s = Util.openFileDialog(Util.STL_LOAD);
 					
 					if (s != null) {
 						listOne.add(s);
@@ -824,7 +846,7 @@ public class MeasureRVItemListener implements SelectionListener {
 
 				@Override
 				public void handleEvent(Event e) {
-					String s = Util.openFileDialog(Util.Stl);
+					String s = Util.openFileDialog(Util.STL_LOAD);
 					
 					if (s != null) {
 						listTwo.add(s);

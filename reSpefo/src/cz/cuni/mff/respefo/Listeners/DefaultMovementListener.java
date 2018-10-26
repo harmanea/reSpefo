@@ -28,6 +28,7 @@ import cz.cuni.mff.respefo.ReSpefo;
  * 
  * Space = Adjust the view so that all series are visible
  */
+@Deprecated
 public class DefaultMovementListener implements KeyListener {
 
 	@Override
