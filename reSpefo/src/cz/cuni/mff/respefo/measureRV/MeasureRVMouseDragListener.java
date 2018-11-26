@@ -3,9 +3,7 @@ package cz.cuni.mff.respefo.measureRV;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.graphics.Rectangle;
 import org.swtchart.Chart;
-import org.swtchart.IAxis;
 import org.swtchart.ILineSeries;
 import org.swtchart.Range;
 

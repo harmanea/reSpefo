@@ -1,5 +1,6 @@
 package cz.cuni.mff.respefo;
 
+import java.beans.IndexedPropertyDescriptor;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -9,7 +10,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.Fits;
@@ -43,7 +43,7 @@ public class AsciiSpectrum extends Spectrum {
 					
 					xList.add(x);
 					yList.add(y);
-				} catch (NumberFormatException e) {
+				} catch (NumberFormatException | IndexOutOfBoundsException e) {
 					LOGGER.log(Level.FINEST, "Skipped line (" + line + ")");
 					continue;
 				}

@@ -17,9 +17,12 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Spinner;
 import org.swtchart.Chart;
 import org.swtchart.IAxis;
 import org.swtchart.ILineSeries;
@@ -51,8 +54,12 @@ public class MeasureRVItemListener implements SelectionListener {
 	private double shift;
 	
 	private Composite container; // holds current chart
-	private List list;
-	private List list2;
+	private List listOne;
+	private List listTwo;
+	private double rvStep;
+	
+	private Label rvStepLabel;
+	private Button rvStepButton;
 
 	private MeasureRVItemListener() {
 		LOGGER.log(Level.FINEST, "Creating a new MeasureRVItemListener");
@@ -95,6 +102,7 @@ public class MeasureRVItemListener implements SelectionListener {
 		String fileName = dialog.getSpectrum();
 		String[] measurements = dialog.getMeasurements();
 		String[] corrections = dialog.getCorrections();
+		rvStep = dialog.getRvStep();
 		
 		try {
 			spectrum = Spectrum.createFromFile(fileName);
@@ -145,32 +153,30 @@ public class MeasureRVItemListener implements SelectionListener {
 		
 		ReSpefo.setFilterPath(Paths.get(fileName).getParent().toString());
 		
-		SashForm sashForm = new SashForm(ReSpefo.getScene(), SWT.HORIZONTAL);
-		sashForm.setLayout(new FillLayout());
-		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		SashForm sashFormOne = new SashForm(ReSpefo.getScene(), SWT.HORIZONTAL);
+		sashFormOne.setLayout(new FillLayout());
+		sashFormOne.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
-		container = new Composite(sashForm, SWT.NONE);
+		container = new Composite(sashFormOne, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 		container.setLayout(layout);
 		
-		createChart(rvms.getAt(index));
-		
-		Composite sideBar = new Composite(sashForm, SWT.NONE);
+		Composite sideBar = new Composite(sashFormOne, SWT.NONE);
 		layout = new GridLayout(1, true);
 		sideBar.setLayout(layout);
 		
-		SashForm sashForm2 = new SashForm(sideBar, SWT.VERTICAL);
-		sashForm2.setLayout(new FillLayout());
-		sashForm2.setLayoutData(new GridData(GridData.FILL_BOTH));
+		SashForm sashFormTwo = new SashForm(sideBar, SWT.VERTICAL);
+		sashFormTwo.setLayout(new FillLayout());
+		sashFormTwo.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
-		list = new List(sashForm2, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
-		list2 = new List(sashForm2, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+		listOne = new List(sashFormTwo, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+		listTwo = new List(sashFormTwo, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
 		
-		list.setItems(rvms.getNames());
-		list.setSelection(0);
-		list.addSelectionListener(new SelectionListener() {
+		listOne.setItems(rvms.getNames());
+		listOne.setSelection(0);
+		listOne.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -183,15 +189,15 @@ public class MeasureRVItemListener implements SelectionListener {
 			}
 			
 			private void handle() {
-				if (list.getSelectionIndex() != -1) {
-					index = list.getSelectionIndex();
-					list2.setSelection(-1);
+				if (listOne.getSelectionIndex() != -1) {
+					index = listOne.getSelectionIndex();
+					listTwo.setSelection(-1);
 				
 					createChart(rvms.getAt(index));
 				}
 			}
 		});
-		list.addFocusListener(new FocusAdapter() {
+		listOne.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
 				ReSpefo.getScene().setFocus();
@@ -199,8 +205,8 @@ public class MeasureRVItemListener implements SelectionListener {
 		});
 		
 
-		list2.setItems(new String[0]);
-		list2.addSelectionListener(new SelectionListener() {
+		listTwo.setItems(new String[0]);
+		listTwo.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -213,28 +219,62 @@ public class MeasureRVItemListener implements SelectionListener {
 			}
 			
 			private void handle() {
-				if (list2.getSelectionIndex() != -1) {
-					RVResult result = results.getAt(list2.getSelectionIndex());
+				if (listTwo.getSelectionIndex() != -1) {
+					RVResult result = results.getAt(listTwo.getSelectionIndex());
 					
 					index = result.index;
-					list.setSelection(index);
+					listOne.setSelection(index);
 					createChart(rvms.getAt(index));
 					
 					move(result.shift);
 				}
 			}
 		});
-		list2.addFocusListener(new FocusAdapter() {
+		listTwo.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
 				ReSpefo.getScene().setFocus();
 			}
 		});
 		
-		Button b = new Button(sideBar, SWT.PUSH | SWT.CENTER);
-		b.setText("Finish");
-		b.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		b.addListener(SWT.Selection, new Listener() {
+		Group group = new Group(sideBar, SWT.RADIO);
+		group.setText("RV step (km/s)");
+        layout = new GridLayout(2, false);
+        group.setLayout(layout);
+        group.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, false));
+		
+        rvStepLabel = new Label(group, SWT.CENTER);
+        rvStepLabel.setText(Double.toString(rvStep));
+        rvStepLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+        
+        rvStepButton = new Button(group, SWT.PUSH | SWT.CENTER);
+        rvStepButton.setText("...");
+        rvStepButton.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, true));
+        rvStepButton.addListener(SWT.Selection, new Listener() {
+			
+			@Override
+			public void handleEvent(Event e) {
+				RVStepDialog dialog = new RVStepDialog(ReSpefo.getShell(), rvStep);
+				if (dialog.open()) {
+					rvStep = dialog.getRVStep();
+					
+					if (rvStep < 0) {
+						rvStepLabel.setText(Double.toString(Util.round(getRelativeStep(), 2)));
+					} else {
+						rvStepLabel.setText(Double.toString(rvStep));
+					}
+				} else {
+					LOGGER.log(Level.FINER, "RV step dialog returned false.");
+				}
+				
+				ReSpefo.getScene().forceFocus();
+			} 
+		});
+		
+		Button buttonFinish = new Button(sideBar, SWT.PUSH | SWT.CENTER);
+		buttonFinish.setText("Finish");
+		buttonFinish.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		buttonFinish.addListener(SWT.Selection, new Listener() {
 			
 			@Override
 			public void handleEvent(Event e) {
@@ -242,14 +282,16 @@ public class MeasureRVItemListener implements SelectionListener {
 			}
 		});
 		
-		sashForm.setWeights(new int[]{85, 15});
-		sashForm2.setWeights(new int[]{50, 50});
+		sashFormOne.setWeights(new int[]{85, 15});
+		sashFormTwo.setWeights(new int[]{50, 50});
 		
 		ReSpefo.getScene().addSavedMouseWheelListener(new MouseWheelZoomListener(true, false));
 		
 		MeasureRVKeyListener keyListener = new MeasureRVKeyListener();
 		ReSpefo.getScene().addSavedKeyListener(keyListener);
 		container.addKeyListener(keyListener);
+		
+		createChart(rvms.getAt(index));
 		
 		ReSpefo.getScene().layout();
 	}
@@ -287,7 +329,10 @@ public class MeasureRVItemListener implements SelectionListener {
 		MeasureRVMouseDragListener dragListener = new MeasureRVMouseDragListener();
 		chart.getPlotArea().addMouseListener(dragListener);
 		chart.getPlotArea().addMouseMoveListener(dragListener);
-
+		
+		rvStepButton.setEnabled(true);
+		adjustRVStepLabel();
+		
 		shift = 0;
 		summary = false;
 	}
@@ -312,10 +357,12 @@ public class MeasureRVItemListener implements SelectionListener {
 				.build();
 		ReSpefo.setChart(chart);
 		
+		rvStepButton.setEnabled(false);
+		
 		summary = true;
 	}
 	
-	private double getStep() {
+	private double getRelativeStep() {
 		Chart chart = ReSpefo.getChart();
 		ILineSeries ser = (ILineSeries) chart.getSeriesSet().getSeries("mirrored");
 		IAxis XAxis = chart.getAxisSet().getXAxis(ser.getXAxisId());
@@ -325,13 +372,21 @@ public class MeasureRVItemListener implements SelectionListener {
 	
 	public void moveRight() {
 		if (!summary) {
-			moveRight(getStep());
+			if (rvStep < 0) {
+				moveRight(getRelativeStep());
+			} else {
+				moveRight(rvStep);
+			}
 		}
 	}
 	
 	public void moveLeft() {
 		if (!summary) {
-			moveLeft(getStep());
+			if(rvStep < 0) {
+				moveLeft(getRelativeStep());
+			} else {
+				moveLeft(rvStep);
+			}
 		}
 	}
 	
@@ -363,11 +418,11 @@ public class MeasureRVItemListener implements SelectionListener {
 		if (summary) {
 			finish();
 		} else {
-			if (list2.getSelectionIndex() == -1) {
+			if (listTwo.getSelectionIndex() == -1) {
 				save();
 			} else {
 				// edit result
-				RVResult result = results.getAt(list2.getSelectionIndex());
+				RVResult result = results.getAt(listTwo.getSelectionIndex());
 				MeasurementInputDialog dialog = new MeasurementInputDialog(ReSpefo.getShell(), result.category, result.comment, true);
 				
 				String category = dialog.open();
@@ -378,8 +433,8 @@ public class MeasureRVItemListener implements SelectionListener {
 					result.shift = shift;
 					result.radius = rvms.getAt(index).radius;
 					
-					list2.setItem(list2.getSelectionIndex(), result.toString());
-					list2.setSelection(-1);
+					listTwo.setItem(listTwo.getSelectionIndex(), result.toString());
+					listTwo.setSelection(-1);
 					
 					createChart(rvms.getAt(index));
 				}
@@ -412,10 +467,10 @@ public class MeasureRVItemListener implements SelectionListener {
 
 			RVResult rvresult = new RVResult(rV, shift, radius, category, l0, name, comment, index);
 			results.addResult(rvresult);
-			list2.add(rvresult.toString());
+			listTwo.add(rvresult.toString());
 
-			if (list2.getSelectionIndex() != -1) {
-				list2.setSelection(-1);
+			if (listTwo.getSelectionIndex() != -1) {
+				listTwo.setSelection(-1);
 				createChart(rvms.getAt(index));
 			} else {
 				indexIncrement();
@@ -431,7 +486,7 @@ public class MeasureRVItemListener implements SelectionListener {
 		if (index < rvms.getCount() - 1) {
 			index++;
 			
-			list.setSelection(index);
+			listOne.setSelection(index);
 			
 			createChart(rvms.getAt(index));
 		} else {			
@@ -440,13 +495,13 @@ public class MeasureRVItemListener implements SelectionListener {
 	}
 	
 	public void delete() {
-		if (list2.getSelectionIndex() != -1) {
+		if (listTwo.getSelectionIndex() != -1) {
 			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
 			mb.setMessage("Are you sure you want to delete this measurement?");
 			if (mb.open() == SWT.YES) {
-				results.remove(list2.getSelectionIndex());
-				list2.remove(list2.getSelectionIndex());
-				list2.setSelection(-1);
+				results.remove(listTwo.getSelectionIndex());
+				listTwo.remove(listTwo.getSelectionIndex());
+				listTwo.setSelection(-1);
 			}
 		} else {
 			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_INFORMATION | SWT.OK);
@@ -456,13 +511,21 @@ public class MeasureRVItemListener implements SelectionListener {
 	}
 	
 	public void increaseRadius() {
-		rvms.getAt(list.getSelectionIndex()).radius *= 1.5;
+		rvms.getAt(listOne.getSelectionIndex()).radius *= 1.5;
 		createChart(rvms.getAt(index));
 	}
 	
 	public void decreaseRadius() {
-		rvms.getAt(list.getSelectionIndex()).radius /= 1.5;
+		rvms.getAt(listOne.getSelectionIndex()).radius /= 1.5;
 		createChart(rvms.getAt(index));
+	}
+	
+	public void adjustRVStepLabel() {
+		if (rvStep < 0) {
+			rvStepLabel.setText(Double.toString(Util.round(getRelativeStep(), 2)));
+		} else {
+			rvStepLabel.setText(Double.toString(rvStep));
+		}
 	}
 	
 	private void finish() {

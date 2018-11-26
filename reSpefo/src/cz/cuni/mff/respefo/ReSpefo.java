@@ -4,13 +4,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -19,11 +16,9 @@ import org.swtchart.Chart;
 import cz.cuni.mff.respefo.Listeners.FileExportItemListener;
 import cz.cuni.mff.respefo.Listeners.FileImportItemListener;
 import cz.cuni.mff.respefo.Listeners.FileQuitItemListener;
-import cz.cuni.mff.respefo.legacy.OldMeasureRVItemListener;
-import cz.cuni.mff.respefo.legacy.OldRectifyItemListener;
-import cz.cuni.mff.respefo.legacy.OldSpectrum;
 import cz.cuni.mff.respefo.measureRV.MeasureRVItemListener;
 import cz.cuni.mff.respefo.rectify.RectifyItemListener;
+import cz.cuni.mff.respefo.rvResult.RVResultItemListener;
 
 /**
  * Main class responsible for creating a Display and a Shell for the application as well as the main menu
@@ -34,7 +29,7 @@ import cz.cuni.mff.respefo.rectify.RectifyItemListener;
 public class ReSpefo {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 
-	public static final String version = "0.7.0";
+	public static final String version = "0.7.4";
 
 	private static Display display;
 	private static Shell shell;
@@ -43,7 +38,7 @@ public class ReSpefo {
 
 	private static Menu menuBar, fileMenu, toolsMenu;
 	private static MenuItem fileMenuHeader, toolsMenuHeader;
-	private static MenuItem fileQuitItem, fileExportItem, fileImportItem, rectifyItem, measureRVItem;
+	private static MenuItem fileQuitItem, fileExportItem, fileImportItem, rectifyItem, measureRVItem, rVResultsItem;
 
 	private static Spectrum spectrum;
 
@@ -120,7 +115,11 @@ public class ReSpefo {
 		measureRVItem.setText("&Measure RV\tCtrl+M");
 		measureRVItem.setAccelerator('M' | SWT.CTRL);	
 		measureRVItem.addSelectionListener(MeasureRVItemListener.getInstance());
-
+		
+		rVResultsItem = new MenuItem(toolsMenu, SWT.PUSH);
+		rVResultsItem.setText("&RV Results\tCtrl+T");
+		rVResultsItem.setAccelerator('T' | SWT.CTRL);
+		rVResultsItem.addSelectionListener(RVResultItemListener.getInstance());
 		
 		shell.setMenuBar(menuBar);
 		
@@ -192,13 +191,7 @@ public class ReSpefo {
 	}
 	
 	public static void main(String[] args) {
-		/* for testing purposes
-		double[] values = {11.1677, 11.1996, 11.2256, 10.8078, 11.2517, 11.3894, 11.0871, 11.5193, 10.1170, 11.4623, 10.8452, 11.5980, 12.3255, 
-				11.6454, 9.2660, 11.2712, 11.1386, 11.0935, 11.1053, 11.4201, 11.2883, 11.3738};
-		double middle = 11.2616;
-		System.out.println(Util.rms(values, middle));
-		*/
-		
+	
 		LOGGER.log(Level.INFO, "This is ReSpefo " + version);
 		new ReSpefo();
 		LOGGER.log(Level.INFO, "Program terminated");

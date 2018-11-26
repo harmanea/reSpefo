@@ -255,8 +255,8 @@ public abstract class Spectrum {
 		case "rui":
 		case "rci":
 		case "rfi":
-			LOGGER.log(Level.WARNING, "Old Spefo formats aren't supported yet");
-			throw new SpefoException("Old Spefo formats aren't supported yet");
+			result = new OldSpefoSpectrum(fileName);
+			break;
 		default:
 			LOGGER.log(Level.WARNING, "Not a valid file extension");
 			throw new SpefoException("Not a valid file extension");

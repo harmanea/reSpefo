@@ -16,7 +16,6 @@ import org.swtchart.ILineSeries.PlotSymbolType;
 import org.swtchart.ISeries.SeriesType;
 import org.swtchart.LineStyle;
 import org.swtchart.Range;
-import org.swtchart.internal.Grid;
 
 /**
  * Class for easier creation of charts

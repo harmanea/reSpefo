@@ -2,13 +2,10 @@ package cz.cuni.mff.respefo.measureRV;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 
 import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Listeners.DefaultKeyListener;
-import cz.cuni.mff.respefo.legacy.OldMeasureRVItemListener;
 
 public class MeasureRVKeyListener extends DefaultKeyListener {
 	
@@ -22,6 +19,14 @@ public class MeasureRVKeyListener extends DefaultKeyListener {
 		
 		handlers.put((int) 'd', MeasureRVKeyListener::moveRight);
 		handlers.put(SWT.ARROW_RIGHT, MeasureRVKeyListener::moveRight);
+		
+		handlers.put((int) '+', MeasureRVKeyListener::zoomIn);
+		handlers.put(16777259, MeasureRVKeyListener::zoomIn);
+		handlers.put(49, MeasureRVKeyListener::zoomIn);
+		
+		handlers.put((int) '-', MeasureRVKeyListener::zoomOut);
+		handlers.put(16777261, MeasureRVKeyListener::zoomOut);
+		handlers.put(47, MeasureRVKeyListener::zoomOut);
 		
 		handlers.put((int) SWT.CR, MeasureRVKeyListener::enter); // Enter
 		
@@ -38,6 +43,7 @@ public class MeasureRVKeyListener extends DefaultKeyListener {
 	public static void adjustView(KeyEvent e) {
 		ChartBuilder.adjustRange(ReSpefo.getChart(), 1, 1);
 		ReSpefo.getChart().getAxisSet().zoomOut();
+		MeasureRVItemListener.getInstance().adjustRVStepLabel();
 	}
 	
 	public static void moveRight(KeyEvent e) {
@@ -46,6 +52,16 @@ public class MeasureRVKeyListener extends DefaultKeyListener {
 	
 	public static void moveLeft(KeyEvent e) {
 		MeasureRVItemListener.getInstance().moveLeft();
+	}
+	
+	public static void zoomIn(KeyEvent e) {
+		ReSpefo.getChart().getAxisSet().zoomIn();
+		MeasureRVItemListener.getInstance().adjustRVStepLabel();
+	}
+	
+	public static void zoomOut(KeyEvent e) {
+		ReSpefo.getChart().getAxisSet().zoomOut();
+		MeasureRVItemListener.getInstance().adjustRVStepLabel();
 	}
 	
 	public static void enter(KeyEvent e) {

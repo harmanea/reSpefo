@@ -1,20 +1,18 @@
 package cz.cuni.mff.respefo;
 
-import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-
-import cz.cuni.mff.respefo.legacy.OldSpectrum;
-import cz.cuni.mff.respefo.legacy.SpectrumBuilder;
 
 public class Util {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
@@ -137,6 +135,12 @@ public class Util {
 		return Math.sqrt(sum);
 	}
 	
+	/**
+	 * Calculate root mean square error
+	 * @param values 
+	 * @param middle predicted value
+	 * @return root mean square error
+	 */
 	public static double rms(double[] values, double middle) {
 		if (values.length == 0) {
 			return Double.NaN;
@@ -152,7 +156,13 @@ public class Util {
 		return Math.sqrt(sum);
 	}
 	
-	public static int findFirstGreaterThen(double[] array, double target) { // returns array.length if all values are smaller or equal than target
+	/**
+	 * Find first array entry that is greater than target
+	 * @param array of values
+	 * @param target
+	 * @return index of the value matching the criteria, returns array.length if all values are smaller than or equal to the target
+	 */
+	public static int findFirstGreaterThen(double[] array, double target) {
         int index = Arrays.binarySearch(array, target);
         if (index >= 0) {
         	return index + 1;
@@ -161,6 +171,11 @@ public class Util {
         }
 	}
 	
+	/**
+	 * Flips the array values
+	 * @param array
+	 * @return flipped array
+	 */
 	public static double[] mirrorArray(double[] array) {
 		for(int i = 0; i < array.length / 2; i++)
 		{
@@ -171,6 +186,12 @@ public class Util {
 		return array;
 	}
 	
+	/**
+	 * Add a value to all array entries
+	 * @param array 
+	 * @param value to add
+	 * @return adjusted array
+	 */
 	public static double[] adjustArrayValues(double[] array, double value) {
 		for(int i = 0; i < array.length; i++) {
 			array[i] += value;
@@ -178,6 +199,12 @@ public class Util {
 		return array;
 	}
 	
+	/**
+	 * Divide all array entries by values in another array
+	 * @param a1 array to be divided
+	 * @param a2 array to divide with
+	 * @return adjusted array
+	 */
 	public static double[] divideArrayValues(double[] a1, double[] a2) {
 		if (a1.length != a2.length) {
 			return null;
@@ -189,6 +216,13 @@ public class Util {
 		return result;
 	}
 	
+	/**
+	 * Applies BScale to all array values
+	 * @param array
+	 * @param BZero
+	 * @param BScale
+	 * @return array with applied BScale
+	 */
 	public static double[] applyBScale(double[] array, double BZero, double BScale) {
 		double[] result = new double[array.length];
 		for(int i = 0; i < result.length; i++) {
@@ -306,6 +340,11 @@ public class Util {
 	public static final int STL_LOAD = 2;
 	public static final int LST_LOAD = 3;
 	
+	/**
+	 * Opens a file dialog and returns it's result
+	 * @param type
+	 * @return dialog return value
+	 */
 	public static String openFileDialog(int type) {
 		FileDialog dialog;
 		
@@ -360,76 +399,170 @@ public class Util {
 		return s;
 	}
 	
-	@Deprecated
-	public static OldSpectrum importSpectrum() {
-		return importSpectrum(Util.openFileDialog(SPECTRUM_LOAD));
-	}
-	
-	@Deprecated
-	public static OldSpectrum importSpectrum(String name) {
-		OldSpectrum spectrum;
-		
-		String extension;
-		if (name == null) {
-			return null;
-		} else {
-			int i = name.lastIndexOf('.');
-			if (i < name.length()) {
-				extension = name.substring(i + 1);
-			} else {
-				extension = "";
-			}
-		}
-		
-		MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-		
-		switch (extension) {
-		case "":
-		case "txt":
-			spectrum = SpectrumBuilder.importFromASCIIFile(name);
-			if (spectrum == null) {
-				mb.setMessage("Couldn't import spectrum. File might be corrupt.");
-				mb.open();
-			}
-			break;
-		case "fits":
-		case "fit":
-		case "fts":
-			/*
-			spectrum = SpectrumBuilder.importFromFitsFile(name);
-			if (spectrum == null) {
-				mb.setMessage("Couldn't import spectrum. File might be corrupt.");
-				mb.open();
-			}
-			break;
-			*/
-		case "rui":
-		case "uui":
-			mb.setMessage("Old Spefo formats aren't supported yet.");
-			mb.open();
-			spectrum = null;
-			break;
-		default:
-			mb.setMessage("Not a supported file type.");
-			mb.open();
-			spectrum = null;
-			break;
-		}
-		
-		return spectrum;
-	}
-	
+	/**
+	 * Gets the file extension
+	 * @param fileName
+	 * @return file extension
+	 */
 	public static String getFileExtension(String fileName) {
 		if (fileName == null) {
 			return null;
 		} else {
 			int i = fileName.lastIndexOf('.');
-			if (i < fileName.length()) {
+			if (i >= 0) {
 				return fileName.substring(i + 1);
 			} else {
 				return "";
 			}
 		}
+	}
+	
+	/**
+	 * Converts a Turbo Pascal Extended type to double
+	 * @param data byte array containing the extended value in little endian byte order
+	 * @return converted double value
+	 */
+	public static double pascalExtendedToDouble(byte[] data) {
+		if (data.length != 10) {
+			throw new IllegalArgumentException("Extended format takes up 10 bytes");
+		}
+		
+		byte sign = (byte) ((data[9] & 0x80) >> 7); // 0 positive, 1 negative
+		
+		byte[] bytes = Arrays.copyOfRange(data, 8, 10);
+		short exponent = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
+		exponent -= 16382; // to get the actual value;
+		
+		double result;
+		if (exponent >= -1024) {
+			double mantissa = 0;
+			
+			for (int i = 0; i < 8; i++) {
+				mantissa += (int) (data[i] & 0xFF);
+				mantissa /= 256;
+			}
+			
+			result = Math.pow(-1, sign) * mantissa * Math.pow(2, exponent);
+		} else {
+			result = 0;
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Converts a Turbo Pascal Real type to double
+	 * @param data byte array containing the real value in little endian byte order
+	 * @return converted double value
+	 */
+	public static double pascalRealToDouble(byte[] data) {
+		if (data.length != 6) {
+			throw new IllegalArgumentException("Real format takes up 6 bytes");
+		}
+		
+		byte sign = (byte) ((data[5] & 0x80) >> 7); // 0 positive, 1 negative
+		
+		int exponent = (byte) (data[0] & 0xFF);
+		exponent -= 129;
+		
+		double mantissa = 0;
+		for (int i = 1; i < 5; i++) {
+			mantissa += (int) (data[i] & 0xFF);
+			mantissa /= 256;
+		}
+		
+		mantissa += (int) (data[5] & 0x7F);
+		mantissa /= 128;
+		mantissa += 1;
+		
+		if ((byte) (data[0] & 0xFF) == 0 && mantissa == 1) {
+			return 0;
+		}
+		
+		return Math.pow(-1, sign) * mantissa * Math.pow(2, exponent);
+	}
+	
+	/**
+	 * A very dumb implementation of rounding double values, use with caution
+	 * @param num
+	 * @param precision
+	 * @return rounded number
+	 */
+	public static double round(double num, int precision) {
+		double scale = Math.pow(10, precision);
+		return Math.round(num * scale) / scale;
+	}
+	
+	/**
+	 * Increments the last number in a file name
+	 * <br/>
+	 * For example: fileName001.txt --> filename002.txt
+	 * @param fileName
+	 * @return incremented file name
+	 */
+	public static String incrementFileName(String fileName) {
+		String fileExtension = getFileExtension(fileName);
+		if (fileExtension.length() > 0) {
+			fileName = fileName.substring(0, fileName.length() - fileExtension.length());
+		}
+		
+		Pattern pattern = Pattern.compile("[0-9]");
+		Matcher matcher = pattern.matcher(fileName);
+		
+		int start = 0, end = 0;
+		String group = null;
+		while (matcher.find()) {
+			start = matcher.start();
+			end = matcher.end();
+			group = matcher.group();
+		}
+		
+		if (group == null) {
+			return null;
+		}
+		
+		int number = Integer.parseInt(group);
+		number += 1;
+		
+		group = Integer.toString(number);
+		for (int i = group.length(); i < end - start; i++) {
+			group = '0' + group;
+		}
+		
+		fileName = fileName.substring(0, start) + group + fileName.substring(end);
+		
+		return fileName + fileExtension;
+		
+	}
+	
+	/**
+	 * Formats a double to String and pads it with spaces if necessary
+	 * @param num to be formated
+	 * @param before number of digits before decimal point
+	 * @param after number of digits after decimal point
+	 * @param sign include sign
+	 * @return formated String
+	 */
+	public static String formatDouble(double num, int before, int after, boolean sign) {
+		String format = "%" + (sign ? " " : "") + before + "." + after + "f";
+		String s = String.format(format, num);
+		
+		for (int i = s.length(); i <  before + after + (sign ? 2 : 1); i++) {
+			s = ' ' + s;
+		}
+		
+		return s;
+	}
+	
+	/**
+	 * Formats a double to String and pads it with spaces if necessary, including sign
+	 * @param num to be formated
+	 * @param before number of digits before decimal point
+	 * @param after number of digits after decimal point
+	 * @return formated String
+	 */
+	public static String formatDouble(double num, int before, int after) {
+		return formatDouble(num, before, after, true);
 	}
 	
 	private Util() {}
