@@ -350,7 +350,7 @@ public class MeasureRVItemListener implements SelectionListener {
 		}
 		double newYSeries[] = Util.intep(xSeries, ySeries, newXSeries);
 		
-		chart = new ChartBuilder(container).setTitle("Press ENTER to finish").setXAxisLabel("wavelength (Å)")
+		chart = new ChartBuilder(container).setTitle("Press ENTER to finish").setXAxisLabel("index")
 				.setYAxisLabel("relative flux I(λ)")
 				.addSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN, xSeries, ySeries)
 				.addSeries(LineStyle.NONE, "measurements", ChartBuilder.PINK, newXSeries, newYSeries).adjustRange()
@@ -487,6 +487,7 @@ public class MeasureRVItemListener implements SelectionListener {
 			index++;
 			
 			listOne.setSelection(index);
+			listTwo.setSelection(-1);
 			
 			createChart(rvms.getAt(index));
 		} else {			

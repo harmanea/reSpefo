@@ -29,7 +29,7 @@ import cz.cuni.mff.respefo.rvResult.RVResultItemListener;
 public class ReSpefo {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 
-	public static final String version = "0.7.4";
+	public static final String VERSION = "0.7.5";
 
 	private static Display display;
 	private static Shell shell;
@@ -60,7 +60,7 @@ public class ReSpefo {
 		display = new Display();
 		Display.setAppName("reSpefo");
 		shell = new Shell(display, SWT.RESIZE);
-		shell.setText("reSpefo (v" + version + ")");
+		shell.setText("reSpefo (v" + VERSION + ")");
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
@@ -116,10 +116,12 @@ public class ReSpefo {
 		measureRVItem.setAccelerator('M' | SWT.CTRL);	
 		measureRVItem.addSelectionListener(MeasureRVItemListener.getInstance());
 		
+		/*
 		rVResultsItem = new MenuItem(toolsMenu, SWT.PUSH);
 		rVResultsItem.setText("&RV Results\tCtrl+T");
 		rVResultsItem.setAccelerator('T' | SWT.CTRL);
 		rVResultsItem.addSelectionListener(RVResultItemListener.getInstance());
+		*/
 		
 		shell.setMenuBar(menuBar);
 		
@@ -192,7 +194,7 @@ public class ReSpefo {
 	
 	public static void main(String[] args) {
 	
-		LOGGER.log(Level.INFO, "This is ReSpefo " + version);
+		LOGGER.log(Level.INFO, "This is ReSpefo " + VERSION);
 		new ReSpefo();
 		LOGGER.log(Level.INFO, "Program terminated");
 	}

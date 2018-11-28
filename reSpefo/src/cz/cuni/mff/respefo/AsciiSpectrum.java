@@ -1,6 +1,5 @@
 package cz.cuni.mff.respefo;
 
-import java.beans.IndexedPropertyDescriptor;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -104,7 +103,7 @@ public class AsciiSpectrum extends Spectrum {
 			hdu.addValue("CDELT1", getX(1) - getX(0), "Coordinate increment");
 			f.addHDU(hdu);
 			try {
-				f.getHDU(0).addValue("SIMPLE", true, "Created by reSpefo v" + ReSpefo.version + " on " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+				f.getHDU(0).addValue("SIMPLE", true, "Created by reSpefo v" + ReSpefo.VERSION + " on " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 			} catch (IOException e) {
 				LOGGER.log(Level.FINEST, "Couldn't change the SIMPLE value", e);
 			}

@@ -54,8 +54,8 @@ class RVResultsPrinter {
 				
 				for (RVResult result : results.getResultsOfCategory(category)) {
 					writer.println(Util.formatDouble(result.rV, 4, 4) + '\t' +
-							Util.formatDouble(result.radius, 3, 2, false) + '\t' +
-							Util.formatDouble(result.l0, 4, 4, false) + '\t' +
+							Util.formatDouble(result.radius, 4, 4, false) + '\t' +
+							Util.formatDouble(result.l0, 8, 4, false) + '\t' +
 							result.name + '\t' +
 							result.comment);
 					
@@ -63,7 +63,7 @@ class RVResultsPrinter {
 				}
 				if (values.size() > 1) {
 					double average = values.stream().mapToDouble(Double::doubleValue).average().getAsDouble();
-					writer.println("Average RV: " + Util.round(average, 4));
+					writer.println("Average RV: " + Util.round(average, 4) + "\t (" + values.size() + " values)");
 					writer.println("rms: " + Util.round(Util.rms(values.stream().mapToDouble(Double::doubleValue).toArray(), average),4));
 				}
 				writer.println();

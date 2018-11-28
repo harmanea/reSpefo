@@ -11,6 +11,7 @@ import org.swtchart.Range;
 import cz.cuni.mff.respefo.ReSpefo;
 
 public class RectifyMouseListener extends MouseAdapter implements MouseMoveListener {
+	private boolean drag, dragged;
 	
 	@Override
 	public void mouseMove(MouseEvent e) {
@@ -46,21 +47,36 @@ public class RectifyMouseListener extends MouseAdapter implements MouseMoveListe
 		if (index != -1) {
 			RectifyItemListener.getInstance().selectPoint(index);
 		}
+		
+		if (drag) {
+			dragged = true;
+		}
 	}
 	
 	@Override
 	public void mouseUp(MouseEvent e) {
-		Chart chart = ReSpefo.getChart();
-
-		Range yRange = chart.getAxisSet().getYAxis(0).getRange();
-		Range xRange = chart.getAxisSet().getXAxis(0).getRange();
-
-		Rectangle bounds = chart.getPlotArea().getBounds();
-
-		double realX = xRange.lower + ((xRange.upper - xRange.lower) * ((double) e.x / bounds.width));
-		double realY = yRange.lower
-				+ ((yRange.upper - yRange.lower) * ((double) (bounds.height - e.y) / bounds.height));
-
-		RectifyItemListener.getInstance().addPoint(realX, realY);
+		if (!dragged) {
+			Chart chart = ReSpefo.getChart();
+	
+			Range yRange = chart.getAxisSet().getYAxis(0).getRange();
+			Range xRange = chart.getAxisSet().getXAxis(0).getRange();
+	
+			Rectangle bounds = chart.getPlotArea().getBounds();
+	
+			double realX = xRange.lower + ((xRange.upper - xRange.lower) * ((double) e.x / bounds.width));
+			double realY = yRange.lower
+					+ ((yRange.upper - yRange.lower) * ((double) (bounds.height - e.y) / bounds.height));
+	
+			RectifyItemListener.getInstance().addPoint(realX, realY);
+		}
+		
+		drag = false;
+	}
+	
+	
+	@Override
+	public void mouseDown(MouseEvent e) {
+		drag = true;
+		dragged = false;
 	}
 }

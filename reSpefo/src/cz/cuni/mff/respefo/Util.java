@@ -152,6 +152,7 @@ public class Util {
 		}
 		
 		sum /= values.length;
+		sum /= values.length - 1;
 		
 		return Math.sqrt(sum);
 	}
