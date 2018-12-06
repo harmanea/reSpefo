@@ -16,6 +16,7 @@ import org.swtchart.Chart;
 import cz.cuni.mff.respefo.Listeners.FileExportItemListener;
 import cz.cuni.mff.respefo.Listeners.FileImportItemListener;
 import cz.cuni.mff.respefo.Listeners.FileQuitItemListener;
+import cz.cuni.mff.respefo.clearCosmics.ClearCosmicsItemListener;
 import cz.cuni.mff.respefo.measureRV.MeasureRVItemListener;
 import cz.cuni.mff.respefo.rectify.RectifyItemListener;
 import cz.cuni.mff.respefo.rvResult.RVResultItemListener;
@@ -29,7 +30,7 @@ import cz.cuni.mff.respefo.rvResult.RVResultItemListener;
 public class ReSpefo {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 
-	public static final String VERSION = "0.7.5";
+	public static final String VERSION = "0.7.7";
 
 	private static Display display;
 	private static Shell shell;
@@ -38,7 +39,7 @@ public class ReSpefo {
 
 	private static Menu menuBar, fileMenu, toolsMenu;
 	private static MenuItem fileMenuHeader, toolsMenuHeader;
-	private static MenuItem fileQuitItem, fileExportItem, fileImportItem, rectifyItem, measureRVItem, rVResultsItem;
+	private static MenuItem fileQuitItem, fileExportItem, fileImportItem, rectifyItem, measureRVItem, rVResultsItem, clearCosmicsItem;
 
 	private static Spectrum spectrum;
 
@@ -122,6 +123,11 @@ public class ReSpefo {
 		rVResultsItem.setAccelerator('T' | SWT.CTRL);
 		rVResultsItem.addSelectionListener(RVResultItemListener.getInstance());
 		*/
+		
+		clearCosmicsItem = new MenuItem(toolsMenu, SWT.PUSH);
+		clearCosmicsItem.setText("&Clear cosmics\tCtrl+C");
+		clearCosmicsItem.setAccelerator('C' | SWT.CTRL);
+		clearCosmicsItem.addSelectionListener(ClearCosmicsItemListener.getInstance());
 		
 		shell.setMenuBar(menuBar);
 		
