@@ -12,6 +12,7 @@ import org.swtchart.IAxis;
 import org.swtchart.ILineSeries;
 import org.swtchart.LineStyle;
 import org.swtchart.Range;
+import org.swtchart.ILineSeries.PlotSymbolType;
 
 import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.ReSpefo;
@@ -97,13 +98,13 @@ public class RectifyItemListener implements SelectionListener {
 		}
 		chart = new ChartBuilder(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)")
 				.setYAxisLabel("relative flux")
-				.addSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN,
+				.addLineSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN,
 						spectrum.getXSeries(), spectrum.getYSeries())
-				.addSeries(LineStyle.SOLID, "continuum", ChartBuilder.YELLOW,
+				.addLineSeries(LineStyle.SOLID, "continuum", ChartBuilder.YELLOW,
 						spectrum.getXSeries(), points.getIntepData(spectrum.getXSeries()))
-				.addSeries(LineStyle.NONE, "points", ChartBuilder.WHITE,
+				.addScatterSeries(PlotSymbolType.CIRCLE, 3, "points", ChartBuilder.WHITE,
 						points.getXCoordinates(), points.getYCoordinates())
-				.addSeries(LineStyle.NONE, "selected", ChartBuilder.RED,
+				.addScatterSeries(PlotSymbolType.CIRCLE, 3, "selected", ChartBuilder.RED,
 						new double[] { points.getActiveX() }, new double[] { points.getActiveY() })
 				.adjustRange().build();
 		
@@ -132,7 +133,7 @@ public class RectifyItemListener implements SelectionListener {
 		}
 		chart = new ChartBuilder(ReSpefo.getScene()).setTitle("press ESC to edit, press ENTER to save")
 				.setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux I(λ)")
-				.addSeries(LineStyle.SOLID, "series", ChartBuilder.GREEN, spectrum.getXSeries(), ySeries)
+				.addLineSeries(LineStyle.SOLID, "series", ChartBuilder.GREEN, spectrum.getXSeries(), ySeries)
 				.adjustRange().build();
 
 		ReSpefo.setChart(chart);
