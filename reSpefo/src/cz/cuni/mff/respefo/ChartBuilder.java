@@ -33,10 +33,10 @@ public class ChartBuilder {
 	public static final Color RED = new Color(Display.getDefault(), 255, 0, 0);
 	public static final Color YELLOW = new Color(Display.getDefault(), 255, 255, 0);
 	public static final Color WHITE = new Color(Display.getDefault(), 255, 255, 255);
-	
+
 	private static Color primaryColor = YELLOW;
 	private static Color secondaryColor = BLACK;
-	
+
 	/**
 	 * Returns the primary color.
 	 * 
@@ -49,7 +49,8 @@ public class ChartBuilder {
 	/**
 	 * Sets the primary color.
 	 * 
-	 * @param c the primary color to set
+	 * @param c
+	 *            the primary color to set
 	 */
 	public static void setPrimaryColor(Color c) {
 		primaryColor = c;
@@ -67,138 +68,219 @@ public class ChartBuilder {
 	/**
 	 * Sets the secondary color.
 	 * 
-	 * @param c the secondary color to set
+	 * @param c
+	 *            the secondary color to set
 	 */
 	public static void setSecondaryColor(Color c) {
 		secondaryColor = c;
 	}
-	
+
 	private Chart chart;
 	private ArrayList<ILineSeries> series;
-	
-	private void setTheme(Chart c) {		
+
+	private void setTheme(Chart c) {
 		c.getTitle().setForeground(primaryColor);
-		
+
 		c.setBackground(secondaryColor);
 		c.setBackgroundInPlotArea(secondaryColor);
-		
+
 		IAxisSet axisset = chart.getAxisSet();
-		
+
 		axisset.getXAxis(0).getGrid().setForeground(secondaryColor);
 		axisset.getYAxis(0).getGrid().setForeground(secondaryColor);
-		
+
 		axisset.getXAxis(0).getTick().setForeground(primaryColor);
 		axisset.getYAxis(0).getTick().setForeground(primaryColor);
 		axisset.getXAxis(0).getTitle().setForeground(primaryColor);
 		axisset.getYAxis(0).getTitle().setForeground(primaryColor);
-		
+
 		chart.getLegend().setVisible(false);
 	}
-	
+
 	/**
 	 * Instantiates new chart with the shell as parent
 	 * 
-	 * @param shell to be set as chart's parent
+	 * @param shell
+	 *            to be set as chart's parent
 	 */
 	public ChartBuilder(Shell shell) {
 		chart = new Chart(shell, SWT.NONE);
 		series = new ArrayList<>();
 	}
-	
+
 	/**
 	 * Instantiates new chart with the composite as parent
 	 * 
-	 * @param parent to be set as chart's parent
+	 * @param parent
+	 *            to be set as chart's parent
 	 */
 	public ChartBuilder(Composite parent) {
 		chart = new Chart(parent, SWT.NONE);
 		series = new ArrayList<>();
 	}
-	
+
 	/**
 	 * Sets the chart's title
 	 * 
-	 * @param title to be set as the chart's title
+	 * @param title
+	 *            to be set as the chart's title
 	 * @return the adjusted ChartBuilder
 	 */
 	public ChartBuilder setTitle(String title) {
 		chart.getTitle().setText(title);
 		return this;
 	}
-	
+
 	/**
 	 * Sets the chart's XAxis label
 	 * 
-	 * @param label to be set as the chart's XAxis label
+	 * @param label
+	 *            to be set as the chart's XAxis label
 	 * @return the adjusted ChartBuilder
 	 */
 	public ChartBuilder setXAxisLabel(String label) {
 		chart.getAxisSet().getXAxis(0).getTitle().setText(label);
 		return this;
 	}
-	
+
 	/**
 	 * Sets the chart's YAxis label
 	 * 
-	 * @param label to be set as the chart's YAxis label
+	 * @param label
+	 *            to be set as the chart's YAxis label
 	 * @return the adjusted ChartBuilder
 	 */
 	public ChartBuilder setYAxisLabel(String label) {
 		chart.getAxisSet().getYAxis(0).getTitle().setText(label);
 		return this;
 	}
-	
+
 	/**
-	 * Adds a new series to the chart
+	 * Adds a new line series to the chart
 	 * 
-	 * @param style of the added series, LineStyle.NONE implies the series will be scatter type
-	 * @param name of the added series
-	 * @param color of the added series
-	 * @param XSeries of the added series
-	 * @param YSeries of the added series
+	 * @param style
+	 *            of the added series
+	 * @param name
+	 *            of the added series
+	 * @param color
+	 *            of the added series
+	 * @param XSeries
+	 *            of the added series
+	 * @param YSeries
+	 *            of the added series
 	 * @return the adjusted ChartBuilder
 	 */
-	public ChartBuilder addSeries(LineStyle style, String name, Color color, double[] XSeries, double[] YSeries) {
-		ILineSeries ser = (ILineSeries) chart.getSeriesSet().createSeries(SeriesType.LINE, name);
-		ser.setXSeries(XSeries);
-		ser.setYSeries(YSeries);
-		
-		if (style == LineStyle.NONE) {
-			ser.setLineStyle(LineStyle.NONE);
-			ser.setSymbolType(PlotSymbolType.CIRCLE);
-			ser.setSymbolColor(color);
-			ser.setSymbolSize(3);
-		} else {
-			ser.setLineStyle(style);
-			ser.setSymbolType(PlotSymbolType.NONE);
-			ser.setLineColor(color);
-		}
-			
-		if (series.size() > 0) {
-			int YaxisId = chart.getAxisSet().createYAxis();
-			IAxis yAxis = chart.getAxisSet().getYAxis(YaxisId);
-			
-			yAxis.getTick().setVisible(false);
-	        yAxis.getTitle().setVisible(false);
-	        yAxis.getGrid().setForeground(secondaryColor);
-	        
-	        ser.setYAxisId(YaxisId);
-	        
-	        int XaxisId = chart.getAxisSet().createXAxis();
-			IAxis xAxis = chart.getAxisSet().getXAxis(XaxisId);
-			
-			xAxis.getTick().setVisible(false);
-	        xAxis.getTitle().setVisible(false);
-	        xAxis.getGrid().setForeground(secondaryColor);
-	        
-	        ser.setXAxisId(XaxisId);
-		}
-		
-		series.add(ser);
-		
+	public ChartBuilder addLineSeries(LineStyle style, String name, Color color, double[] XSeries, double[] YSeries) {
+		return addLineSeries(style, 1, name, color, XSeries, YSeries);
+	}
+	
+	/**
+	 * Adds a new line series to the chart
+	 * 
+	 * @param style
+	 *            of the added series
+	 * @param lineWidth
+	 *            of the added series
+	 * @param name
+	 *            of the added series
+	 * @param color
+	 *            of the added series
+	 * @param XSeries
+	 *            of the added series
+	 * @param YSeries
+	 *            of the added series
+	 * @return the adjusted ChartBuilder
+	 */
+	public ChartBuilder addLineSeries(LineStyle style, int lineWidth, String name, Color color, double[] XSeries, double[] YSeries) {
+		ILineSeries lineSeries = (ILineSeries) chart.getSeriesSet().createSeries(SeriesType.LINE, name);
+		lineSeries.setXSeries(XSeries);
+		lineSeries.setYSeries(YSeries);
+
+		lineSeries.setLineStyle(style);
+		lineSeries.setSymbolType(PlotSymbolType.NONE);
+		lineSeries.setLineColor(color);
+		lineSeries.setLineWidth(lineWidth);
+
+		addSeries(lineSeries);
+
 		return this;
 	}
 	
+	/**
+	 * Adds a new scatter series to the chart
+	 * 
+	 * @param style
+	 *            of the added series
+	 * @param name
+	 *            of the added series
+	 * @param color
+	 *            of the added series
+	 * @param xSeries
+	 *            of the added series
+	 * @param ySeries
+	 *            of the added series
+	 * @return the adjusted ChartBuilder
+	 */
+	public ChartBuilder addScatterSeries(PlotSymbolType style, String name, Color color, double[] xSeries, double[] ySeries) {
+		return addScatterSeries(style, 3, name, color, xSeries, ySeries);
+	}
+
+	/**
+	 * Adds a new scatter series to the chart
+	 * 
+	 * @param style
+	 *            of the added series
+	 * @param symbolSize
+	 *            of the added series
+	 * @param name
+	 *            of the added series
+	 * @param color
+	 *            of the added series
+	 * @param xSeries
+	 *            of the added series
+	 * @param ySeries
+	 *            of the added series
+	 * @return the adjusted ChartBuilder
+	 */
+	public ChartBuilder addScatterSeries(PlotSymbolType style, int symbolSize, String name, Color color, double[] xSeries, double[] ySeries) {
+		ILineSeries lineSeries = (ILineSeries) chart.getSeriesSet().createSeries(SeriesType.LINE, name);
+		lineSeries.setXSeries(xSeries);
+		lineSeries.setYSeries(ySeries);
+
+		lineSeries.setLineStyle(LineStyle.NONE);
+		lineSeries.setSymbolType(PlotSymbolType.CIRCLE);
+		lineSeries.setSymbolColor(color);
+		lineSeries.setSymbolSize(symbolSize);
+
+		addSeries(lineSeries);
+
+		return this;
+	}
+	
+	private void addSeries(ILineSeries lineSeries) {
+		if (series.size() > 0) {
+			int YaxisId = chart.getAxisSet().createYAxis();
+			IAxis yAxis = chart.getAxisSet().getYAxis(YaxisId);
+
+			yAxis.getTick().setVisible(false);
+			yAxis.getTitle().setVisible(false);
+			yAxis.getGrid().setForeground(secondaryColor);
+
+			lineSeries.setYAxisId(YaxisId);
+
+			int XaxisId = chart.getAxisSet().createXAxis();
+			IAxis xAxis = chart.getAxisSet().getXAxis(XaxisId);
+
+			xAxis.getTick().setVisible(false);
+			xAxis.getTitle().setVisible(false);
+			xAxis.getGrid().setForeground(secondaryColor);
+
+			lineSeries.setXAxisId(XaxisId);
+		}
+
+		series.add(lineSeries);
+	}
+
 	/**
 	 * Adjusts the view so that all series are fully visible
 	 * 
@@ -208,11 +290,12 @@ public class ChartBuilder {
 		adjustRange(chart);
 		return this;
 	}
-	
+
 	/**
 	 * Adjusts the view so that one series is fully visible
 	 * 
-	 * @param index of the series to be centered (as order of insertion)
+	 * @param index
+	 *            of the series to be centered (as order of insertion)
 	 * @return the adjusted ChartBuilder
 	 */
 	public ChartBuilder adjustRange(int index) {
@@ -221,7 +304,7 @@ public class ChartBuilder {
 		adjustRange(chart, XAxisId, YAxisId);
 		return this;
 	}
-	
+
 	/**
 	 * Returns the created chart
 	 * 
@@ -233,22 +316,26 @@ public class ChartBuilder {
 		chart.getParent().layout();
 		return chart;
 	}
-	
+
 	/**
 	 * Adjusts the chart range so that all series are fully visible
 	 * 
-	 * @param c chart to be adjusted
+	 * @param c
+	 *            chart to be adjusted
 	 */
 	public static void adjustRange(Chart c) {
 		adjustRange(c, 0, 0);
 	}
-	
+
 	/**
 	 * Adjusts the chart so that one of the series is fully visible
 	 * 
-	 * @param c chart to be adjusted
-	 * @param XAxisId to be adjusted around
-	 * @param YAxisId to be adjusted around
+	 * @param c
+	 *            chart to be adjusted
+	 * @param XAxisId
+	 *            to be adjusted around
+	 * @param YAxisId
+	 *            to be adjusted around
 	 */
 	public static void adjustRange(Chart c, int XAxisId, int YAxisId) {
 		c.getAxisSet().adjustRange();
@@ -267,5 +354,5 @@ public class ChartBuilder {
 			}
 		}
 	}
-	
+
 }
