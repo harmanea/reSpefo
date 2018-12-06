@@ -59,9 +59,8 @@ class RVMeasurements {
 	public void removeInvalidMeasurements(double[] xSeries) {
 		for (int i = 0; i < measurements.size(); i++) {
 			double l0 = measurements.get(i).l0;
-			double radius = measurements.get(i).radius;
-			if (Util.trimArray(xSeries, l0 - radius, l0 + radius).length == 0) {
-				LOGGER.log(Level.INFO, "Measurement " + measurements.get(i).name + " has no valid data points in it's range.");
+			if (l0 < xSeries[0] || l0 > xSeries[xSeries.length - 1]) {
+				LOGGER.log(Level.INFO, "Measurement " + measurements.get(i).name + " is out of valid range.");
 				
 				measurements.remove(i);
 				i--;

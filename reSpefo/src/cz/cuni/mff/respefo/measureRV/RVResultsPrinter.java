@@ -48,7 +48,7 @@ class RVResultsPrinter {
 		
 			for (String category : results.getCategories()) {
 				writer.println("## Results for category " + category + ":");
-				writer.println("    rv    \tradius\t lambda  \tname\tcomment");
+				writer.println("    rv    \t radius \t   lambda    \tname\tcomment");
 
 				ArrayList<Double> values = new ArrayList<>();
 				
