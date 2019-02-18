@@ -265,12 +265,12 @@ public abstract class Spectrum {
 						FitsFactory.setAllowHeaderRepairs(true);
 						result = new FitsSpectrum(fileName);
 					} catch(FitsException f) {
-						throw new SpefoException("Couldn't repair file.");
+						throw new SpefoException("Couldn't repair file. " + e.getMessage());
 					} finally {
 						FitsFactory.setAllowHeaderRepairs(false);
 					}
 				} else {
-					throw new SpefoException("File is broken.");
+					throw new SpefoException("File is broken. " + e.getMessage());
 				}
 			}
 			break;

@@ -29,7 +29,7 @@ public class FitsSpectrum extends Spectrum {
 	
 	private Header header;
 
-	public FitsSpectrum(String fileName) throws SpefoException {
+	public FitsSpectrum(String fileName) throws SpefoException, FitsException {
 		super(fileName);
 		LOGGER.log(Level.FINEST, "Creating a new FitsSpectrum (" + name + ")");
 		
@@ -37,93 +37,69 @@ public class FitsSpectrum extends Spectrum {
 			LOGGER.log(Level.FINER, "Opened a file (" + fileName + ")");
 			BasicHDU<?>[] HDUs = f.read();
 			
-			for (int i = 0; i < HDUs.length; i++) {
-				if (HDUs[i] instanceof ImageHDU) {
-					Object data = HDUs[i].getKernel();
-
-					// TODO this could be more elegant
-					switch (HDUs[i].getBitPix()) {
-					case BasicHDU.BITPIX_DOUBLE:
-						if (data instanceof double[]) {
-							ySeries = (double[]) data;
-						} else {
-							LOGGER.log(Level.WARNING, "[double] more than 1D array");
-							throw new SpefoException("[double] more than 1D array");
-						}
-						break;
-					case BasicHDU.BITPIX_FLOAT:
-						if (data instanceof float[]) {
-							ySeries = IntStream.range(0, ((float[]) data).length).mapToDouble(j -> ((float[]) data)[j]).toArray();
-						} else {
-							LOGGER.log(Level.WARNING, "[float] more than 1D array");
-							throw new SpefoException("[float] more than 1D array");
-						}
-						break;
-					case BasicHDU.BITPIX_INT:
-						if (data instanceof int[]) {
-							ySeries = IntStream.range(0, ((int[]) data).length).mapToDouble(j -> ((int[]) data)[j]).toArray();
-						} else {
-							LOGGER.log(Level.WARNING, "[int] more than 1D array");
-							throw new SpefoException("[int] more than 1D array");
-						}
-						break;
-					case BasicHDU.BITPIX_SHORT:
-						if (data instanceof short[]) {
-							ySeries = IntStream.range(0, ((short[]) data).length).mapToDouble(j -> ((short[]) data)[j]).toArray();
-						} else {
-							LOGGER.log(Level.WARNING, "[short] more than 1D array");
-							throw new SpefoException("[short] more than 1D array");
-						}
-						break;
-					case BasicHDU.BITPIX_LONG:
-						if (data instanceof long[]) {
-							ySeries = IntStream.range(0, ((long[]) data).length).mapToDouble(j -> ((long[]) data)[j]).toArray();
-						} else {
-							LOGGER.log(Level.WARNING, "[long] more than 1D array");
-							throw new SpefoException("[long] more than 1D array");
-						}
-						break;
-					case BasicHDU.BITPIX_BYTE:
-						if (data instanceof byte[]) {
-							ySeries = IntStream.range(0, ((byte[]) data).length).mapToDouble(j -> ((byte[]) data)[j]).toArray();
-						} else {
-							LOGGER.log(Level.WARNING, "[byte] more than 1D array");
-							throw new SpefoException("[byte] more than 1D array");
-						}
-					default:
-						LOGGER.log(Level.WARNING, "Not a valid value type");
-						throw new SpefoException("not a valid value type");
-					}
-									
-					double CRPIX = HDUs[i].getHeader().getDoubleValue("CRPIX" + (i + 1), 1);
-					double CDELT = HDUs[i].getHeader().getDoubleValue("CDELT" + (i + 1), 1);
-					double CRVAL = HDUs[i].getHeader().getDoubleValue("CRVAL" + (i + 1), 0);
-					
-					String ctype = HDUs[i].getHeader().getStringValue("CTYPE1");
-					String bunit = HDUs[i].getHeader().getStringValue("BUNIT");
-					
-					if (ctype != null) {
-						xLabel = ctype;
-					}
-					
-					if (bunit != null) {
-						yLabel = bunit;
-					}
-					
-					xSeries = Util.fillArray(ySeries.length, (1 - CRPIX) * CDELT + CRVAL, CDELT);
-					
-					header = HDUs[i].getHeader();
-					
-					LOGGER.log(Level.FINER, "Closing file");
-					return;
-				}
+			if (HDUs.length == 0) {
+				throw new SpefoException("There are no HDUs in the file.");
+			} else if (HDUs.length > 1) {
+				LOGGER.log(Level.INFO, "There are more than one HDUs in the file. The first ImageHDU will be chosen.");
 			}
 			
-			LOGGER.log(Level.WARNING, "No ImageHDU in the FITS file");
-			throw new SpefoException("No ImageHDU in the FITS file");
-		} catch (IOException | FitsException | ClassCastException e) {
+			ImageHDU imageHdu = (ImageHDU) Arrays.stream(HDUs).filter(hdu -> hdu instanceof ImageHDU)
+					.findFirst().orElseThrow(() -> new SpefoException("No ImageHDU in the FITS file."));
+			
+			Object data = imageHdu.getKernel();
+			
+			if (data == null || !data.getClass().isArray()) {
+				throw new SpefoException("The HDU does not contain array data.");
+			}
+			
+			int nDims = 1 + data.getClass().getName().lastIndexOf('[');
+			
+			if (nDims > 1) {
+				throw new SpefoException("The data array is " + nDims + "-dimensional.");
+			}
+			
+			switch (imageHdu.getBitPix()) {
+			case BasicHDU.BITPIX_DOUBLE:
+				ySeries = (double[]) data;
+				break;
+			case BasicHDU.BITPIX_FLOAT:
+				ySeries = IntStream.range(0, ((float[]) data).length).mapToDouble(j -> ((float[]) data)[j]).toArray();
+				break;
+			case BasicHDU.BITPIX_INT:
+				ySeries = IntStream.range(0, ((int[]) data).length).mapToDouble(j -> ((int[]) data)[j]).toArray();
+				break;
+			case BasicHDU.BITPIX_SHORT:
+				ySeries = IntStream.range(0, ((short[]) data).length).mapToDouble(j -> ((short[]) data)[j]).toArray();
+				break;
+			case BasicHDU.BITPIX_LONG:
+				ySeries = IntStream.range(0, ((long[]) data).length).mapToDouble(j -> ((long[]) data)[j]).toArray();
+				break;
+			case BasicHDU.BITPIX_BYTE:
+				ySeries = IntStream.range(0, ((byte[]) data).length).mapToDouble(j -> ((byte[]) data)[j]).toArray();
+				break;
+			default:
+				throw new SpefoException("Data is not of a valid value type.");
+			}
+			
+			double CRPIX = imageHdu.getHeader().getDoubleValue("CRPIX1", 1);
+			double CDELT = imageHdu.getHeader().getDoubleValue("CDELT1", 1);
+			double CRVAL = imageHdu.getHeader().getDoubleValue("CRVAL1", 0);
+			
+			String ctype = imageHdu.getHeader().getStringValue("CTYPE1");
+			String bunit = imageHdu.getHeader().getStringValue("BUNIT");
+			
+			if (ctype != null) {
+				xLabel = ctype;
+			}
+			
+			if (bunit != null) {
+				yLabel = bunit;
+			}
+			
+			xSeries = Util.fillArray(ySeries.length, (1 - CRPIX) * CDELT + CRVAL, CDELT);
+			
+		} catch (IOException | ClassCastException e) {
 			LOGGER.log(Level.WARNING, "Error while reading file", e);
-			// TODO specialized exception?
 			throw new SpefoException(e.getClass().getName() + " occurred!");
 		}
 	}
