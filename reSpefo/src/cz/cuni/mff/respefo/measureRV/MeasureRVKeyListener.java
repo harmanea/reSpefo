@@ -33,6 +33,7 @@ public class MeasureRVKeyListener extends DefaultKeyListener {
 		handlers.put(SWT.INSERT, MeasureRVKeyListener::insert);
 		
 		handlers.put((int) SWT.ESC, MeasureRVKeyListener::skip); // Escape
+		handlers.put(SWT.END, MeasureRVKeyListener::skip); // End
 		
 		handlers.put((int) SWT.BS, MeasureRVKeyListener::delete); // Backspace
 		handlers.put((int) SWT.DEL, MeasureRVKeyListener::delete); // Delete

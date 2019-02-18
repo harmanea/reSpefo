@@ -1,6 +1,7 @@
 package cz.cuni.mff.respefo.measureRV;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,6 +28,7 @@ import org.swtchart.Chart;
 import org.swtchart.IAxis;
 import org.swtchart.ILineSeries;
 import org.swtchart.LineStyle;
+import org.swtchart.ILineSeries.PlotSymbolType;
 
 import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.ReSpefo;
@@ -125,16 +127,13 @@ public class MeasureRVItemListener implements SelectionListener {
 		
 		deltaRV = ((xSeries[1] - xSeries[0]) * SPEED_OF_LIGHT) / (xSeries[0] * 3);
 		
-		double[] newXSeries = new double[xSeries.length * 3 - 2];
-		newXSeries[0] = xSeries[0];
-		for (int i = 1; i < newXSeries.length; i++) {
-			newXSeries[i] = newXSeries[i - 1] * (1 + deltaRV / SPEED_OF_LIGHT);
-			if (newXSeries[i] > xSeries[xSeries.length - 1]) {
-				newXSeries = Arrays.copyOf(newXSeries, i);
-				break;
-			}
+		ArrayList<Double> xList = new ArrayList<>();
+		xList.add(xSeries[0]);
+		while (xList.get(xList.size() - 1) < xSeries[xSeries.length - 1]) {
+			xList.add(xList.get(xList.size() - 1) * (1 + deltaRV / SPEED_OF_LIGHT));
 		}
-	
+		double[] newXSeries = xList.stream().mapToDouble(Double::doubleValue).toArray();
+		
 		double[] newYSeries = Util.intep(xSeries, ySeries, newXSeries);
 		xSeries = newXSeries;
 		ySeries = newYSeries;
@@ -285,7 +284,7 @@ public class MeasureRVItemListener implements SelectionListener {
 		sashFormOne.setWeights(new int[]{85, 15});
 		sashFormTwo.setWeights(new int[]{50, 50});
 		
-		ReSpefo.getScene().addSavedMouseWheelListener(new MouseWheelZoomListener(true, false));
+		ReSpefo.getScene().addSavedMouseWheelListener(new MeasureRVMouseWheelZoomListener(true, false));
 		
 		MeasureRVKeyListener keyListener = new MeasureRVKeyListener();
 		ReSpefo.getScene().addSavedKeyListener(keyListener);
@@ -298,9 +297,22 @@ public class MeasureRVItemListener implements SelectionListener {
 	
 	private void createChart(RVMeasurement rvm) {
 		double[] origXSeries = xSeries;
-		double[] tempXSeries = Util.fillArray(ySeries.length, 1, 1);
+		double[] tempXSeries = Util.fillArray(ySeries.length, 0, 1);
 
-		double mid = Util.intep(origXSeries, tempXSeries, new double[] { rvm.l0 })[0];
+		// double mid = Util.intep(origXSeries, tempXSeries, new double[] { rvm.l0 })[0];
+		double mid;
+		
+		int index = Arrays.binarySearch(origXSeries, rvm.l0);
+		if (index < 0) {
+			index = - index - 1;
+			double low = origXSeries[index - 1];
+			double high = origXSeries[index];
+			double lowNew = tempXSeries[index - 1];
+			
+			mid = lowNew + ((rvm.l0 - low) / (high - low));
+		} else {
+			mid = tempXSeries[index];
+		}
 
 		double[] mirroredYSeries = Util.trimArray(ySeries, xSeries, rvm.l0 - rvm.radius, rvm.l0 + rvm.radius);
 		Util.mirrorArray(mirroredYSeries);
@@ -320,8 +332,8 @@ public class MeasureRVItemListener implements SelectionListener {
 		}
 		chart = new ChartBuilder(container).setTitle(rvm.name + " #" + (index + 1) + " (" + rvm.l0 + ")")
 				.setXAxisLabel("index").setYAxisLabel("relative flux I(λ)")
-				.addSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN, tempXSeries, ySeries)
-				.addSeries(LineStyle.SOLID, "mirrored", ChartBuilder.BLUE, mirroredXSeries, mirroredYSeries)
+				.addLineSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN, tempXSeries, ySeries)
+				.addLineSeries(LineStyle.SOLID, "mirrored", ChartBuilder.BLUE, mirroredXSeries, mirroredYSeries)
 				.adjustRange(1).build();
 		ReSpefo.setChart(chart);
 		chart.getAxisSet().zoomOut();
@@ -352,8 +364,8 @@ public class MeasureRVItemListener implements SelectionListener {
 		
 		chart = new ChartBuilder(container).setTitle("Press ENTER to finish").setXAxisLabel("index")
 				.setYAxisLabel("relative flux I(λ)")
-				.addSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN, xSeries, ySeries)
-				.addSeries(LineStyle.NONE, "measurements", ChartBuilder.PINK, newXSeries, newYSeries).adjustRange()
+				.addLineSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN, xSeries, ySeries)
+				.addScatterSeries(PlotSymbolType.CIRCLE, "measurements", ChartBuilder.PINK, newXSeries, newYSeries).adjustRange()
 				.build();
 		ReSpefo.setChart(chart);
 		
@@ -375,7 +387,7 @@ public class MeasureRVItemListener implements SelectionListener {
 			if (rvStep < 0) {
 				moveRight(getRelativeStep());
 			} else {
-				moveRight(rvStep);
+				moveRight(2 * rvStep / deltaRV);
 			}
 		}
 	}
@@ -385,7 +397,7 @@ public class MeasureRVItemListener implements SelectionListener {
 			if(rvStep < 0) {
 				moveLeft(getRelativeStep());
 			} else {
-				moveLeft(rvStep);
+				moveLeft(2 * rvStep / deltaRV);
 			}
 		}
 	}
@@ -472,8 +484,6 @@ public class MeasureRVItemListener implements SelectionListener {
 			if (listTwo.getSelectionIndex() != -1) {
 				listTwo.setSelection(-1);
 				createChart(rvms.getAt(index));
-			} else {
-				indexIncrement();
 			}
 		}
 	}
@@ -490,7 +500,7 @@ public class MeasureRVItemListener implements SelectionListener {
 			listTwo.setSelection(-1);
 			
 			createChart(rvms.getAt(index));
-		} else {			
+		} else if (!summary) {			
 			createSummaryChart();
 		}
 	}
@@ -522,10 +532,12 @@ public class MeasureRVItemListener implements SelectionListener {
 	}
 	
 	public void adjustRVStepLabel() {
-		if (rvStep < 0) {
-			rvStepLabel.setText(Double.toString(Util.round(getRelativeStep(), 2)));
-		} else {
-			rvStepLabel.setText(Double.toString(rvStep));
+		if (!summary) {
+			if (rvStep < 0) {
+				rvStepLabel.setText(Double.toString(Util.round(getRelativeStep() * deltaRV / 2, 4)));
+			} else {
+				rvStepLabel.setText(Double.toString(rvStep));
+			}
 		}
 	}
 	
