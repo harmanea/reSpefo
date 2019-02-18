@@ -5,6 +5,12 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
+
+import nom.tam.fits.FitsException;
+import nom.tam.fits.FitsFactory;
+
 /**
  * A base class for all formats.
  */
@@ -237,7 +243,7 @@ public abstract class Spectrum {
 	public static final Spectrum createFromFile(String fileName) throws SpefoException {
 		String extension = Util.getFileExtension(fileName);
 		
-		Spectrum result;
+		Spectrum result = null;
 		
 		// TODO specialized exceptions?
 		switch (extension) {
@@ -249,7 +255,24 @@ public abstract class Spectrum {
 		case "fits":
 		case "fit":
 		case "fts":
-			result = new FitsSpectrum(fileName);
+			try {
+				result = new FitsSpectrum(fileName);
+			} catch (FitsException e) {
+				MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+				mb.setMessage("File is broken. Would you like to try to repair it?");
+				if (mb.open() == SWT.YES) {
+					try {
+						FitsFactory.setAllowHeaderRepairs(true);
+						result = new FitsSpectrum(fileName);
+					} catch(FitsException f) {
+						throw new SpefoException("Couldn't repair file.");
+					} finally {
+						FitsFactory.setAllowHeaderRepairs(false);
+					}
+				} else {
+					throw new SpefoException("File is broken.");
+				}
+			}
 			break;
 		case "uui":
 		case "rui":
