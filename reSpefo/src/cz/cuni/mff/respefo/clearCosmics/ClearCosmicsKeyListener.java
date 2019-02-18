@@ -14,6 +14,14 @@ public class ClearCosmicsKeyListener extends DefaultKeyListener {
 		handlers.put((int) SWT.DEL, ClearCosmicsKeyListener::delete);
 		
 		handlers.put(SWT.INSERT, ClearCosmicsKeyListener::insert);
+		
+		handlers.put((int) 'm', ClearCosmicsKeyListener::next);
+		
+		handlers.put((int) 'n', ClearCosmicsKeyListener::previous);
+		
+		handlers.put((int) SWT.CR, ClearCosmicsKeyListener::enter); // Enter
+		
+		handlers.put((int) SWT.ESC, ClearCosmicsKeyListener::escape); // Escape
 	}
 
 	public static void delete(KeyEvent e) {
@@ -22,5 +30,21 @@ public class ClearCosmicsKeyListener extends DefaultKeyListener {
 	
 	public static void insert(KeyEvent e) {
 		ClearCosmicsItemListener.getInstance().insert();
+	}
+	
+	public static void next(KeyEvent e) {
+		ClearCosmicsItemListener.getInstance().nextPoint();
+	}
+	
+	public static void previous(KeyEvent e) {
+		ClearCosmicsItemListener.getInstance().previousPoint();
+	}
+	
+	public static void enter(KeyEvent e) {
+		ClearCosmicsItemListener.getInstance().enter();
+	}
+	
+	public static void escape(KeyEvent e) {
+		ClearCosmicsItemListener.getInstance().escape();
 	}
 }

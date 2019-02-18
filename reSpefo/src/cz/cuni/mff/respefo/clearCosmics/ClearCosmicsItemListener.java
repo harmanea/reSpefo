@@ -1,5 +1,6 @@
 package cz.cuni.mff.respefo.clearCosmics;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -14,6 +16,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.swtchart.Chart;
 import org.swtchart.ILineSeries;
+import org.swtchart.LineStyle;
 import org.swtchart.ILineSeries.PlotSymbolType;
 
 import cz.cuni.mff.respefo.ChartBuilder;
@@ -21,6 +24,7 @@ import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
 import cz.cuni.mff.respefo.Util;
+import cz.cuni.mff.respefo.Listeners.FileExportItemListener;
 import cz.cuni.mff.respefo.Listeners.MouseDragListener;
 import cz.cuni.mff.respefo.Listeners.MouseWheelZoomListener;
 
@@ -36,6 +40,8 @@ public class ClearCosmicsItemListener implements SelectionListener {
 	
 	private double[] xSeries;
 	private double[] ySeries;
+	
+	private boolean summary;
 	
 	private ClearCosmicsItemListener() {
 		LOGGER.log(Level.FINEST, "Creating a new ClearCosmicsItemListener");
@@ -96,8 +102,6 @@ public class ClearCosmicsItemListener implements SelectionListener {
 	}
 	
 	private void createChart() {
-		
-		
 		Chart chart = ReSpefo.getChart();
 
 		if (chart != null && !chart.isDisposed()) {
@@ -105,9 +109,9 @@ public class ClearCosmicsItemListener implements SelectionListener {
 		}
 		chart = new ChartBuilder(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)")
 				.setYAxisLabel("relative flux I(λ)")
-				.addScatterSeries(PlotSymbolType.CIRCLE, 1, "points", ChartBuilder.GREEN, xSeries, ySeries)
-				.addScatterSeries(PlotSymbolType.CIRCLE, 1, "deleted", ChartBuilder.PINK, new double[] {}, new double[] {})
-				.addScatterSeries(PlotSymbolType.CIRCLE, 2, "selected", ChartBuilder.RED,
+				.addScatterSeries(PlotSymbolType.CIRCLE, 2, "points", ChartBuilder.GREEN, xSeries, ySeries)
+				.addScatterSeries(PlotSymbolType.CIRCLE, 2, "deleted", ChartBuilder.PINK, new double[] {}, new double[] {})
+				.addScatterSeries(PlotSymbolType.CIRCLE, 3, "selected", deletedIndexes.contains(activeIndex) ? ChartBuilder.ORANGE : ChartBuilder.RED,
 						new double[] { xSeries[activeIndex] }, new double[] { ySeries[activeIndex] })
 				.adjustRange().build();
 		
@@ -119,6 +123,28 @@ public class ClearCosmicsItemListener implements SelectionListener {
 		
 		ClearCosmicsMouseListener mouseListener = new ClearCosmicsMouseListener();
 		chart.getPlotArea().addMouseMoveListener(mouseListener);
+		
+		summary = false;
+	}
+	
+	private void createSummaryChart() {
+		Chart chart = ReSpefo.getChart();
+
+		if (chart != null && !chart.isDisposed()) {
+			chart.dispose();
+		}
+		chart = new ChartBuilder(ReSpefo.getScene()).setTitle("press ESC to edit, press ENTER to save")
+				.setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux I(λ)")
+				.addScatterSeries(PlotSymbolType.CIRCLE, 1, "series", ChartBuilder.GREEN, xSeries, ySeries)
+				.adjustRange().build();
+
+		ReSpefo.setChart(chart);
+		
+		// add listeners		
+		MouseDragListener dragListener = new MouseDragListener(true);
+		chart.getPlotArea().addMouseListener(dragListener);
+		chart.getPlotArea().addMouseMoveListener(dragListener);
+		summary = true;
 	}
 	
 	@SuppressWarnings("unused")
@@ -143,66 +169,111 @@ public class ClearCosmicsItemListener implements SelectionListener {
 		series.setYSeries(ySeries);
 	}
 	
-	public void selectPoint(int index) {
-		if (index != activeIndex) {
-			activeIndex = index;
-			
-			updateLineSeries("selected", new double[] {xSeries[activeIndex]},  new double[] {ySeries[activeIndex]});
-			
-			ReSpefo.getChart().redraw();
-		}
-	}
-	
-	public void delete() {
-		deletedIndexes.add(activeIndex);
-		
-		List<Double> xList = Arrays.stream(xSeries).map(Double::valueOf).boxed().collect(Collectors.toList());
-		xList.remove(activeIndex);
-		double[] newXSeries = xList.stream().mapToDouble(Double::doubleValue).toArray();
-		
-		List<Double> yList = Arrays.stream(ySeries).map(Double::valueOf).boxed().collect(Collectors.toList());
-		yList.remove(activeIndex);
-		double[] newYSeries = yList.stream().mapToDouble(Double::doubleValue).toArray();
-		
-		ySeries[activeIndex] = Util.intep(newXSeries, newYSeries, new double[] { xSeries[activeIndex] })[0];
-		
-		updateLineSeries("points", xSeries, ySeries);
-		updateYSeries("selected", new double[] { ySeries[activeIndex] });
-		
-		double[] deletedXSeries = new double[deletedIndexes.size()];
-		double[] deletedYSeries = new double[deletedIndexes.size()];
-		
-		int i = 0;
-		for (Iterator<Integer> it = deletedIndexes.iterator(); it.hasNext(); i++) {
-			int next = it.next();
-			deletedXSeries[i] = spectrum.getX(next);
-			deletedYSeries[i] = spectrum.getY(next);
-		}
-		
-		updateLineSeries("deleted", deletedXSeries, deletedYSeries);
+	private void updateSelectedSeries() {
+		ILineSeries series = (ILineSeries) ReSpefo.getChart().getSeriesSet().getSeries("selected");
+		series.setSymbolColor(deletedIndexes.contains(activeIndex) ? ChartBuilder.ORANGE : ChartBuilder.RED);
+		series.setXSeries(new double[] {xSeries[activeIndex]});
+		series.setYSeries(new double[] {ySeries[activeIndex]});
 		
 		ReSpefo.getChart().redraw();
 	}
 	
+	public void selectPoint(int index) {
+		if (index != activeIndex) {
+			activeIndex = index;
+			
+			updateSelectedSeries();
+		}
+	}
+	
+	public void nextPoint() {
+		if (activeIndex < xSeries.length - 1) {
+			
+			selectPoint(activeIndex + 1);
+		}
+	}
+	
+	public void previousPoint() {
+		if (activeIndex > 0) {
+			
+			selectPoint(activeIndex - 1);
+		}
+	}
+	
+	public void delete() {
+		changePoint(false);
+	}
+	
 	public void insert() {
-		if (deletedIndexes.contains(activeIndex)) {	
-			deletedIndexes.remove(activeIndex);
-			
-			double[] deletedXSeries = new double[deletedIndexes.size()];
-			double[] deletedYSeries = new double[deletedIndexes.size()];
-			
-			int i = 0;
-			for (Iterator<Integer> it = deletedIndexes.iterator(); it.hasNext(); i++) {
-				int next = it.next();
-				deletedXSeries[i] = spectrum.getX(next);
-				deletedYSeries[i] = spectrum.getY(next);
+		changePoint(true);
+	}
+	
+	// true - insert, false - delete
+	private void changePoint(boolean insert) {
+		if (insert) {
+			if (deletedIndexes.contains(activeIndex)) {	
+				deletedIndexes.remove(activeIndex);
+			} else {
+				return;
 			}
-			
-			updateLineSeries("deleted", deletedXSeries, deletedYSeries);
-			
-			ySeries[activeIndex] = spectrum.getY(activeIndex);
-			updateYSeries("points", ySeries);
-			updateYSeries("selected", new double[] { ySeries[activeIndex] });
+		} else {
+			if (!deletedIndexes.contains(activeIndex)) {
+				deletedIndexes.add(activeIndex);
+			} else {
+				return;
+			}
+		}
+		
+		List<Double> deletedXSeries = new ArrayList<>();
+		List<Double> deletedYSeries = new ArrayList<>();
+		
+		for (Integer i : deletedIndexes) {
+			deletedXSeries.add(spectrum.getX(i));
+			deletedYSeries.add(spectrum.getY(i));
+		}
+		
+		
+		double[] remainingXSeries = IntStream.range(0, xSeries.length).filter(index -> !deletedIndexes.contains(index))
+				.mapToDouble(index -> spectrum.getX(index)).toArray();
+		
+		double[] remainingYSeries = IntStream.range(0, ySeries.length).filter(index -> !deletedIndexes.contains(index))
+				.mapToDouble(index -> spectrum.getY(index)).toArray();
+	
+		ySeries = Util.intep(remainingXSeries, remainingYSeries, xSeries);
+		
+		updateYSeries("points", ySeries);
+		updateLineSeries("deleted", deletedXSeries.stream().mapToDouble(Double::doubleValue).toArray(),
+				deletedYSeries.stream().mapToDouble(Double::doubleValue).toArray());
+		
+		if (activeIndex < xSeries.length - 1) {
+			activeIndex++;
+		}
+		updateSelectedSeries();
+		
+		ReSpefo.getChart().redraw();
+	}
+	
+	public void enter() {
+		if (!summary) {
+			createSummaryChart();
+		} else {
+
+			double[] oldYSeries = spectrum.getYSeries();
+			spectrum.setYSeries(ySeries);
+			ReSpefo.setSpectrum(spectrum);
+			if (FileExportItemListener.getInstance().export(spectrum)) {
+				ReSpefo.reset();
+
+			} else {
+				spectrum.setYSeries(oldYSeries);
+				ReSpefo.setSpectrum(null);
+			}
+		}
+	}
+	
+	public void escape() {
+		if (summary) {
+			createChart();
 		}
 	}
 }

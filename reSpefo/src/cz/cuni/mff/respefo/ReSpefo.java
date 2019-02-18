@@ -30,7 +30,7 @@ import cz.cuni.mff.respefo.rvResult.RVResultItemListener;
 public class ReSpefo {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 
-	public static final String VERSION = "0.7.7";
+	public static final String VERSION = "0.8.0";
 
 	private static Display display;
 	private static Shell shell;
@@ -39,7 +39,8 @@ public class ReSpefo {
 
 	private static Menu menuBar, fileMenu, toolsMenu;
 	private static MenuItem fileMenuHeader, toolsMenuHeader;
-	private static MenuItem fileQuitItem, fileExportItem, fileImportItem, rectifyItem, measureRVItem, rVResultsItem, clearCosmicsItem;
+	private static MenuItem fileQuitItem, fileExportItem, fileImportItem, rectifyItem,
+		measureRVItem, rVResultsItem, clearCosmicsItem, chironToAsciiItem;
 
 	private static Spectrum spectrum;
 
@@ -117,17 +118,22 @@ public class ReSpefo {
 		measureRVItem.setAccelerator('M' | SWT.CTRL);	
 		measureRVItem.addSelectionListener(MeasureRVItemListener.getInstance());
 		
-		/*
+		
 		rVResultsItem = new MenuItem(toolsMenu, SWT.PUSH);
 		rVResultsItem.setText("&RV Results\tCtrl+T");
 		rVResultsItem.setAccelerator('T' | SWT.CTRL);
 		rVResultsItem.addSelectionListener(RVResultItemListener.getInstance());
-		*/
 		
 		clearCosmicsItem = new MenuItem(toolsMenu, SWT.PUSH);
 		clearCosmicsItem.setText("&Clear cosmics\tCtrl+C");
 		clearCosmicsItem.setAccelerator('C' | SWT.CTRL);
 		clearCosmicsItem.addSelectionListener(ClearCosmicsItemListener.getInstance());
+		
+		/*
+		chironToAsciiItem = new MenuItem(toolsMenu, SWT.PUSH);
+		chironToAsciiItem.setText("&Chiron to Ascii");
+		chironToAsciiItem.addSelectionListener(ChironToAsciiItemListener.getInstance());
+		*/
 		
 		shell.setMenuBar(menuBar);
 		
