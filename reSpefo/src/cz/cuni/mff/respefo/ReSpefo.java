@@ -113,21 +113,22 @@ public class ReSpefo {
 		rectifyItem.setAccelerator('R' | SWT.CTRL);
 		rectifyItem.addSelectionListener(RectifyItemListener.getInstance());
 
+		clearCosmicsItem = new MenuItem(toolsMenu, SWT.PUSH);
+		clearCosmicsItem.setText("&Clear cosmics\tCtrl+C");
+		clearCosmicsItem.setAccelerator('C' | SWT.CTRL);
+		clearCosmicsItem.addSelectionListener(ClearCosmicsItemListener.getInstance());
+		
 		measureRVItem = new MenuItem(toolsMenu, SWT.PUSH);
 		measureRVItem.setText("&Measure RV\tCtrl+M");
 		measureRVItem.setAccelerator('M' | SWT.CTRL);	
 		measureRVItem.addSelectionListener(MeasureRVItemListener.getInstance());
 		
+		new MenuItem(toolsMenu, SWT.SEPARATOR);
 		
 		rVResultsItem = new MenuItem(toolsMenu, SWT.PUSH);
-		rVResultsItem.setText("&RV Results\tCtrl+T");
+		rVResultsItem.setText("RV Resul&ts\tCtrl+T");
 		rVResultsItem.setAccelerator('T' | SWT.CTRL);
 		rVResultsItem.addSelectionListener(RVResultItemListener.getInstance());
-		
-		clearCosmicsItem = new MenuItem(toolsMenu, SWT.PUSH);
-		clearCosmicsItem.setText("&Clear cosmics\tCtrl+C");
-		clearCosmicsItem.setAccelerator('C' | SWT.CTRL);
-		clearCosmicsItem.addSelectionListener(ClearCosmicsItemListener.getInstance());
 		
 		/*
 		chironToAsciiItem = new MenuItem(toolsMenu, SWT.PUSH);
