@@ -42,7 +42,7 @@ public class AsciiSpectrum extends Spectrum {
 					
 					xList.add(x);
 					yList.add(y);
-				} catch (NumberFormatException | IndexOutOfBoundsException e) {
+				} catch (NumberFormatException | IndexOutOfBoundsException exception) {
 					LOGGER.log(Level.FINEST, "Skipped line (" + line + ")");
 					continue;
 				}

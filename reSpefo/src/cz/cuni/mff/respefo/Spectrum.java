@@ -100,6 +100,21 @@ public abstract class Spectrum {
 			throw new IndexOutOfBoundsException();
 		}
 	}
+	
+	/**
+	 * Sets the y value at the specified index.
+	 * 
+	 * @param index location of the y value
+	 * @param value to be set at the index
+	 * @throws IndexOutOfBoundsException if the index is smaller than zero or greater than the spectrum's size
+	 */
+	public void setY(int index, double value) throws IndexOutOfBoundsException {
+		if (index >= 0 && index < ySeries.length) {
+			ySeries[index] = value;
+		} else {
+			throw new IndexOutOfBoundsException();
+		}
+	}
 
 	/**
 	 * Returns the x series.

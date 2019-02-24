@@ -12,6 +12,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.swtchart.Chart;
+import org.swtchart.IAxis;
 import org.swtchart.ILineSeries;
 import org.swtchart.ILineSeries.PlotSymbolType;
 
@@ -196,6 +197,20 @@ public class ClearCosmicsItemListener implements SelectionListener {
 		}
 	}
 	
+	public void movePoint(boolean up) {
+		if (!deletedIndexes.contains(activeIndex)) {
+			Chart chart = ReSpefo.getChart();
+			ILineSeries series = (ILineSeries) chart.getSeriesSet().getSeries("points");
+			IAxis yAxis = chart.getAxisSet().getYAxis(series.getYAxisId());
+		
+			double step = (yAxis.getRange().upper - yAxis.getRange().lower) / 400;
+			
+			spectrum.setY(activeIndex, spectrum.getY(activeIndex) + (up ? step : -step));
+			
+			updateAllSeries(false);
+		}
+	}
+	
 	public void delete() {
 		changePoint(false);
 	}
@@ -220,6 +235,10 @@ public class ClearCosmicsItemListener implements SelectionListener {
 			}
 		}
 		
+		updateAllSeries(true);
+	}
+	
+	private void updateAllSeries(boolean hopToNext) {
 		List<Double> deletedXSeries = new ArrayList<>();
 		List<Double> deletedYSeries = new ArrayList<>();
 		
@@ -241,7 +260,7 @@ public class ClearCosmicsItemListener implements SelectionListener {
 		updateLineSeries("deleted", deletedXSeries.stream().mapToDouble(Double::doubleValue).toArray(),
 				deletedYSeries.stream().mapToDouble(Double::doubleValue).toArray());
 		
-		if (activeIndex < xSeries.length - 1) {
+		if (hopToNext && activeIndex < xSeries.length - 1) {
 			activeIndex++;
 		}
 		updateSelectedSeries();

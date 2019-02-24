@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -62,17 +64,19 @@ public class RVResultItemListener implements SelectionListener {
 		
 		for (int i = 0; i < rvrFileNames.length; i++) {
 			try {
-				rvResultsList[i] = new RVResults(rvrFileNames[i]);
+				if (rvrFileNames[i] != null) {
+					rvResultsList[i] = new RVResults(rvrFileNames[i]);
+				}
 				
-			} catch (SpefoException ex) {
-				MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-				mb.setMessage("Rvr file is invalid [" + rvrFileNames[i] +"].\n\nDebug message:\n" + ex.getMessage());
-				mb.open();
+			} catch (SpefoException exception) {
+				MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
+				messageBox.setMessage("Rvr file is invalid [" + rvrFileNames[i] +"].\n\nDebug message:\n" + exception.getMessage());
+				messageBox.open();
 				return;
 			}
 		}
 		
-		String[] categories = Arrays.stream(rvResultsList).map(r -> r.getCategories())
+		String[] categories = Arrays.stream(rvResultsList).filter(Objects::nonNull).map(r -> r.getCategories())
 				.flatMap(Stream::of).distinct().sorted().toArray(String[]::new);
 		
 		File file = new File(lstFile.getFileName().substring(0, lstFile.getFileName().lastIndexOf('.')) + ".rvs");
@@ -114,10 +118,10 @@ public class RVResultItemListener implements SelectionListener {
 				}
 				writer.println();
 			}
-		} catch (FileNotFoundException ex) {
-			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			mb.setMessage("Couldn't write into file [" + file.getName() +"].\n\nDebug message:\n" + ex.getMessage());
-			mb.open();
+		} catch (FileNotFoundException exception) {
+			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
+			messageBox.setMessage("Couldn't write into file [" + file.getName() +"].\n\nDebug message:\n" + exception.getMessage());
+			messageBox.open();
 			return;
 		}
 	}

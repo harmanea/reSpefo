@@ -32,7 +32,7 @@ class RVResultDialog extends Dialog {
 	private Composite compOne, compTwo, compThree, compButtons;
 	private Label labelOne;
 	private Text lstFileField;
-	private Button buttonBrowse, buttonSelect, buttonFill, buttonOk, buttonCancel;
+	private Button buttonBrowse, buttonSelect, buttonRemove, buttonFill, buttonOk, buttonCancel;
 	
 	private Table table;
 	private TableColumn indexColumn, dateColumn, fileNameColumn;
@@ -112,6 +112,11 @@ class RVResultDialog extends Dialog {
         buttonSelect.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
         buttonSelect.setEnabled(false);
         
+        buttonRemove = new Button(compButtons, SWT.PUSH | SWT.CENTER);
+        buttonRemove.setText("Remove file");
+        buttonRemove.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+        buttonRemove.setEnabled(false);
+        
         buttonFill = new Button(compButtons, SWT.PUSH | SWT.CENTER);
         buttonFill.setText("Fill below");
         buttonFill.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
@@ -141,6 +146,7 @@ class RVResultDialog extends Dialog {
         table.addListener(SWT.Selection, event -> verifySelection());
         table.addListener(SWT.DefaultSelection, event -> selectRvrFile());
         buttonSelect.addListener(SWT.Selection, event -> selectRvrFile());
+        buttonRemove.addListener(SWT.Selection, event -> removeRvrFile());
         buttonFill.addListener(SWT.Selection, event -> fillFilenamesBelow());
         
 		buttonOk.addListener(SWT.Selection, event -> setStatusAndDisposeShell(true, shell));
@@ -186,7 +192,6 @@ class RVResultDialog extends Dialog {
 						rvrFileNamesList.add(null);
 						
 						item.setText(new String[] { Integer.toString(r.getIndex()), r.getFormattedDate(), "-" });
-						item.setForeground(2, table.getDisplay().getSystemColor(SWT.COLOR_DARK_RED));
 					}							
 				}
 				rvrFileNames = (String[]) rvrFileNamesList.stream().toArray(String[]::new);
@@ -209,7 +214,7 @@ class RVResultDialog extends Dialog {
 	
 	private void verifyFields() {
 		if (rvrFileNames != null &&
-				Arrays.stream(rvrFileNames).noneMatch(s -> s == null) &&
+				Arrays.stream(rvrFileNames).anyMatch(s -> s != null) &&
 				lstFile != null &&
 				lstFile.recordsCount() == rvrFileNames.length) {
 			buttonOk.setEnabled(true);
@@ -222,10 +227,12 @@ class RVResultDialog extends Dialog {
 		int index = table.getSelectionIndex();
 		if (index < 0) {
 			buttonSelect.setEnabled(false);
+			buttonRemove.setEnabled(false);
 			buttonFill.setEnabled(false);
 		} else {
 			buttonSelect.setEnabled(true);
 			if (rvrFileNames[index] != null) {
+				buttonRemove.setEnabled(true);
 				buttonFill.setEnabled(true);
 			}
 		}
@@ -245,6 +252,21 @@ class RVResultDialog extends Dialog {
 		rvrFileNames[index] = fileName;
 		
 		table.getItem(index).setText(2, Paths.get(fileName).getFileName().toString());
+		table.getItem(index).setForeground(2, table.getDisplay().getSystemColor(SWT.COLOR_WIDGET_FOREGROUND));
+		
+		verifySelection();
+		verifyFields();
+	}
+	
+	private void removeRvrFile() {
+		int index = table.getSelectionIndex();
+		if (index < 0) {
+			return;
+		}
+		
+		rvrFileNames[index] = null;
+		
+		table.getItem(index).setText(2, "-");
 		table.getItem(index).setForeground(2, table.getDisplay().getSystemColor(SWT.COLOR_WIDGET_FOREGROUND));
 		
 		verifySelection();
