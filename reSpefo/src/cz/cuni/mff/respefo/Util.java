@@ -340,6 +340,7 @@ public class Util {
 	public static final int SPECTRUM_SAVE = 1;
 	public static final int STL_LOAD = 2;
 	public static final int LST_LOAD = 3;
+	public static final int RVR_LOAD = 4;
 	
 	/**
 	 * Opens a file dialog and returns it's result
@@ -380,6 +381,12 @@ public class Util {
 			text = "Open file";
 			filterNames = new String[] { "Lst Files", "All Files (*)" };
 			filterExtensions = new String[] { "*.lst", "*" };
+			break;
+		case RVR_LOAD:
+			dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN);
+			text = "Open file";
+			filterNames = new String[] { "Rvr Files", "All Files (*)" };
+			filterExtensions = new String[] { "*.rvr", "*" };
 			break;
 		default:
 			return null;
@@ -507,7 +514,7 @@ public class Util {
 			fileName = fileName.substring(0, fileName.length() - fileExtension.length());
 		}
 		
-		Pattern pattern = Pattern.compile("[0-9]");
+		Pattern pattern = Pattern.compile("[0-9]+");
 		Matcher matcher = pattern.matcher(fileName);
 		
 		int start = 0, end = 0;
