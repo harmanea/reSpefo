@@ -28,25 +28,25 @@ public class SelectionBoxListener implements MouseListener, MouseMoveListener, P
 	private int prevX, prevY;
 	
 	@Override
-	public void mouseDoubleClick(MouseEvent e) {}
+	public void mouseDoubleClick(MouseEvent event) {}
 
 	@Override
-	public void mouseDown(MouseEvent e) {
+	public void mouseDown(MouseEvent event) {
 		startMillis = System.currentTimeMillis();
 		
-		if ((e.stateMask & SWT.CTRL) == SWT.CTRL) {
+		if ((event.stateMask & SWT.CTRL) == SWT.CTRL) {
 			drag = true;
 			
-			startX = e.x;
-			startY = e.y;
+			startX = event.x;
+			startY = event.y;
 			
-			prevX = e.x;
-			prevY = e.y;
+			prevX = event.x;
+			prevY = event.y;
 		}
 	}
 
 	@Override
-	public void mouseUp(MouseEvent e) {
+	public void mouseUp(MouseEvent event) {
 		if (drag && System.currentTimeMillis() - startMillis > 50) { // drag release
 			Chart chart = ReSpefo.getChart();
 			Range chartXRange = chart.getAxisSet().getXAxis(0).getRange();
@@ -55,15 +55,15 @@ public class SelectionBoxListener implements MouseListener, MouseMoveListener, P
 			Rectangle bounds = chart.getPlotArea().getBounds();
 			
 			Range xRange = new Range(chartXRange.lower + (chartXRange.upper - chartXRange.lower) * startX / bounds.width,
-					chartXRange.lower + (chartXRange.upper - chartXRange.lower) * e.x / bounds.width);
+					chartXRange.lower + (chartXRange.upper - chartXRange.lower) * event.x / bounds.width);
 			Range yRange = new Range(chartYRange.lower + (chartYRange.upper - chartYRange.lower) * (bounds.height - startY) / bounds.height,
-					chartYRange.lower + (chartYRange.upper - chartYRange.lower) * (bounds.height - e.y) / bounds.height);
+					chartYRange.lower + (chartYRange.upper - chartYRange.lower) * (bounds.height - event.y) / bounds.height);
 			
-			for (IAxis x : chart.getAxisSet().getXAxes()) {
-				x.setRange(xRange);
+			for (IAxis xAxis : chart.getAxisSet().getXAxes()) {
+				xAxis.setRange(xRange);
 			}
-			for (IAxis y : chart.getAxisSet().getYAxes()) {
-				y.setRange(yRange);
+			for (IAxis yAxis : chart.getAxisSet().getYAxes()) {
+				yAxis.setRange(yRange);
 			}
 		
 			chart.redraw();
@@ -73,18 +73,18 @@ public class SelectionBoxListener implements MouseListener, MouseMoveListener, P
 	}
 
 	@Override
-	public void mouseMove(MouseEvent e) {
+	public void mouseMove(MouseEvent event) {
 		if (drag) {
-			prevX = e.x;
-			prevY = e.y;
+			prevX = event.x;
+			prevY = event.y;
 			ReSpefo.getChart().redraw();
 		}
 	}
 	
 	@Override
-	public void paintControl(PaintEvent e) {
+	public void paintControl(PaintEvent event) {
 		if (drag) {
-			e.gc.drawRectangle(startX, startY, prevX - startX, prevY - startY);
+			event.gc.drawRectangle(startX, startY, prevX - startX, prevY - startY);
 		}
 	}
 }

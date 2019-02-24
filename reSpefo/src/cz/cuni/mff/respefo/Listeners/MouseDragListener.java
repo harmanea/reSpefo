@@ -32,7 +32,7 @@ public class MouseDragListener implements MouseListener, MouseMoveListener {
 	}
 
 	@Override
-	public void mouseMove(MouseEvent e) {	
+	public void mouseMove(MouseEvent event) {	
 		if (drag) {
 			Chart chart = ReSpefo.getChart();
 			Range chartXRange = chart.getAxisSet().getXAxis(0).getRange();
@@ -40,43 +40,43 @@ public class MouseDragListener implements MouseListener, MouseMoveListener {
 			
 			Rectangle bounds = chart.getPlotArea().getBounds();
 			
-			double xIncrease = (double)(prevX - e.x) / bounds.width;
+			double xIncrease = (double)(prevX - event.x) / bounds.width;
 			Range xRange = new Range(chartXRange.lower + (chartXRange.upper - chartXRange.lower) * xIncrease,
 					chartXRange.upper + (chartXRange.upper - chartXRange.lower) * xIncrease);
 			
-			double yIncrease = (double)(e.y - prevY) / bounds.height; 
+			double yIncrease = (double)(event.y - prevY) / bounds.height; 
 			Range yRange = new Range(chartYRange.lower + (chartYRange.upper - chartYRange.lower) * yIncrease,
 					chartYRange.upper + (chartYRange.upper - chartYRange.lower) * yIncrease);
 			
-			for (IAxis x : chart.getAxisSet().getXAxes()) {
-				x.setRange(xRange);
+			for (IAxis xAxis : chart.getAxisSet().getXAxes()) {
+				xAxis.setRange(xRange);
 			}
-			for (IAxis y : chart.getAxisSet().getYAxes()) {
-				y.setRange(yRange);
+			for (IAxis yAxis : chart.getAxisSet().getYAxes()) {
+				yAxis.setRange(yRange);
 			}
 		
 			chart.redraw();
 	
-			prevX = e.x;
-			prevY = e.y;
+			prevX = event.x;
+			prevY = event.y;
 		}
 	}
 	
 	@Override
-	public void mouseDoubleClick(MouseEvent e) {}
+	public void mouseDoubleClick(MouseEvent event) {}
 
 	@Override
-	public void mouseDown(MouseEvent e) {
-		if (!ignoreCtrl || ((e.stateMask & SWT.CTRL) != SWT.CTRL)) {
+	public void mouseDown(MouseEvent event) {
+		if (!ignoreCtrl || ((event.stateMask & SWT.CTRL) != SWT.CTRL)) {
 			drag = true;
 			
-			prevX = e.x;
-			prevY = e.y;
+			prevX = event.x;
+			prevY = event.y;
 		}
 	}
 
 	@Override
-	public void mouseUp(MouseEvent e) {
+	public void mouseUp(MouseEvent event) {
 		drag = false;
 	}
 

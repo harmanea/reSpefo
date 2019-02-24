@@ -29,16 +29,16 @@ public class ChironToAsciiItemListener implements SelectionListener {
 	}
 	
 	@Override
-	public void widgetDefaultSelected(SelectionEvent e) {
-		handle(e);
+	public void widgetDefaultSelected(SelectionEvent event) {
+		handle(event);
 	}
 
 	@Override
-	public void widgetSelected(SelectionEvent e) {
-		handle(e);
+	public void widgetSelected(SelectionEvent event) {
+		handle(event);
 	}
 
-	private void handle(SelectionEvent e) {
+	private void handle(SelectionEvent event) {
 		String fileName = Util.openFileDialog(Util.SPECTRUM_LOAD);
 		
 		if (fileName == null) {
@@ -46,8 +46,8 @@ public class ChironToAsciiItemListener implements SelectionListener {
 		}
 		
 		FitsFactory.setAllowHeaderRepairs(true);
-		try (Fits f = new Fits(fileName)) {
-			BasicHDU<?>[] HDUs = f.read();
+		try (Fits fits = new Fits(fileName)) {
+			BasicHDU<?>[] HDUs = fits.read();
 			
 			BasicHDU<?> hdu = HDUs[0];
 			float[][][] data = (float[][][]) hdu.getKernel();
@@ -77,17 +77,17 @@ public class ChironToAsciiItemListener implements SelectionListener {
 					}
 				}
 			}
-		} catch (Exception ex) {
-			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			mb.setMessage("Couldn't convert file.");
-			mb.open();
+		} catch (Exception exception) {
+			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
+			messageBox.setMessage("Couldn't convert file.");
+			messageBox.open();
 			return;
 		} finally {
 			FitsFactory.setAllowHeaderRepairs(false);
 		}
 		
-		MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-		mb.setMessage("File converted successfully.");
-		mb.open();
+		MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
+		messageBox.setMessage("File converted successfully.");
+		messageBox.open();
 	}
 }

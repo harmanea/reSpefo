@@ -28,61 +28,61 @@ public class MeasureRVKeyListener extends DefaultKeyListener {
 		handlers.put(16777261, MeasureRVKeyListener::zoomOut);
 		handlers.put(47, MeasureRVKeyListener::zoomOut);
 		
-		handlers.put((int) SWT.CR, MeasureRVKeyListener::enter); // Enter
+		handlers.put((int) SWT.CR, MeasureRVKeyListener::enter);
 		
 		handlers.put(SWT.INSERT, MeasureRVKeyListener::insert);
 		
-		handlers.put((int) SWT.ESC, MeasureRVKeyListener::skip); // Escape
-		handlers.put(SWT.END, MeasureRVKeyListener::skip); // End
+		handlers.put((int) SWT.ESC, MeasureRVKeyListener::skip);
+		handlers.put(SWT.END, MeasureRVKeyListener::skip);
 		
-		handlers.put((int) SWT.BS, MeasureRVKeyListener::delete); // Backspace
-		handlers.put((int) SWT.DEL, MeasureRVKeyListener::delete); // Delete
+		handlers.put((int) SWT.BS, MeasureRVKeyListener::delete);
+		handlers.put((int) SWT.DEL, MeasureRVKeyListener::delete);
 		
 		handlers.put((int) SWT.TAB, MeasureRVKeyListener::changeRadius);
 	}
 	
-	public static void adjustView(KeyEvent e) {
+	public static void adjustView(KeyEvent event) {
 		ChartBuilder.adjustRange(ReSpefo.getChart(), 1, 1);
 		ReSpefo.getChart().getAxisSet().zoomOut();
 		MeasureRVItemListener.getInstance().adjustRVStepLabel();
 	}
 	
-	public static void moveRight(KeyEvent e) {
+	public static void moveRight(KeyEvent event) {
 		MeasureRVItemListener.getInstance().moveRight();
 	}
 	
-	public static void moveLeft(KeyEvent e) {
+	public static void moveLeft(KeyEvent event) {
 		MeasureRVItemListener.getInstance().moveLeft();
 	}
 	
-	public static void zoomIn(KeyEvent e) {
+	public static void zoomIn(KeyEvent event) {
 		ReSpefo.getChart().getAxisSet().zoomIn();
 		MeasureRVItemListener.getInstance().adjustRVStepLabel();
 	}
 	
-	public static void zoomOut(KeyEvent e) {
+	public static void zoomOut(KeyEvent event) {
 		ReSpefo.getChart().getAxisSet().zoomOut();
 		MeasureRVItemListener.getInstance().adjustRVStepLabel();
 	}
 	
-	public static void enter(KeyEvent e) {
+	public static void enter(KeyEvent event) {
 		MeasureRVItemListener.getInstance().enter();
 	}
 	
-	public static void insert(KeyEvent e) {
+	public static void insert(KeyEvent event) {
 		MeasureRVItemListener.getInstance().insert();
 	}
 	
-	public static void skip(KeyEvent e) {
+	public static void skip(KeyEvent event) {
 		MeasureRVItemListener.getInstance().skip();
 	}
 	
-	public static void delete(KeyEvent e) {
+	public static void delete(KeyEvent event) {
 		MeasureRVItemListener.getInstance().delete();
 	}
 	
-	public static void changeRadius(KeyEvent e) {
-		if ((e.stateMask & SWT.CTRL) == SWT.CTRL) {
+	public static void changeRadius(KeyEvent event) {
+		if ((event.stateMask & SWT.CTRL) == SWT.CTRL) {
 			MeasureRVItemListener.getInstance().decreaseRadius();
 		} else {
 			MeasureRVItemListener.getInstance().increaseRadius();

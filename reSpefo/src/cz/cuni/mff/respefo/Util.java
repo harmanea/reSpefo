@@ -125,12 +125,9 @@ public class Util {
 			return Double.NaN;
 		}
 		
-		double sum = 0;
-		for (int i = 0; i < values.length; i++) {
-			sum += Math.pow(values[i], 2);
-		}
-		
+		double sum = Arrays.stream(values).map(value -> Math.pow(value, 2)).sum();
 		sum /= values.length;
+		sum /= values.length - 1;
 		
 		return Math.sqrt(sum);
 	}
@@ -146,11 +143,7 @@ public class Util {
 			return Double.NaN;
 		}
 		
-		double sum = 0;
-		for (int i = 0; i < values.length; i++) {
-			sum += Math.pow(values[i] - middle, 2);
-		}
-		
+		double sum = Arrays.stream(values).map(value -> Math.pow(value - middle, 2)).sum();
 		sum /= values.length;
 		sum /= values.length - 1;
 		
@@ -398,13 +391,13 @@ public class Util {
 
 		dialog.setFilterPath(ReSpefo.getFilterPath());
 		
-		String s = dialog.open();
+		String fileName = dialog.open();
 		
-		if (s != null && Paths.get(s).getParent() != null) {
-			ReSpefo.setFilterPath(Paths.get(s).getParent().toString());
+		if (fileName != null && Paths.get(fileName).getParent() != null) {
+			ReSpefo.setFilterPath(Paths.get(fileName).getParent().toString());
 		}
 		
-		return s;
+		return fileName;
 	}
 	
 	/**
@@ -416,9 +409,9 @@ public class Util {
 		if (fileName == null) {
 			return null;
 		} else {
-			int i = fileName.lastIndexOf('.');
-			if (i >= 0) {
-				return fileName.substring(i + 1);
+			int index = fileName.lastIndexOf('.');
+			if (index >= 0) {
+				return fileName.substring(index + 1);
 			} else {
 				return "";
 			}
@@ -553,13 +546,13 @@ public class Util {
 	 */
 	public static String formatDouble(double num, int before, int after, boolean sign) {
 		String format = "%" + (sign ? " " : "") + before + "." + after + "f";
-		String s = String.format(format, num);
+		String formattedNumber = String.format(format, num);
 		
-		for (int i = s.length(); i <  before + after + (sign ? 2 : 1); i++) {
-			s = ' ' + s;
+		for (int i = formattedNumber.length(); i <  before + after + (sign ? 2 : 1); i++) {
+			formattedNumber = ' ' + formattedNumber;
 		}
 		
-		return s;
+		return formattedNumber;
 	}
 	
 	/**

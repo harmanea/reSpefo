@@ -151,12 +151,7 @@ class RVStepDialog extends Dialog {
 			}
 		});
 
-		buttonCancel.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				shell.dispose();
-			}
-		});
+		buttonCancel.addListener(SWT.Selection, event -> shell.dispose());
         
 		shell.pack();
 		shell.open();

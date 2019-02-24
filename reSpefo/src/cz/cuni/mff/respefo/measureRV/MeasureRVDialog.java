@@ -3,21 +3,15 @@ package cz.cuni.mff.respefo.measureRV;
 import java.io.File;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -227,134 +221,24 @@ public class MeasureRVDialog extends Dialog {
        
         
         // Listeners
-        spectrumField.addModifyListener(new ModifyListener() {
-			
-			@Override
-			public void modifyText(ModifyEvent arg0) {
-				validate();
-			}
-		});
+        spectrumField.addModifyListener(event -> validate());
         
-		buttonBrowse.addListener(SWT.Selection, new Listener() {
-
-			@Override
-			public void handleEvent(Event e) {
-				String s = Util.openFileDialog(Util.SPECTRUM_LOAD);
-				
-				if (s != null) {
-					spectrumField.setText(s);
-					spectrumField.setSelection(spectrumField.getText().length());
-					
-					validate();
-				}
-			}
-
-		});
+		buttonBrowse.addListener(SWT.Selection, event -> browseForSpectrumFileAndValidate());
 		
-		buttonAddOne.addListener(SWT.Selection, new Listener() {
-
-			@Override
-			public void handleEvent(Event e) {
-				String s = Util.openFileDialog(Util.STL_LOAD);
-				
-				if (s != null) {
-					listOne.add(s);
-					
-					validate();
-				}
-			}
-
-		});
+		buttonAddOne.addListener(SWT.Selection, event -> addStlFileToListAndValidate(listOne));
+		buttonRemoveOne.addListener(SWT.Selection, event -> removeFromListAndValidate(listOne));
 		
-		buttonRemoveOne.addListener(SWT.Selection, new Listener() {
-
-			@Override
-			public void handleEvent(Event e) {
-				if (listOne.getSelectionIndex() != -1) {
-					listOne.remove(listOne.getSelectionIndex());
-					
-					validate();
-				}
-			}
-
-		});
+		buttonAddTwo.addListener(SWT.Selection, event -> addStlFileToListAndValidate(listTwo));
+		buttonRemoveTwo.addListener(SWT.Selection, event -> removeFromListAndValidate(listTwo));
 		
-		buttonAddTwo.addListener(SWT.Selection, new Listener() {
-
-			@Override
-			public void handleEvent(Event e) {
-				String s = Util.openFileDialog(Util.STL_LOAD);
-				
-				if (s != null) {
-					listTwo.add(s);
-				}
-			}
-
-		});
+		buttonRadioOne.addListener(SWT.Selection, event -> deselectButtonAndValidate(buttonRadioTwo));
+		buttonRadioTwo.addListener(SWT.Selection, event -> deselectButtonAndValidate(buttonRadioOne));
 		
-		buttonRemoveTwo.addListener(SWT.Selection, new Listener() {
-
-			@Override
-			public void handleEvent(Event e) {
-				if (listTwo.getSelectionIndex() != -1) {
-					listTwo.remove(listTwo.getSelectionIndex());
-				}
-			}
-
-		});
+		rvStepField.addModifyListener(event -> validate());
 		
-		buttonRadioOne.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				buttonRadioTwo.setSelection(false);
-				
-				validate();
-			}
-		});
+		buttonOk.addListener(SWT.Selection, event -> confirmAndCloseDialog(shell));
 		
-		buttonRadioTwo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				buttonRadioOne.setSelection(false);
-				
-				validate();
-			}
-		});
-		
-		rvStepField.addModifyListener(new ModifyListener() {
-			
-			@Override
-			public void modifyText(ModifyEvent arg0) {
-				
-				validate();
-			}
-		});
-		
-		buttonOk.addListener(SWT.Selection, new Listener() {
-			
-			@Override
-			public void handleEvent(Event arg0) {
-				status = true;
-				itemsOne = listOne.getItems();
-				itemsTwo = listTwo.getItems();
-				fileName = spectrumField.getText();
-				if (buttonRadioTwo.getSelection()) {
-					rvStep = -1;
-				} else {
-					rvStep = Double.parseDouble(rvStepField.getText());
-				}
-				shell.dispose();
-			}
-		});
-		
-		buttonCancel.addListener(SWT.Selection, new Listener() {
-			
-			@Override
-			public void handleEvent(Event arg0) {
-				status = false;
-				shell.dispose();
-			}
-		});
+		buttonCancel.addListener(SWT.Selection, event -> setStatusAndDisposeShell(false, shell));
 		
 		// Pack and open
 		validate();
@@ -410,5 +294,57 @@ public class MeasureRVDialog extends Dialog {
 			warningText.setText(message);
 			warningText.setVisible(true);
 		}
+	}
+	
+	private void browseForSpectrumFileAndValidate() {
+		String fileName = Util.openFileDialog(Util.SPECTRUM_LOAD);
+		
+		if (fileName != null) {
+			spectrumField.setText(fileName);
+			spectrumField.setSelection(spectrumField.getText().length());
+			
+			validate();
+		}
+	}
+	
+	private void confirmAndCloseDialog(Shell shell) {
+		itemsOne = listOne.getItems();
+		itemsTwo = listTwo.getItems();
+		fileName = spectrumField.getText();
+		
+		if (buttonRadioTwo.getSelection()) {
+			rvStep = -1;
+		} else {
+			rvStep = Double.parseDouble(rvStepField.getText());
+		}
+		setStatusAndDisposeShell(status, shell);
+	}
+	
+	private void setStatusAndDisposeShell(boolean status, Shell shell) {
+		this.status = status;
+		shell.dispose();
+	}
+	
+	private void deselectButtonAndValidate(Button button) {
+		button.setEnabled(false);
+		validate();
+	}
+	
+	private void addStlFileToListAndValidate(List list) {
+		String fileName = Util.openFileDialog(Util.STL_LOAD);
+		
+		if (fileName != null) {
+			list.add(fileName);
+			
+			validate();
+		}
+	}
+	
+	private void removeFromListAndValidate(List list) {
+		if (list.getSelectionIndex() != -1) {
+			list.remove(list.getSelectionIndex());
+		}
+		
+		validate();
 	}
 }

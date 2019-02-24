@@ -4,7 +4,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 
 import cz.cuni.mff.respefo.Listeners.DefaultKeyListener;
-import cz.cuni.mff.respefo.rectify.RectifyItemListener;
 
 public class ClearCosmicsKeyListener extends DefaultKeyListener {
 	
@@ -19,32 +18,32 @@ public class ClearCosmicsKeyListener extends DefaultKeyListener {
 		
 		handlers.put((int) 'n', ClearCosmicsKeyListener::previous);
 		
-		handlers.put((int) SWT.CR, ClearCosmicsKeyListener::enter); // Enter
+		handlers.put((int) SWT.CR, ClearCosmicsKeyListener::enter);
 		
-		handlers.put((int) SWT.ESC, ClearCosmicsKeyListener::escape); // Escape
+		handlers.put((int) SWT.ESC, ClearCosmicsKeyListener::escape);
 	}
 
-	public static void delete(KeyEvent e) {
+	public static void delete(KeyEvent event) {
 		ClearCosmicsItemListener.getInstance().delete();
 	}
 	
-	public static void insert(KeyEvent e) {
+	public static void insert(KeyEvent event) {
 		ClearCosmicsItemListener.getInstance().insert();
 	}
 	
-	public static void next(KeyEvent e) {
+	public static void next(KeyEvent event) {
 		ClearCosmicsItemListener.getInstance().nextPoint();
 	}
 	
-	public static void previous(KeyEvent e) {
+	public static void previous(KeyEvent event) {
 		ClearCosmicsItemListener.getInstance().previousPoint();
 	}
 	
-	public static void enter(KeyEvent e) {
+	public static void enter(KeyEvent event) {
 		ClearCosmicsItemListener.getInstance().enter();
 	}
 	
-	public static void escape(KeyEvent e) {
+	public static void escape(KeyEvent event) {
 		ClearCosmicsItemListener.getInstance().escape();
 	}
 }

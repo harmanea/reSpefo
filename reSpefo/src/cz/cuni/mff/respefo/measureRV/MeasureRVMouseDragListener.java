@@ -14,33 +14,33 @@ public class MeasureRVMouseDragListener implements MouseListener, MouseMoveListe
 	private int prevX;
 	
 	@Override
-	public void mouseMove(MouseEvent e) {
+	public void mouseMove(MouseEvent event) {
 		if (drag) {
 			Chart chart = ReSpefo.getChart();
 			
 			ILineSeries series = (ILineSeries) chart.getSeriesSet().getSeries("mirrored");
 			Range xRange = chart.getAxisSet().getXAxis(series.getXAxisId()).getRange();
 			
-			double shift = ((e.x - prevX) * (xRange.upper - xRange.lower)) / ReSpefo.getChart().getPlotArea().getBounds().width;
+			double shift = ((event.x - prevX) * (xRange.upper - xRange.lower)) / ReSpefo.getChart().getPlotArea().getBounds().width;
 			
 			MeasureRVItemListener.getInstance().move(shift);
 			
-			prevX = e.x;
+			prevX = event.x;
 		}
 	}
 
 	@Override
-	public void mouseDoubleClick(MouseEvent e) {}
+	public void mouseDoubleClick(MouseEvent event) {}
 
 	@Override
-	public void mouseDown(MouseEvent e) {
+	public void mouseDown(MouseEvent event) {
 		drag = true;
 		
-		prevX = e.x;
+		prevX = event.x;
 	}
 
 	@Override
-	public void mouseUp(MouseEvent e) {
+	public void mouseUp(MouseEvent event) {
 		drag = false;
 	}
 

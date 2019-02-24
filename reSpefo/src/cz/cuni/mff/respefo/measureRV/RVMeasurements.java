@@ -12,7 +12,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 
 import cz.cuni.mff.respefo.ReSpefo;
-import cz.cuni.mff.respefo.Util;
 
 class RVMeasurements {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
@@ -41,16 +40,16 @@ class RVMeasurements {
 								String name = tokens[2];
 
 								measurements.add(new RVMeasurement(l0, radius, name, areCorrections));
-							} catch (Exception e) {
+							} catch (Exception exception) {
 								continue;
 							}
 						}
 					}
-				} catch (IOException e) {
-					LOGGER.log(Level.WARNING, "Error loading file " + fileName, e);
-					MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_ERROR | SWT.OK);
-					mb.setText("Error loading file: " + fileName);
-					mb.open();
+				} catch (IOException exception) {
+					LOGGER.log(Level.WARNING, "Error loading file " + fileName, exception);
+					MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_ERROR | SWT.OK);
+					messageBox.setText("Error loading file: " + fileName);
+					messageBox.open();
 				}
 			}
 		}
@@ -74,8 +73,8 @@ class RVMeasurements {
 	
 	public int getNonCorrectionsCount() {
 		int count = 0;
-		for (RVMeasurement m : measurements) {
-			if (!m.isCorrection) {
+		for (RVMeasurement rvMeasurement : measurements) {
+			if (!rvMeasurement.isCorrection) {
 				count++;
 			}
 		}
@@ -98,15 +97,8 @@ class RVMeasurements {
 	}
 	
 	public String[] getNames() {
-		ArrayList<String> names = new ArrayList<>();
-		for (RVMeasurement m : measurements) {
-			if (m.isCorrection) {
-				names.add("* " + m.name);
-			} else {
-				names.add(m.name);
-			}
-		}
-		
-		return names.toArray(new String[names.size()]);
+		return measurements.stream()
+				.map(measurement -> measurement.isCorrection ? "* " + measurement.name : measurement.name)
+				.toArray(String[]::new);
 	}
 }

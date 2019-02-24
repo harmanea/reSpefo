@@ -15,10 +15,10 @@ public class MeasureRVMouseWheelZoomListener extends MouseWheelZoomListener {
 	}
 	
 	@Override
-	public void mouseScrolled(MouseEvent e) {
-		super.mouseScrolled(e);
+	public void mouseScrolled(MouseEvent event) {
+		super.mouseScrolled(event);
 		
-		if ((e.stateMask & SWT.CTRL) == SWT.CTRL) {
+		if ((event.stateMask & SWT.CTRL) == SWT.CTRL) {
 			MeasureRVItemListener.getInstance().adjustRVStepLabel();
 		}
 	}

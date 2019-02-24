@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,7 +40,7 @@ class RVResultsPrinter {
 			writer.println("# Summary of radial velocities measured on " + spectrum.getName());
 			writer.println("_This file was generated automatically, do not edit!_");
 			writer.println();
-			writer.println("Heliocentric correction: " + "[not implemented yet]");
+			writer.println("Heliocentric correction: " + results.getHelCorr());
 			writer.println();
 		
 			for (String category : results.getCategories()) {
@@ -69,8 +66,8 @@ class RVResultsPrinter {
 				writer.println();
 			}
 			
-		} catch (FileNotFoundException e) {
-			LOGGER.log(Level.WARNING, "Couldn't save to file.", e);
+		} catch (FileNotFoundException fileNotFoundException) {
+			LOGGER.log(Level.WARNING, "Couldn't save to file.", fileNotFoundException);
 			return false;
 		}
 		

@@ -48,18 +48,18 @@ public class RectifyItemListener implements SelectionListener {
 	}
 	
 	@Override
-	public void widgetDefaultSelected(SelectionEvent e) {
+	public void widgetDefaultSelected(SelectionEvent event) {
 		LOGGER.log(Level.FINEST, "Rectify widget default selected");
-		handle(e);
+		handle(event);
 	}
 
 	@Override
-	public void widgetSelected(SelectionEvent e) {
+	public void widgetSelected(SelectionEvent event) {
 		LOGGER.log(Level.FINEST, "Rectify widget selected");
-		handle(e);
+		handle(event);
 	}
 
-	private void handle(SelectionEvent e) {
+	private void handle(SelectionEvent event) {
 		ReSpefo.reset();
 		
 		String fileName = Util.openFileDialog(Util.SPECTRUM_LOAD);
@@ -73,9 +73,9 @@ public class RectifyItemListener implements SelectionListener {
 			spectrum = Spectrum.createFromFile(fileName);
 		} catch (SpefoException exception) {
 			LOGGER.log(Level.WARNING, "Couldn't import file.", exception);
-			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			mb.setMessage("Couldn't import file.\n\nDebug message:\n" + exception.getMessage());
-			mb.open();
+			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
+			messageBox.setMessage("Couldn't import file.\n\nDebug message:\n" + exception.getMessage());
+			messageBox.open();
 			return;
 		}
 		
@@ -249,11 +249,11 @@ public class RectifyItemListener implements SelectionListener {
 			double x = points.getActiveX();
 			double y = points.getActiveY();
 
-			Range Xrange = ReSpefo.getChart().getAxisSet().getXAxis(0).getRange();
-			Range Yrange = ReSpefo.getChart().getAxisSet().getYAxis(0).getRange();
+			Range xRange = ReSpefo.getChart().getAxisSet().getXAxis(0).getRange();
+			Range yRange = ReSpefo.getChart().getAxisSet().getYAxis(0).getRange();
 
-			Range xr = new Range(x - (Xrange.upper - Xrange.lower) / 2, x + (Xrange.upper - Xrange.lower) / 2);
-			Range yr = new Range(y - (Yrange.upper - Yrange.lower) / 2, y + (Yrange.upper - Yrange.lower) / 2);
+			Range xr = new Range(x - (xRange.upper - xRange.lower) / 2, x + (xRange.upper - xRange.lower) / 2);
+			Range yr = new Range(y - (yRange.upper - yRange.lower) / 2, y + (yRange.upper - yRange.lower) / 2);
 
 			for (IAxis a : ReSpefo.getChart().getAxisSet().getXAxes()) {
 				a.setRange(xr);
@@ -315,9 +315,9 @@ public class RectifyItemListener implements SelectionListener {
 
 	public void clearPoints() {
 		if (!summary) {
-			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.YES | SWT.NO);
-			mb.setMessage("Do you want to clear all points?");
-			if (mb.open() == SWT.YES) {
+			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.YES | SWT.NO);
+			messageBox.setMessage("Do you want to clear all points?");
+			if (messageBox.open() == SWT.YES) {
 				points.reset(spectrum.getX(0), spectrum.getY(0), spectrum.getX(spectrum.getSize() - 1),
 						spectrum.getY(spectrum.getSize() - 1));
 

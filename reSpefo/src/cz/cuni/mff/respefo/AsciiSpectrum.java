@@ -52,8 +52,8 @@ public class AsciiSpectrum extends Spectrum {
 			ySeries = yList.stream().mapToDouble(Double::doubleValue).toArray();
 			
 			LOGGER.log(Level.FINER, "Closing file (" + xSeries.length + " lines loaded)");
-		} catch (IOException e) {
-			LOGGER.log(Level.WARNING, "Error while reading file", e);
+		} catch (IOException exception) {
+			LOGGER.log(Level.WARNING, "Error while reading file", exception);
 			// TODO specialized exception?
 			throw new SpefoException("IOException occurred!");
 		}
@@ -94,26 +94,26 @@ public class AsciiSpectrum extends Spectrum {
 		double[] data = getYSeries();
 
 		BasicHDU<?> hdu;
-		try (Fits f = new Fits(); BufferedFile bf = new BufferedFile(fileName, "rw")) {
+		try (Fits fits = new Fits(); BufferedFile bf = new BufferedFile(fileName, "rw")) {
 			LOGGER.log(Level.FINER, "Opened a file (" + fileName + ")");
 			hdu = FitsFactory.hduFactory(data);
 			
 			hdu.addValue("CRPIX1", 1, "Reference pixel");
 			hdu.addValue("CRVAL1", getX(0), "Coordinate at reference pixel");
 			hdu.addValue("CDELT1", getX(1) - getX(0), "Coordinate increment");
-			f.addHDU(hdu);
+			fits.addHDU(hdu);
 			try {
-				f.getHDU(0).addValue("SIMPLE", true, "Created by reSpefo v" + ReSpefo.VERSION + " on " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
-			} catch (IOException e) {
-				LOGGER.log(Level.FINEST, "Couldn't change the SIMPLE value", e);
+				fits.getHDU(0).addValue("SIMPLE", true, "Created by reSpefo v" + ReSpefo.VERSION + " on " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+			} catch (IOException exception) {
+				LOGGER.log(Level.FINEST, "Couldn't change the SIMPLE value", exception);
 			}
 
-			f.write(bf);
+			fits.write(bf);
 			
 			LOGGER.log(Level.FINER, "Closing file");
 			return true;
-		} catch (FitsException | IOException e) {
-			LOGGER.log(Level.WARNING, "Error while writing to file", e);
+		} catch (FitsException | IOException exception) {
+			LOGGER.log(Level.WARNING, "Error while writing to file", exception);
 			return false;
 		}
 

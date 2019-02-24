@@ -257,20 +257,20 @@ public abstract class Spectrum {
 		case "fts":
 			try {
 				result = new FitsSpectrum(fileName);
-			} catch (FitsException e) {
-				MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-				mb.setMessage("File is broken. Would you like to try to repair it?");
-				if (mb.open() == SWT.YES) {
+			} catch (FitsException exception) {
+				MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+				messageBox.setMessage("File is broken. Would you like to try to repair it?");
+				if (messageBox.open() == SWT.YES) {
 					try {
 						FitsFactory.setAllowHeaderRepairs(true);
 						result = new FitsSpectrum(fileName);
-					} catch(FitsException f) {
-						throw new SpefoException("Couldn't repair file. " + e.getMessage());
+					} catch(FitsException fitsException) {
+						throw new SpefoException("Couldn't repair file. " + fitsException.getMessage());
 					} finally {
 						FitsFactory.setAllowHeaderRepairs(false);
 					}
 				} else {
-					throw new SpefoException("File is broken. " + e.getMessage());
+					throw new SpefoException("File is broken. " + exception.getMessage());
 				}
 			}
 			break;

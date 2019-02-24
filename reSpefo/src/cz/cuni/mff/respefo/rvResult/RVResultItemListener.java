@@ -37,17 +37,17 @@ public class RVResultItemListener implements SelectionListener {
 	}
 	
 	@Override
-	public void widgetDefaultSelected(SelectionEvent e) {
+	public void widgetDefaultSelected(SelectionEvent event) {
 		LOGGER.log(Level.FINEST, "RV Result widget default selected");
 		
-		handle(e);
+		handle(event);
 	}
 
 	@Override
-	public void widgetSelected(SelectionEvent e) {
+	public void widgetSelected(SelectionEvent event) {
 		LOGGER.log(Level.FINEST, "RV Result widget selected");
 		
-		handle(e);
+		handle(event);
 	}
 
 	private void handle(SelectionEvent event) {
@@ -66,7 +66,7 @@ public class RVResultItemListener implements SelectionListener {
 				
 			} catch (SpefoException ex) {
 				MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-				mb.setMessage("Couldn't open file [" + rvrFileNames[i] +"].\n\nDebug message:\n" + ex.getMessage());
+				mb.setMessage("Rvr file is invalid [" + rvrFileNames[i] +"].\n\nDebug message:\n" + ex.getMessage());
 				mb.open();
 				return;
 			}

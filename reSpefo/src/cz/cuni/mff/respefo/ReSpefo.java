@@ -30,7 +30,7 @@ import cz.cuni.mff.respefo.rvResult.RVResultItemListener;
 public class ReSpefo {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 
-	public static final String VERSION = "0.8.0";
+	public static final String VERSION = "0.8.1";
 
 	private static Display display;
 	private static Shell shell;
@@ -39,6 +39,7 @@ public class ReSpefo {
 
 	private static Menu menuBar, fileMenu, toolsMenu;
 	private static MenuItem fileMenuHeader, toolsMenuHeader;
+	@SuppressWarnings("unused")
 	private static MenuItem fileQuitItem, fileExportItem, fileImportItem, rectifyItem,
 		measureRVItem, rVResultsItem, clearCosmicsItem, chironToAsciiItem;
 
@@ -193,8 +194,8 @@ public class ReSpefo {
 		return chart;
 	}
 
-	public static void setChart(Chart c) {
-		ReSpefo.chart = c;
+	public static void setChart(Chart chart) {
+		ReSpefo.chart = chart;
 	}
 
 	public static String getFilterPath() {

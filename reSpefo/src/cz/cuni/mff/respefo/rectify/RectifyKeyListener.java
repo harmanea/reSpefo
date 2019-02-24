@@ -20,63 +20,63 @@ public class RectifyKeyListener extends DefaultKeyListener {
 		
 		handlers.put((int) 'p', RectifyKeyListener::center);
 		
-		handlers.put((int) SWT.CR, RectifyKeyListener::enter); // Enter
+		handlers.put((int) SWT.CR, RectifyKeyListener::enter);
 		
-		handlers.put((int) SWT.ESC, RectifyKeyListener::escape); // Escape
+		handlers.put((int) SWT.ESC, RectifyKeyListener::escape);
 		
 		handlers.put(SWT.INSERT, RectifyKeyListener::insert);
 		
-		handlers.put((int) SWT.DEL, RectifyKeyListener::delete); // Delete
+		handlers.put((int) SWT.DEL, RectifyKeyListener::delete);
 		
 		handlers.put((int) 'x', RectifyKeyListener::clearPoints);
 	}
 	
-	public static void previousPoint(KeyEvent e) {
+	public static void previousPoint(KeyEvent event) {
 		RectifyItemListener.getInstance().previousPoint();
 	}
 	
-	public static void nextPoint(KeyEvent e) {
+	public static void nextPoint(KeyEvent event) {
 		RectifyItemListener.getInstance().nextPoint();
 	}
 	
-	public static void moveUp(KeyEvent e) {
+	public static void moveUp(KeyEvent event) {
 		RectifyItemListener.getInstance().moveUp();
 	}
 	
-	public static void moveDown(KeyEvent e) {
+	public static void moveDown(KeyEvent event) {
 		RectifyItemListener.getInstance().moveDown();
 	}
 	
-	public static void moveLeft(KeyEvent e) {
+	public static void moveLeft(KeyEvent event) {
 		RectifyItemListener.getInstance().moveLeft();
 	}
 	
-	public static void moveRight(KeyEvent e) {
+	public static void moveRight(KeyEvent event) {
 		RectifyItemListener.getInstance().moveRight();
 	}
 	
-	public static void center(KeyEvent e) {
+	public static void center(KeyEvent event) {
 		RectifyItemListener.getInstance().center();
 	}
 	
-	public static void enter(KeyEvent e) {
+	public static void enter(KeyEvent event) {
 		RectifyItemListener.getInstance().enter();
 	}
 	
-	public static void escape(KeyEvent e) {
+	public static void escape(KeyEvent event) {
 		RectifyItemListener.getInstance().escape();
 	}
 	
-	public static void insert(KeyEvent e) {
+	public static void insert(KeyEvent event) {
 		RectifyItemListener.getInstance().insert();
 	}
 	
-	public static void delete(KeyEvent e) {
+	public static void delete(KeyEvent event) {
 		RectifyItemListener.getInstance().delete();
 	}
 	
-	public static void clearPoints(KeyEvent e) {
-		if ((e.stateMask & SWT.CTRL) == SWT.CTRL) {
+	public static void clearPoints(KeyEvent event) {
+		if ((event.stateMask & SWT.CTRL) == SWT.CTRL) {
 			RectifyItemListener.getInstance().clearPoints();
 		}
 	}

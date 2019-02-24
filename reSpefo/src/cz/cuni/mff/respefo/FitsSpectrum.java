@@ -98,9 +98,9 @@ public class FitsSpectrum extends Spectrum {
 			
 			xSeries = Util.fillArray(ySeries.length, (1 - CRPIX) * CDELT + CRVAL, CDELT);
 			
-		} catch (IOException | ClassCastException e) {
-			LOGGER.log(Level.WARNING, "Error while reading file", e);
-			throw new SpefoException(e.getClass().getName() + " occurred!");
+		} catch (IOException | ClassCastException exception) {
+			LOGGER.log(Level.WARNING, "Error while reading file", exception);
+			throw new SpefoException(exception.getClass().getName() + " occurred!");
 		}
 	}
 	
@@ -111,9 +111,9 @@ public class FitsSpectrum extends Spectrum {
 
 	@Override
 	public boolean exportToAscii(String fileName) {
-		MessageBox mb = new MessageBox(ReSpefo.getShell(),SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-		mb.setMessage("By saving a FITS file to an ASCII file you lose the header information. Do you want to dump the header into a separate file?");
-		if (mb.open() == SWT.YES) {
+		MessageBox messageBox = new MessageBox(ReSpefo.getShell(),SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+		messageBox.setMessage("By saving a FITS file to an ASCII file you lose the header information. Do you want to dump the header into a separate file?");
+		if (messageBox.open() == SWT.YES) {
 			String headerFile = fileName.substring(0, fileName.lastIndexOf('.')) + ".header";
 			try (PrintStream ps = new PrintStream(headerFile)) {
 				header.dumpHeader(ps);
@@ -121,8 +121,8 @@ public class FitsSpectrum extends Spectrum {
 				if (ps.checkError()) {
 					throw new IOException();
 				}
-			} catch (IOException e) {
-				LOGGER.log(Level.WARNING, "Error while dumping the header", e);
+			} catch (IOException exception) {
+				LOGGER.log(Level.WARNING, "Error while dumping the header", exception);
 			}
 		}
 		
@@ -143,8 +143,8 @@ public class FitsSpectrum extends Spectrum {
 				return true;
 			}
 			
-		} catch (FileNotFoundException e) {
-			LOGGER.log(Level.WARNING, "Error while writing to file", e);
+		} catch (FileNotFoundException exception) {
+			LOGGER.log(Level.WARNING, "Error while writing to file", exception);
 			return false;
 		}
 	}
@@ -157,13 +157,13 @@ public class FitsSpectrum extends Spectrum {
 		double[] data = getYSeries();
 
 		BasicHDU<?> hdu;
-		try (Fits f = new Fits(); BufferedFile bf = new BufferedFile(fileName, "rw")) {
+		try (Fits fits = new Fits(); BufferedFile bf = new BufferedFile(fileName, "rw")) {
 			LOGGER.log(Level.FINER, "Opened a file (" + fileName + ")");
 			hdu = FitsFactory.hduFactory(data);
 			
-			Cursor<String, HeaderCard> c = header.iterator();
-			while (c.hasNext()) {
-				HeaderCard card = (HeaderCard) c.next();
+			Cursor<String, HeaderCard> cursor = header.iterator();
+			while (cursor.hasNext()) {
+				HeaderCard card = (HeaderCard) cursor.next();
 				if (!ignoredKeys.contains(card.getKey())) {
 					try {
 						double value = Double.parseDouble(card.getValue());
@@ -187,14 +187,14 @@ public class FitsSpectrum extends Spectrum {
 			hdu.addValue("CRPIX1", 1, "Reference pixel");
 			hdu.addValue("CRVAL1", getX(0), "Coordinate at reference pixel");
 			hdu.addValue("CDELT1", getX(1) - getX(0), "Coordinate increment");
-			f.addHDU(hdu);
+			fits.addHDU(hdu);
 			try {
-				f.getHDU(0).addValue("SIMPLE", true, "Created by reSpefo v" + ReSpefo.VERSION + " on " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+				fits.getHDU(0).addValue("SIMPLE", true, "Created by reSpefo v" + ReSpefo.VERSION + " on " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 			} catch (IOException e) {
 				LOGGER.log(Level.FINEST, "Couldn't change the SIMPLE value", e);
 			}
 
-			f.write(bf);
+			fits.write(bf);
 			
 			LOGGER.log(Level.FINER, "Closing file");
 			return true;

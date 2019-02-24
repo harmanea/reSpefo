@@ -28,11 +28,11 @@ public class MouseWheelZoomListener implements MouseWheelListener {
 	}
 	
 	@Override
-	public void mouseScrolled(MouseEvent e) {
-		if ((e.stateMask & SWT.CTRL) == SWT.CTRL) {
+	public void mouseScrolled(MouseEvent event) {
+		if ((event.stateMask & SWT.CTRL) == SWT.CTRL) {
 			Chart chart = ReSpefo.getChart();
 			
-			if (e.count > 0) {
+			if (event.count > 0) {
 				if (zoomXCentred && zoomYCentred) {
 					chart.getAxisSet().zoomIn();
 				} else {
@@ -43,7 +43,7 @@ public class MouseWheelZoomListener implements MouseWheelListener {
 						}
 					} else {
 						Range chartXRange = chart.getAxisSet().getXAxis(0).getRange();
-						double realX = chartXRange.lower + ((chartXRange.upper - chartXRange.lower) * ((double)e.x / bounds.width));
+						double realX = chartXRange.lower + ((chartXRange.upper - chartXRange.lower) * ((double)event.x / bounds.width));
 						
 						for (IAxis axis : ReSpefo.getChart().getAxisSet().getXAxes()) {
 							axis.zoomIn(realX);
@@ -56,7 +56,7 @@ public class MouseWheelZoomListener implements MouseWheelListener {
 						}
 					} else {
 						Range chartYRange = chart.getAxisSet().getYAxis(0).getRange();
-						double realY = chartYRange.upper - ((chartYRange.upper - chartYRange.lower) * ((double)e.y / bounds.height));
+						double realY = chartYRange.upper - ((chartYRange.upper - chartYRange.lower) * ((double)event.y / bounds.height));
 						
 						for (IAxis axis : ReSpefo.getChart().getAxisSet().getYAxes()) {
 							axis.zoomIn(realY);
@@ -65,7 +65,7 @@ public class MouseWheelZoomListener implements MouseWheelListener {
 				}
 				
 				
-			} else if (e.count < 0) {
+			} else if (event.count < 0) {
 				chart.getAxisSet().zoomOut();
 			}
 			

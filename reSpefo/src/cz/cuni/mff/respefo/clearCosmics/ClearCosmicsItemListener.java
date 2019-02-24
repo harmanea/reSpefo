@@ -1,13 +1,10 @@
 package cz.cuni.mff.respefo.clearCosmics;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.eclipse.swt.SWT;
@@ -16,7 +13,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.swtchart.Chart;
 import org.swtchart.ILineSeries;
-import org.swtchart.LineStyle;
 import org.swtchart.ILineSeries.PlotSymbolType;
 
 import cz.cuni.mff.respefo.ChartBuilder;
@@ -56,20 +52,20 @@ public class ClearCosmicsItemListener implements SelectionListener {
 	}
 	
 	@Override
-	public void widgetDefaultSelected(SelectionEvent e) {
+	public void widgetDefaultSelected(SelectionEvent event) {
 		LOGGER.log(Level.FINEST, "Clear Cosmics widget default selected");
 
-		handle(e);
+		handle(event);
 	}
 
 	@Override
-	public void widgetSelected(SelectionEvent e) {
+	public void widgetSelected(SelectionEvent event) {
 		LOGGER.log(Level.FINEST, "Clear Cosmics widget selected");
 		
-		handle(e);
+		handle(event);
 	}
 	
-	private void handle(SelectionEvent e) {
+	private void handle(SelectionEvent event) {
 		ReSpefo.reset();
 		
 		String fileName = Util.openFileDialog(Util.SPECTRUM_LOAD);
@@ -82,9 +78,9 @@ public class ClearCosmicsItemListener implements SelectionListener {
 			spectrum = Spectrum.createFromFile(fileName);
 		} catch (SpefoException exception) {
 			LOGGER.log(Level.WARNING, "Couldn't import file.", exception);
-			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			mb.setMessage("Couldn't import file.\n\nDebug message:\n" + exception.getMessage());
-			mb.open();
+			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
+			messageBox.setMessage("Couldn't import file.\n\nDebug message:\n" + exception.getMessage());
+			messageBox.open();
 			return;
 		}
 		

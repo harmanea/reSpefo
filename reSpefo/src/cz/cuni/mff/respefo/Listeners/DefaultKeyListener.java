@@ -73,10 +73,10 @@ public class DefaultKeyListener extends KeyAdapter {
 	}
 	
 	@Override
-	public void keyPressed(KeyEvent e) {
-		Consumer<KeyEvent> handler = handlers.get(e.keyCode);
+	public void keyPressed(KeyEvent event) {
+		Consumer<KeyEvent> handler = handlers.get(event.keyCode);
 		if (handler != null) {
-			handler.accept(e);
+			handler.accept(event);
 			
 			if (ReSpefo.getChart() != null && !ReSpefo.getChart().isDisposed()) {
 				ReSpefo.getChart().redraw();
@@ -84,63 +84,63 @@ public class DefaultKeyListener extends KeyAdapter {
 		}
 	}
 
-	private static void moveUp(KeyEvent e) {
+	private static void moveUp(KeyEvent event) {
 		for (IAxis axis : ReSpefo.getChart().getAxisSet().getYAxes()) {
 			axis.scrollUp();
 		}
 	}
 	
-	private static void moveDown(KeyEvent e) {
+	private static void moveDown(KeyEvent event) {
 		for (IAxis axis : ReSpefo.getChart().getAxisSet().getYAxes()) {
 			axis.scrollDown();
 		}
 	}
 	
-	private static void moveRight(KeyEvent e) {
+	private static void moveRight(KeyEvent event) {
 		for (IAxis axis : ReSpefo.getChart().getAxisSet().getXAxes()) {
 			axis.scrollUp();
 		}
 	}
 	
-	private static void moveLeft(KeyEvent e) {
+	private static void moveLeft(KeyEvent event) {
 		for (IAxis axis : ReSpefo.getChart().getAxisSet().getXAxes()) {
 			axis.scrollDown();
 		}
 	}
 	
-	private static void zoomIn(KeyEvent e) {
+	private static void zoomIn(KeyEvent event) {
 		ReSpefo.getChart().getAxisSet().zoomIn();
 	}
 	
-	private static void zoomOut(KeyEvent e) {
+	private static void zoomOut(KeyEvent event) {
 		ReSpefo.getChart().getAxisSet().zoomOut();
 	}
 	
-	private static void zoomInYAxis(KeyEvent e) {
+	private static void zoomInYAxis(KeyEvent event) {
 		for (IAxis axis : ReSpefo.getChart().getAxisSet().getYAxes()) {
 			axis.zoomIn();
 		}
 	}
 	
-	private static void zoomOutYAxis(KeyEvent e) {
+	private static void zoomOutYAxis(KeyEvent event) {
 		for (IAxis axis : ReSpefo.getChart().getAxisSet().getYAxes()) {
 			axis.zoomOut();
 		}
 	}
 	
-	private static void zoomInXAxis(KeyEvent e) {
+	private static void zoomInXAxis(KeyEvent event) {
 		for (IAxis axis : ReSpefo.getChart().getAxisSet().getXAxes()) {
 			axis.zoomIn();
 		}
 	}
 	
-	private static void zoomOutXAxis(KeyEvent e) {
+	private static void zoomOutXAxis(KeyEvent event) {
 		for (IAxis axis : ReSpefo.getChart().getAxisSet().getXAxes()) {
 			axis.zoomOut();
 		}
 	}
 	
-	private static void adjustView(KeyEvent e) {
+	private static void adjustView(KeyEvent event) {
 		ChartBuilder.adjustRange(ReSpefo.getChart());
 	}
 }

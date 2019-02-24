@@ -14,7 +14,7 @@ public class RectifyMouseListener extends MouseAdapter implements MouseMoveListe
 	private boolean drag, dragged;
 	
 	@Override
-	public void mouseMove(MouseEvent e) {
+	public void mouseMove(MouseEvent event) {
 		Chart chart = ReSpefo.getChart();
 		
 		ILineSeries series = (ILineSeries) ReSpefo.getChart().getSeriesSet().getSeries("points");
@@ -35,7 +35,7 @@ public class RectifyMouseListener extends MouseAdapter implements MouseMoveListe
 				int x = (int) ((xSeries[i] - xRange.lower) / (xRange.upper - xRange.lower) * bounds.width);
 				int y = (int) ((1 - (ySeries[i] - yRange.lower) / (yRange.upper - yRange.lower)) * bounds.height);
 				
-				int distance = (int) Math.sqrt(Math.pow(x - e.x, 2) + Math.pow(y - e.y, 2));
+				int distance = (int) Math.sqrt(Math.pow(x - event.x, 2) + Math.pow(y - event.y, 2));
 				
 				if (distance < closest) {
 					index = i;
@@ -54,7 +54,7 @@ public class RectifyMouseListener extends MouseAdapter implements MouseMoveListe
 	}
 	
 	@Override
-	public void mouseUp(MouseEvent e) {
+	public void mouseUp(MouseEvent event) {
 		if (!dragged) {
 			Chart chart = ReSpefo.getChart();
 	
@@ -63,9 +63,9 @@ public class RectifyMouseListener extends MouseAdapter implements MouseMoveListe
 	
 			Rectangle bounds = chart.getPlotArea().getBounds();
 	
-			double realX = xRange.lower + ((xRange.upper - xRange.lower) * ((double) e.x / bounds.width));
+			double realX = xRange.lower + ((xRange.upper - xRange.lower) * ((double) event.x / bounds.width));
 			double realY = yRange.lower
-					+ ((yRange.upper - yRange.lower) * ((double) (bounds.height - e.y) / bounds.height));
+					+ ((yRange.upper - yRange.lower) * ((double) (bounds.height - event.y) / bounds.height));
 	
 			RectifyItemListener.getInstance().addPoint(realX, realY);
 		}
@@ -75,7 +75,7 @@ public class RectifyMouseListener extends MouseAdapter implements MouseMoveListe
 	
 	
 	@Override
-	public void mouseDown(MouseEvent e) {
+	public void mouseDown(MouseEvent event) {
 		drag = true;
 		dragged = false;
 	}

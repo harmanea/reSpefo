@@ -45,13 +45,12 @@ public class RVResults {
 				throw new SpefoException(".rvr file is invalid.");
 			}
 			Matcher matcher = Pattern.compile("(Heliocentric|Barycentric)( correction:)(.*)").matcher(line);
-			matcher.matches();
-			if (matcher.groupCount() != 3) {
+			if (!matcher.matches() || matcher.groupCount() != 3) {
 				throw new SpefoException(".rvr file is invalid.");
 			}
 			try {
 				helCorr = Double.parseDouble(matcher.group(3));
-			} catch (NumberFormatException nfe) {
+			} catch (NumberFormatException numberFormatException) {
 				helCorr = Double.NaN;
 			}
 			
@@ -60,8 +59,7 @@ public class RVResults {
 			Pattern pattern = Pattern.compile("(## Results for category )(.*)(:)");
 			while ((line = br.readLine()) != null) {
 				matcher = pattern.matcher(line);
-				matcher.matches();
-				if (matcher.groupCount() != 3) {
+				if (!matcher.matches() || matcher.groupCount() != 3) {
 					throw new SpefoException(".rvr file is invalid.");
 				}
 				String category = matcher.group(2);
@@ -88,10 +86,10 @@ public class RVResults {
 				}
 			}
 			
-		} catch (SpefoException se) {
-			throw se;
-		} catch (Exception e) {
-			throw new SpefoException(e.getMessage());
+		} catch (SpefoException spefoException) {
+			throw spefoException;
+		} catch (Exception exception) {
+			throw new SpefoException(exception.getMessage());
 		}
 	}
 	
@@ -122,15 +120,8 @@ public class RVResults {
 	}
 	
 	public String[] getCategories() {
-		ArrayList<String> categories = new ArrayList<>();
-		for (RVResult result : results) {
-			if (!categories.contains(result.category)) {
-				categories.add(result.category);
-			}
-		}
-		
-		categories.sort(String::compareTo);
-		return categories.toArray(new String[categories.size()]);
+		return results.stream()
+				.map(result -> result.category).distinct().toArray(String[]::new);
 	}
 	
 	public RVResult[] getResultsOfCategory(String category) {

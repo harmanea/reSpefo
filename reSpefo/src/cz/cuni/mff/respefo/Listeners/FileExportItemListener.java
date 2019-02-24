@@ -48,9 +48,9 @@ public class FileExportItemListener implements SelectionListener {
 		
 		if (spectrum == null) { 
 			LOGGER.log(Level.WARNING, "Nothing to export");
-			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			mb.setMessage("No file loaded, nothing to export.");
-			mb.open();
+			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
+			messageBox.setMessage("No file loaded, nothing to export.");
+			messageBox.open();
 			return;
 		}
 		
@@ -70,9 +70,9 @@ public class FileExportItemListener implements SelectionListener {
 		
 		File destFile = new File(fileName);
 		if (destFile.exists()) {
-			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-			mb.setMessage("File already exists. Would you like to overwrite it?");
-			if (mb.open() != SWT.YES) {
+			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+			messageBox.setMessage("File already exists. Would you like to overwrite it?");
+			if (messageBox.open() != SWT.YES) {
 				LOGGER.log(Level.FINER, "Overwrite dialog didn't return yes");
 				return false;
 			}
@@ -86,14 +86,14 @@ public class FileExportItemListener implements SelectionListener {
 		case "txt":
 			if (spectrum.exportToAscii(fileName)) {
 				LOGGER.log(Level.INFO, "File was successfully saved");
-				MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_INFORMATION | SWT.OK);
-				mb.setMessage("File was successfully saved.");
-				mb.open();
+				MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_INFORMATION | SWT.OK);
+				messageBox.setMessage("File was successfully saved.");
+				messageBox.open();
 			} else {
 				LOGGER.log(Level.WARNING, "Couldn't save file");
-				MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-				mb.setMessage("Couldn't save file.");
-				mb.open();
+				MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
+				messageBox.setMessage("Couldn't save file.");
+				messageBox.open();
 				return false;
 			}
 			break;
@@ -102,14 +102,14 @@ public class FileExportItemListener implements SelectionListener {
 		case "fts":
 			if (spectrum.exportToFits(fileName)) {
 				LOGGER.log(Level.INFO, "File was successfully saved");
-				MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_INFORMATION | SWT.OK);
-				mb.setMessage("File was successfully saved.");
-				mb.open();
+				MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_INFORMATION | SWT.OK);
+				messageBox.setMessage("File was successfully saved.");
+				messageBox.open();
 			} else {
 				LOGGER.log(Level.WARNING, "Couldn't save file");
-				MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-				mb.setMessage("Couldn't save file.");
-				mb.open();
+				MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
+				messageBox.setMessage("Couldn't save file.");
+				messageBox.open();
 				return false;
 			}
 			break;
@@ -118,15 +118,15 @@ public class FileExportItemListener implements SelectionListener {
 		case "rci":
 		case "rfi":
 			LOGGER.log(Level.WARNING, "Old Spefo formats aren't supported yet");
-			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			mb.setMessage("Old Spefo formats aren't supported yet.");
-			mb.open();
+			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
+			messageBox.setMessage("Old Spefo formats aren't supported yet.");
+			messageBox.open();
 			return false;
 		default:
 			LOGGER.log(Level.WARNING, "Old Spefo formats aren't supported yet");
-			MessageBox mbb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			mbb.setMessage("Old Spefo formats aren't supported yet.");
-			mbb.open();
+			messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
+			messageBox.setMessage("Old Spefo formats aren't supported yet.");
+			messageBox.open();
 			return false;
 		}
 		

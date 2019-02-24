@@ -78,11 +78,11 @@ public class ChartBuilder {
 	private Chart chart;
 	private ArrayList<ILineSeries> series;
 
-	private void setTheme(Chart c) {
-		c.getTitle().setForeground(primaryColor);
+	private void setTheme() {
+		chart.getTitle().setForeground(primaryColor);
 
-		c.setBackground(secondaryColor);
-		c.setBackgroundInPlotArea(secondaryColor);
+		chart.setBackground(secondaryColor);
+		chart.setBackgroundInPlotArea(secondaryColor);
 
 		IAxisSet axisset = chart.getAxisSet();
 
@@ -311,7 +311,7 @@ public class ChartBuilder {
 	 * @return the created Chart
 	 */
 	public Chart build() {
-		setTheme(chart);
+		setTheme();
 		chart.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		chart.getParent().layout();
 		return chart;
@@ -320,36 +320,36 @@ public class ChartBuilder {
 	/**
 	 * Adjusts the chart range so that all series are fully visible
 	 * 
-	 * @param c
+	 * @param chart
 	 *            chart to be adjusted
 	 */
-	public static void adjustRange(Chart c) {
-		adjustRange(c, 0, 0);
+	public static void adjustRange(Chart chart) {
+		adjustRange(chart, 0, 0);
 	}
 
 	/**
 	 * Adjusts the chart so that one of the series is fully visible
 	 * 
-	 * @param c
+	 * @param chart
 	 *            chart to be adjusted
 	 * @param XAxisId
 	 *            to be adjusted around
 	 * @param YAxisId
 	 *            to be adjusted around
 	 */
-	public static void adjustRange(Chart c, int XAxisId, int YAxisId) {
-		c.getAxisSet().adjustRange();
-		if (c.getAxisSet().getAxes().length > 2) {
-			Range XRange = c.getAxisSet().getXAxis(XAxisId).getRange();
-			Range YRange = c.getAxisSet().getYAxis(YAxisId).getRange();
-			for (IAxis i : c.getAxisSet().getXAxes()) {
-				if (i.getId() != XAxisId) {
-					i.setRange(XRange);
+	public static void adjustRange(Chart chart, int XAxisId, int YAxisId) {
+		chart.getAxisSet().adjustRange();
+		if (chart.getAxisSet().getAxes().length > 2) {
+			Range XRange = chart.getAxisSet().getXAxis(XAxisId).getRange();
+			Range YRange = chart.getAxisSet().getYAxis(YAxisId).getRange();
+			for (IAxis xAxis : chart.getAxisSet().getXAxes()) {
+				if (xAxis.getId() != XAxisId) {
+					xAxis.setRange(XRange);
 				}
 			}
-			for (IAxis i : c.getAxisSet().getYAxes()) {
-				if (i.getId() != YAxisId) {
-					i.setRange(YRange);
+			for (IAxis yAxis : chart.getAxisSet().getYAxes()) {
+				if (yAxis.getId() != YAxisId) {
+					yAxis.setRange(YRange);
 				}
 			}
 		}
