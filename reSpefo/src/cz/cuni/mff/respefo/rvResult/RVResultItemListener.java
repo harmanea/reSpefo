@@ -110,7 +110,7 @@ public class RVResultItemListener implements SelectionListener {
 					if (Double.isNaN(rv)) {
 						writer.print("\t      ");
 					} else {
-						if (Double.isNaN(results.getHelCorr())) {
+						if (results.getRvCorr().isUndefined()) {
 							rv += record.getRvCorr();
 						}
 						writer.print("\t" + Util.formatDouble(rv, 2, 2, true));

@@ -16,16 +16,9 @@ public class RVResults {
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 	private ArrayList<RVResult> results;
-	private double helCorr;
+	private RvCorrection rvCorr;
 	
 	public RVResults() {
-		this(Double.NaN);
-	}
-	
-	public RVResults(double helCorr) {
-		results = new ArrayList<>();
-		
-		this.helCorr = helCorr;
 	}
 	
 	public RVResults(String rvrFileName) throws SpefoException {
@@ -44,21 +37,13 @@ public class RVResults {
 			if (line == null) {
 				throw new SpefoException(".rvr file is invalid.");
 			}
-			Matcher matcher = Pattern.compile("(Heliocentric|Barycentric)( correction:)(.*)").matcher(line);
-			if (!matcher.matches() || matcher.groupCount() != 3) {
-				throw new SpefoException(".rvr file is invalid.");
-			}
-			try {
-				helCorr = Double.parseDouble(matcher.group(3));
-			} catch (NumberFormatException numberFormatException) {
-				helCorr = Double.NaN;
-			}
+			rvCorr = new RvCorrection(line);
 			
 			line = br.readLine(); // skip blank line
 			
 			Pattern pattern = Pattern.compile("(## Results for category )(.*)(:)");
 			while ((line = br.readLine()) != null) {
-				matcher = pattern.matcher(line);
+				Matcher matcher = pattern.matcher(line);
 				if (!matcher.matches() || matcher.groupCount() != 3) {
 					throw new SpefoException(".rvr file is invalid.");
 				}
@@ -97,8 +82,12 @@ public class RVResults {
 		results.add(result);
 	}
 
-	public double getHelCorr() {
-		return helCorr;
+	public RvCorrection getRvCorr() {
+		return rvCorr;
+	}
+	
+	public void setRvCorr(RvCorrection rvCorr) {
+		this.rvCorr = rvCorr;
 	}
 
 	public int getCount() {

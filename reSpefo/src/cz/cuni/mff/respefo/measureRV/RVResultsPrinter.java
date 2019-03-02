@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
+import cz.cuni.mff.respefo.SpefoException;
 import cz.cuni.mff.respefo.Util;
 
 class RVResultsPrinter {
@@ -40,7 +41,7 @@ class RVResultsPrinter {
 			writer.println("# Summary of radial velocities measured on " + spectrum.getName());
 			writer.println("_This file was generated automatically, do not edit!_");
 			writer.println();
-			writer.println("Heliocentric correction: " + results.getHelCorr());
+			writer.println(results.getRvCorr().toRvResultLine());
 			writer.println();
 		
 			for (String category : results.getCategories()) {
@@ -66,8 +67,8 @@ class RVResultsPrinter {
 				writer.println();
 			}
 			
-		} catch (FileNotFoundException fileNotFoundException) {
-			LOGGER.log(Level.WARNING, "Couldn't save to file.", fileNotFoundException);
+		} catch (FileNotFoundException | SpefoException exception) {
+			LOGGER.log(Level.WARNING, "Couldn't save to file.", exception);
 			return false;
 		}
 		
