@@ -136,14 +136,6 @@ public class MeasureRVItemListener implements SelectionListener {
 		rvMeasurements.loadMeasurements(corrections, true);
 		rvMeasurements.removeInvalidMeasurements(xSeries);
 		
-		if (rvMeasurements.getNonCorrectionsCount() == 0) {
-			LOGGER.log(Level.WARNING, "Nothing to measure in the main .stl file(s).");
-			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_ERROR | SWT.OK);
-			messageBox.setMessage("Nothing to measure in the main .stl file(s).");
-			messageBox.open();
-			return;
-		}
-		
 		ReSpefo.setFilterPath(Paths.get(fileName).getParent().toString());
 		
 		SashForm sashFormOne = new SashForm(ReSpefo.getScene(), SWT.HORIZONTAL);
