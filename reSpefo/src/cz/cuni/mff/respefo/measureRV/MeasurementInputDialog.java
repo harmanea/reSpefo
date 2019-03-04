@@ -93,30 +93,11 @@ class MeasurementInputDialog extends Dialog {
 		shell.setDefaultButton(buttonConfirm);
 
 		if (!corr) {
-			textOne.addListener(SWT.Modify, new Listener() {
-				public void handleEvent(Event event) {
-					if (!textOne.getText().equals("")){
-						buttonConfirm.setEnabled(true);
-					} else {
-						buttonConfirm.setEnabled(false);
-					}
-				}
-			});
+			textOne.addListener(SWT.Modify, event -> buttonConfirm.setEnabled(!textOne.getText().equals("")));
 		}
 
-		buttonConfirm.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event event) {
-				value = textOne.getText();
-				comment = textTwo.getText();
-				shell.dispose();
-			}
-		});
-
-		buttonCancel.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event event) {
-				shell.dispose();
-			}
-		});
+		buttonConfirm.addListener(SWT.Selection, event -> setValueCommentAndDisposeShell(textOne, textTwo, shell));
+		buttonCancel.addListener(SWT.Selection, event -> shell.dispose());
 
 		shell.pack();
 		shell.open();
@@ -127,5 +108,11 @@ class MeasurementInputDialog extends Dialog {
 		}
 
 		return value;
+	}
+	
+	private void setValueCommentAndDisposeShell(Text valueText, Text commentText, Shell shell) {
+		value = valueText.getText();
+		comment = commentText.getText();
+		shell.dispose();
 	}
 }

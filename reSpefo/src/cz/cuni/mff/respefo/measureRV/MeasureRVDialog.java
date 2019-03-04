@@ -317,7 +317,7 @@ public class MeasureRVDialog extends Dialog {
 		} else {
 			rvStep = Double.parseDouble(rvStepField.getText());
 		}
-		setStatusAndDisposeShell(status, shell);
+		setStatusAndDisposeShell(true, shell);
 	}
 	
 	private void setStatusAndDisposeShell(boolean status, Shell shell) {

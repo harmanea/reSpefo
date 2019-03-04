@@ -26,10 +26,12 @@ import org.swtchart.ILineSeries.PlotSymbolType;
 import org.swtchart.LineStyle;
 
 import cz.cuni.mff.respefo.ChartBuilder;
+import cz.cuni.mff.respefo.FitsSpectrum;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
 import cz.cuni.mff.respefo.Util;
+import nom.tam.fits.Header;
 
 public class MeasureRVItemListener implements SelectionListener {
 	private static MeasureRVItemListener instance;
@@ -108,6 +110,11 @@ public class MeasureRVItemListener implements SelectionListener {
 			messageBox.setMessage("Couldn't import file.\n\nDebug message:\n" + exception.getMessage());
 			messageBox.open();
 			return;
+		}
+		
+		results.setRvCorr(getRvCorrection());
+		if (!results.getRvCorr().isUndefined()) {
+			spectrum.setXSeries(Util.adjustArrayValues(spectrum.getXSeries(), results.getRvCorr().getValue()));
 		}
 		
 		ySeries = spectrum.getYSeries();
@@ -497,4 +504,24 @@ public class MeasureRVItemListener implements SelectionListener {
 		}
 	}
 	
+	private RvCorrection getRvCorrection() {
+		if (spectrum instanceof FitsSpectrum) {
+			FitsSpectrum fitsSpectrum = (FitsSpectrum) spectrum;
+			Header header = fitsSpectrum.getHeader();
+			
+			if (header.containsKey("HJD")) {
+				return new RvCorrection(RvCorrection.HELIOCENTRIC, header.getDoubleValue("HJD"));
+			} else if (header.containsKey("BJD")) {
+				return new RvCorrection(RvCorrection.BARYCENTRIC, header.getDoubleValue("BJD"));
+			}
+		}
+		
+		RvCorrDialog dialog = new RvCorrDialog(ReSpefo.getShell());
+		if (dialog.open()) {
+			
+			return new RvCorrection(dialog.getType(), dialog.getValue());
+		} else {
+			return new RvCorrection(RvCorrection.UNDEFINED, Double.NaN);
+		}
+	}
 }

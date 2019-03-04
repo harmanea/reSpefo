@@ -98,6 +98,7 @@ public class FitsSpectrum extends Spectrum {
 			
 			xSeries = Util.fillArray(ySeries.length, (1 - CRPIX) * CDELT + CRVAL, CDELT);
 			
+			header = imageHdu.getHeader();
 		} catch (IOException | ClassCastException exception) {
 			LOGGER.log(Level.WARNING, "Error while reading file", exception);
 			throw new SpefoException(exception.getClass().getName() + " occurred!");
@@ -204,4 +205,7 @@ public class FitsSpectrum extends Spectrum {
 		}
 	}
 
+	public Header getHeader() {
+		return header;
+	}
 }
