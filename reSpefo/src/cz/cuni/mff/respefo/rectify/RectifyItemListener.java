@@ -14,14 +14,15 @@ import org.swtchart.LineStyle;
 import org.swtchart.Range;
 import org.swtchart.ILineSeries.PlotSymbolType;
 
-import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
-import cz.cuni.mff.respefo.Util;
 import cz.cuni.mff.respefo.Listeners.FileExportItemListener;
 import cz.cuni.mff.respefo.Listeners.MouseDragListener;
 import cz.cuni.mff.respefo.Listeners.MouseWheelZoomListener;
+import cz.cuni.mff.respefo.util.ArrayUtils;
+import cz.cuni.mff.respefo.util.ChartBuilder;
+import cz.cuni.mff.respefo.util.Util;
 
 public class RectifyItemListener implements SelectionListener {
 	private static RectifyItemListener instance;
@@ -96,7 +97,7 @@ public class RectifyItemListener implements SelectionListener {
 		if (chart != null && !chart.isDisposed()) {
 			chart.dispose();
 		}
-		chart = new ChartBuilder(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)")
+		chart = ChartBuilder.from(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)")
 				.setYAxisLabel("relative flux")
 				.addLineSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN,
 						spectrum.getXSeries(), spectrum.getYSeries())
@@ -124,14 +125,14 @@ public class RectifyItemListener implements SelectionListener {
 	private void createSummaryChart() {
 		ILineSeries continuum = (ILineSeries) ReSpefo.getChart().getSeriesSet().getSeries("continuum");
 
-		double[] ySeries = Util.divideArrayValues(spectrum.getYSeries(), continuum.getYSeries());
+		double[] ySeries = ArrayUtils.divideArrayValues(spectrum.getYSeries(), continuum.getYSeries());
 
 		Chart chart = ReSpefo.getChart();
 
 		if (chart != null && !chart.isDisposed()) {
 			chart.dispose();
 		}
-		chart = new ChartBuilder(ReSpefo.getScene()).setTitle("press ESC to edit, press ENTER to save")
+		chart = ChartBuilder.from(ReSpefo.getScene()).setTitle("press ESC to edit, press ENTER to save")
 				.setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux I(λ)")
 				.addLineSeries(LineStyle.SOLID, "series", ChartBuilder.GREEN, spectrum.getXSeries(), ySeries)
 				.adjustRange().build();

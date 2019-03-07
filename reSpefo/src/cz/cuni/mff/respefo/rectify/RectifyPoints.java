@@ -2,7 +2,9 @@ package cz.cuni.mff.respefo.rectify;
 
 import java.util.ArrayList;
 
-import cz.cuni.mff.respefo.Util;
+import cz.cuni.mff.respefo.util.ArrayUtils;
+import cz.cuni.mff.respefo.util.MathUtils;
+import cz.cuni.mff.respefo.util.Util;
 
 class RectifyPoints {
 	private ArrayList<Double> xCoordinates;
@@ -71,11 +73,11 @@ class RectifyPoints {
 	}
 	
 	public double[] getIntepData(double[] xinter) {
-		return Util.intep(getXCoordinates(), getYCoordinates(), xinter);
+		return MathUtils.intep(getXCoordinates(), getYCoordinates(), xinter);
 	}
 	
 	public void addPoint(double x, double y) {
-		int index = Util.findFirstGreaterThen(getXCoordinates(), x);
+		int index = ArrayUtils.findFirstGreaterThen(getXCoordinates(), x);
 		
 		xCoordinates.add(index, x);
 		yCoordinates.add(index, y);

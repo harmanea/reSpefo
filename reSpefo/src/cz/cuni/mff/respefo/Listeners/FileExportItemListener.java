@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.MessageBox;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
-import cz.cuni.mff.respefo.Util;
+import cz.cuni.mff.respefo.util.Util;
 
 public class FileExportItemListener implements SelectionListener {
 	private static FileExportItemListener instance;
@@ -84,6 +84,7 @@ public class FileExportItemListener implements SelectionListener {
 		switch (extension) {
 		case "":
 		case "txt":
+		case "ascii":
 			if (spectrum.exportToAscii(fileName)) {
 				LOGGER.log(Level.INFO, "File was successfully saved");
 				MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_INFORMATION | SWT.OK);
@@ -123,9 +124,9 @@ public class FileExportItemListener implements SelectionListener {
 			messageBox.open();
 			return false;
 		default:
-			LOGGER.log(Level.WARNING, "Old Spefo formats aren't supported yet");
+			LOGGER.log(Level.WARNING, "Not a supported file format");
 			messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			messageBox.setMessage("Old Spefo formats aren't supported yet.");
+			messageBox.setMessage("Not a supported file format.");
 			messageBox.open();
 			return false;
 		}

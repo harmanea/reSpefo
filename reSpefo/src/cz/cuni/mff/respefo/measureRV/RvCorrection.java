@@ -41,7 +41,7 @@ public class RvCorrection {
 			this.value = Double.parseDouble(matcher.group(3));
 			this.type = matcher.group(1).equals("Heliocentric") ? HELIOCENTRIC : BARYCENTRIC; 
 			
-		} catch (NumberFormatException numberFormatException) {
+		} catch (NumberFormatException | SpefoException exception) {
 			
 			this.type = UNDEFINED;
 			this.value = Double.NaN;

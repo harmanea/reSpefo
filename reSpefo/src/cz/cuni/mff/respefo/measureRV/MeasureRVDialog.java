@@ -15,7 +15,7 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import cz.cuni.mff.respefo.Util;
+import cz.cuni.mff.respefo.util.Util;
 
 public class MeasureRVDialog extends Dialog {
 	private Shell parent;

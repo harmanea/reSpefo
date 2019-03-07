@@ -14,6 +14,8 @@ import java.util.stream.IntStream;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 
+import cz.cuni.mff.respefo.util.ArrayUtils;
+import cz.cuni.mff.respefo.util.Util;
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.Fits;
 import nom.tam.fits.FitsException;
@@ -96,7 +98,7 @@ public class FitsSpectrum extends Spectrum {
 				yLabel = bunit;
 			}
 			
-			xSeries = Util.fillArray(ySeries.length, (1 - CRPIX) * CDELT + CRVAL, CDELT);
+			xSeries = ArrayUtils.fillArray(ySeries.length, (1 - CRPIX) * CDELT + CRVAL, CDELT);
 			
 			header = imageHdu.getHeader();
 		} catch (IOException | ClassCastException exception) {

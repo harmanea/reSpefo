@@ -18,7 +18,7 @@ public class RvCorrDialog extends Dialog {
 	private int type;
 	
 	private Composite compOne, compTwo, compThree;
-	private Label label;
+	private Label labelOne, labelTwo, labelThree;
 	private Button helCorrButton, barCorrButton, noneButton, confirmButton;
 	private Text helCorrText, barCorrText;
 	
@@ -49,12 +49,12 @@ public class RvCorrDialog extends Dialog {
 		layout.marginWidth = 10;
 		shell.setLayout(layout);
 		
-		label = new Label(shell, SWT.LEFT | SWT.WRAP);
-		label.setText("No rv correction information was gathered from the spectrum file. Please insert it manually.");
-		label.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		labelOne = new Label(shell, SWT.LEFT | SWT.WRAP);
+		labelOne.setText("No rv correction information was gathered from the spectrum file. Please insert it manually.");
+		labelOne.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 		
 		compOne = new Composite(shell, SWT.NONE);
-		layout = new GridLayout(2, false);
+		layout = new GridLayout(3, false);
 		compOne.setLayout(layout);
 		compOne.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
@@ -63,14 +63,18 @@ public class RvCorrDialog extends Dialog {
 		helCorrButton.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true));
 		helCorrButton.addListener(SWT.Selection, event -> selectRadioButton(helCorrButton));
 		
-		helCorrText = new Text(compOne, SWT.LEFT);
+		helCorrText = new Text(compOne, SWT.RIGHT);
 		helCorrText.setText("0");
 		helCorrText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		helCorrText.setEnabled(false);
 		helCorrText.addListener(SWT.Modify, event -> verifyAndSetText(helCorrText));
 		
+		labelTwo = new Label(compOne, SWT.RIGHT);
+		labelTwo.setText("km/s");
+		labelTwo.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
+		
 		compTwo = new Composite(shell, SWT.NONE);
-		layout = new GridLayout(2, false);
+		layout = new GridLayout(3, false);
 		compTwo.setLayout(layout);
 		compTwo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
@@ -79,11 +83,15 @@ public class RvCorrDialog extends Dialog {
 		barCorrButton.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true));
 		barCorrButton.addListener(SWT.Selection, event -> selectRadioButton(barCorrButton));
 		
-		barCorrText = new Text(compTwo, SWT.LEFT);
+		barCorrText = new Text(compTwo, SWT.RIGHT);
 		barCorrText.setText("0");
 		barCorrText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		barCorrText.setEnabled(false);
 		barCorrText.addListener(SWT.Modify, event -> verifyAndSetText(barCorrText));
+		
+		labelThree = new Label(compTwo, SWT.RIGHT);
+		labelThree.setText("km/s");
+		labelThree.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 		
 		compThree = new Composite(shell, SWT.NONE);
 		layout = new GridLayout(1, false);
@@ -101,9 +109,11 @@ public class RvCorrDialog extends Dialog {
 		confirmButton.setLayoutData(new GridData(SWT.CENTER, SWT.BOTTOM, false, false));
 		confirmButton.addListener(SWT.Selection, event -> setStatusAndDisposeShell(true, shell));
 		
+		shell.setDefaultButton(confirmButton);
+		
 		shell.pack();
 		shell.open();
-		shell.setSize(400, 250);
+		shell.setSize(380, 230);
 		Display display = parent.getDisplay();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())

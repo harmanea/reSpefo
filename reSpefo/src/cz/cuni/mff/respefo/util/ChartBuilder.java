@@ -1,4 +1,4 @@
-package cz.cuni.mff.respefo;
+package cz.cuni.mff.respefo.util;
 
 import java.util.ArrayList;
 
@@ -37,42 +37,20 @@ public class ChartBuilder {
 	private static Color primaryColor = YELLOW;
 	private static Color secondaryColor = BLACK;
 
-	/**
-	 * Returns the primary color.
-	 * 
-	 * @return the primary color
-	 */
 	public static Color getPrimaryColor() {
 		return primaryColor;
 	}
 
-	/**
-	 * Sets the primary color.
-	 * 
-	 * @param c
-	 *            the primary color to set
-	 */
-	public static void setPrimaryColor(Color c) {
-		primaryColor = c;
+	public static void setPrimaryColor(Color color) {
+		primaryColor = color;
 	}
 
-	/**
-	 * Returns the secondary color.
-	 * 
-	 * @return the secondary color
-	 */
 	public static Color getSecondaryColor() {
 		return secondaryColor;
 	}
 
-	/**
-	 * Sets the secondary color.
-	 * 
-	 * @param c
-	 *            the secondary color to set
-	 */
-	public static void setSecondaryColor(Color c) {
-		secondaryColor = c;
+	public static void setSecondaryColor(Color color) {
+		secondaryColor = color;
 	}
 
 	private Chart chart;
@@ -103,18 +81,26 @@ public class ChartBuilder {
 	 * @param shell
 	 *            to be set as chart's parent
 	 */
-	public ChartBuilder(Shell shell) {
-		chart = new Chart(shell, SWT.NONE);
-		series = new ArrayList<>();
+	public static ChartBuilder from(Shell shell) {
+		return new ChartBuilder(shell);
 	}
-
+	
 	/**
-	 * Instantiates new chart with the composite as parent
+	 * Instantiates a new chart with the composite as parent
 	 * 
 	 * @param parent
 	 *            to be set as chart's parent
 	 */
-	public ChartBuilder(Composite parent) {
+	public static ChartBuilder from(Composite parent) {
+		return new ChartBuilder(parent);
+	}
+	
+	private ChartBuilder(Shell shell) {
+		chart = new Chart(shell, SWT.NONE);
+		series = new ArrayList<>();
+	}
+
+	private ChartBuilder(Composite parent) {
 		chart = new Chart(parent, SWT.NONE);
 		series = new ArrayList<>();
 	}

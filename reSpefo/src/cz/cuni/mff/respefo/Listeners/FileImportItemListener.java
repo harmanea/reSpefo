@@ -16,11 +16,11 @@ import org.swtchart.Chart;
 import org.swtchart.LineStyle;
 import org.swtchart.Range;
 
-import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
-import cz.cuni.mff.respefo.Util;
+import cz.cuni.mff.respefo.util.ChartBuilder;
+import cz.cuni.mff.respefo.util.Util;
 
 public class FileImportItemListener implements SelectionListener {
 	private static FileImportItemListener instance;
@@ -74,7 +74,7 @@ public class FileImportItemListener implements SelectionListener {
 
 		ReSpefo.setSpectrum(spectrum);
 		
-		Chart chart = new ChartBuilder(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux I(λ)")
+		Chart chart = ChartBuilder.from(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux I(λ)")
 				.addLineSeries(LineStyle.SOLID, "series", ChartBuilder.GREEN, spectrum.getXSeries(), spectrum.getYSeries()).adjustRange().build();
 		
 		ReSpefo.setChart(chart);

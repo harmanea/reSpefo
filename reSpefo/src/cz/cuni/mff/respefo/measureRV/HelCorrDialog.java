@@ -16,7 +16,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import cz.cuni.mff.respefo.Util;
+import cz.cuni.mff.respefo.util.Util;
 
 class HelCorrDialog extends Dialog {
 	private Shell parent;

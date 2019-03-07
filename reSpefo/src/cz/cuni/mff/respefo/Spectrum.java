@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 
+import cz.cuni.mff.respefo.util.Util;
 import nom.tam.fits.FitsException;
 import nom.tam.fits.FitsFactory;
 

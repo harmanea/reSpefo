@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.Text;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.SpefoException;
-import cz.cuni.mff.respefo.Util;
+import cz.cuni.mff.respefo.util.Util;
 
 class RVResultDialog extends Dialog {
 	private Shell parent;

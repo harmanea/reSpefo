@@ -6,8 +6,8 @@ import org.eclipse.swt.events.KeyListener;
 import org.swtchart.Chart;
 import org.swtchart.IAxis;
 
-import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.ReSpefo;
+import cz.cuni.mff.respefo.util.ChartBuilder;
 
 /**
  * Adds the default movement capabilities

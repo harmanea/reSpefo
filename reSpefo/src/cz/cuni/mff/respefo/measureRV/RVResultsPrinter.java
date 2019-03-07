@@ -11,7 +11,8 @@ import java.util.logging.Logger;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
-import cz.cuni.mff.respefo.Util;
+import cz.cuni.mff.respefo.util.MathUtils;
+import cz.cuni.mff.respefo.util.Util;
 
 class RVResultsPrinter {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
@@ -61,8 +62,8 @@ class RVResultsPrinter {
 				}
 				if (values.size() > 1) {
 					double average = values.stream().mapToDouble(Double::doubleValue).average().getAsDouble();
-					writer.println("Average RV: " + Util.round(average, 4) + "\t (" + values.size() + " values)");
-					writer.println("rms: " + Util.round(Util.rms(values.stream().mapToDouble(Double::doubleValue).toArray(), average),4));
+					writer.println("Average RV: " + MathUtils.round(average, 4) + "\t (" + values.size() + " values)");
+					writer.println("rms: " + MathUtils.round(MathUtils.rms(values.stream().mapToDouble(Double::doubleValue).toArray(), average),4));
 				}
 				writer.println();
 			}

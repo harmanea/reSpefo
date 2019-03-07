@@ -7,8 +7,6 @@ class LstFileRecord {
 		this.julianDate = julianDate;
 		this.rvCorr = rvCorr;
 		this.date = date;
-		
-		System.out.println(this);
 	}
 	
 	public LstFileRecord(int index, int exp, double julianDate, double rvCorr, String date, String fileName) {
@@ -18,8 +16,6 @@ class LstFileRecord {
 		this.rvCorr = rvCorr;
 		this.date = date;
 		this.fileName = fileName;
-		
-		System.out.println(this);
 	}
 
 	/**

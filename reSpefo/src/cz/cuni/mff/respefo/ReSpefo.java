@@ -17,6 +17,8 @@ import cz.cuni.mff.respefo.Listeners.FileExportItemListener;
 import cz.cuni.mff.respefo.Listeners.FileImportItemListener;
 import cz.cuni.mff.respefo.Listeners.FileQuitItemListener;
 import cz.cuni.mff.respefo.clearCosmics.ClearCosmicsItemListener;
+import cz.cuni.mff.respefo.extra.ChironToAsciiItemListener;
+import cz.cuni.mff.respefo.extra.ExtractFitsHeaderItemListener;
 import cz.cuni.mff.respefo.measureRV.MeasureRVItemListener;
 import cz.cuni.mff.respefo.rectify.RectifyItemListener;
 import cz.cuni.mff.respefo.rvResult.RVResultItemListener;
@@ -30,18 +32,18 @@ import cz.cuni.mff.respefo.rvResult.RVResultItemListener;
 public class ReSpefo {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 
-	public static final String VERSION = "0.8.1";
+	public static final String VERSION = "0.8.3";
 
 	private static Display display;
 	private static Shell shell;
 	
 	private static Scene scene;
 
-	private static Menu menuBar, fileMenu, toolsMenu;
-	private static MenuItem fileMenuHeader, toolsMenuHeader;
+	private static Menu menuBar, fileMenu, toolsMenu, extraMenu;
+	private static MenuItem fileMenuHeader, toolsMenuHeader, extraMenuHeader;
 	@SuppressWarnings("unused")
 	private static MenuItem fileQuitItem, fileExportItem, fileImportItem, rectifyItem,
-		measureRVItem, rVResultsItem, clearCosmicsItem, chironToAsciiItem;
+		measureRVItem, rVResultsItem, clearCosmicsItem, chironToAsciiItem, extractFitsHeaderItem;
 
 	private static Spectrum spectrum;
 
@@ -131,11 +133,20 @@ public class ReSpefo {
 		rVResultsItem.setAccelerator('T' | SWT.CTRL);
 		rVResultsItem.addSelectionListener(RVResultItemListener.getInstance());
 		
-		/*
-		chironToAsciiItem = new MenuItem(toolsMenu, SWT.PUSH);
+		// Extra menu
+		extraMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
+		extraMenuHeader.setText("&Extra");
+
+		extraMenu = new Menu(shell, SWT.DROP_DOWN);
+		extraMenuHeader.setMenu(extraMenu);
+
+		chironToAsciiItem = new MenuItem(extraMenu, SWT.PUSH);
 		chironToAsciiItem.setText("&Chiron to Ascii");
 		chironToAsciiItem.addSelectionListener(ChironToAsciiItemListener.getInstance());
-		*/
+		
+		extractFitsHeaderItem = new MenuItem(extraMenu, SWT.PUSH);
+		extractFitsHeaderItem.setText("Extract &FITS header");
+		extractFitsHeaderItem.addSelectionListener(ExtractFitsHeaderItemListener.getInstance());
 		
 		shell.setMenuBar(menuBar);
 		

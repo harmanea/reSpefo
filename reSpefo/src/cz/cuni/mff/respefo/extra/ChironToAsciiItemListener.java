@@ -1,4 +1,4 @@
-package cz.cuni.mff.respefo.chiron;
+package cz.cuni.mff.respefo.extra;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -10,7 +10,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.MessageBox;
 
 import cz.cuni.mff.respefo.ReSpefo;
-import cz.cuni.mff.respefo.Util;
+import cz.cuni.mff.respefo.util.Util;
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.Fits;
 import nom.tam.fits.FitsFactory;

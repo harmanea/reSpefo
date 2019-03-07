@@ -16,14 +16,15 @@ import org.swtchart.IAxis;
 import org.swtchart.ILineSeries;
 import org.swtchart.ILineSeries.PlotSymbolType;
 
-import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
-import cz.cuni.mff.respefo.Util;
 import cz.cuni.mff.respefo.Listeners.FileExportItemListener;
 import cz.cuni.mff.respefo.Listeners.MouseDragListener;
 import cz.cuni.mff.respefo.Listeners.MouseWheelZoomListener;
+import cz.cuni.mff.respefo.util.ChartBuilder;
+import cz.cuni.mff.respefo.util.MathUtils;
+import cz.cuni.mff.respefo.util.Util;
 
 public class ClearCosmicsItemListener implements SelectionListener {
 	private static ClearCosmicsItemListener instance;
@@ -104,7 +105,7 @@ public class ClearCosmicsItemListener implements SelectionListener {
 		if (chart != null && !chart.isDisposed()) {
 			chart.dispose();
 		}
-		chart = new ChartBuilder(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)")
+		chart = ChartBuilder.from(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)")
 				.setYAxisLabel("relative flux I(λ)")
 				.addScatterSeries(PlotSymbolType.CIRCLE, 2, "points", ChartBuilder.GREEN, xSeries, ySeries)
 				.addScatterSeries(PlotSymbolType.CIRCLE, 2, "deleted", ChartBuilder.PINK, new double[] {}, new double[] {})
@@ -130,7 +131,7 @@ public class ClearCosmicsItemListener implements SelectionListener {
 		if (chart != null && !chart.isDisposed()) {
 			chart.dispose();
 		}
-		chart = new ChartBuilder(ReSpefo.getScene()).setTitle("press ESC to edit, press ENTER to save")
+		chart = ChartBuilder.from(ReSpefo.getScene()).setTitle("press ESC to edit, press ENTER to save")
 				.setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux I(λ)")
 				.addScatterSeries(PlotSymbolType.CIRCLE, 1, "series", ChartBuilder.GREEN, xSeries, ySeries)
 				.adjustRange().build();
@@ -254,7 +255,7 @@ public class ClearCosmicsItemListener implements SelectionListener {
 		double[] remainingYSeries = IntStream.range(0, ySeries.length).filter(index -> !deletedIndexes.contains(index))
 				.mapToDouble(index -> spectrum.getY(index)).toArray();
 	
-		ySeries = Util.intep(remainingXSeries, remainingYSeries, xSeries);
+		ySeries = MathUtils.intep(remainingXSeries, remainingYSeries, xSeries);
 		
 		updateYSeries("points", ySeries);
 		updateLineSeries("deleted", deletedXSeries.stream().mapToDouble(Double::doubleValue).toArray(),

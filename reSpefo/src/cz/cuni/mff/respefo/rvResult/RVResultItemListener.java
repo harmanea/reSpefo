@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -18,8 +17,8 @@ import org.eclipse.swt.widgets.MessageBox;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.SpefoException;
-import cz.cuni.mff.respefo.Util;
 import cz.cuni.mff.respefo.measureRV.RVResults;
+import cz.cuni.mff.respefo.util.Util;
 
 public class RVResultItemListener implements SelectionListener {
 	private static RVResultItemListener instance;
@@ -108,12 +107,12 @@ public class RVResultItemListener implements SelectionListener {
 					double rv = results.getRvOfCategory(category);
 					
 					if (Double.isNaN(rv)) {
-						writer.print("\t      ");
+						writer.print("\t9999.99"); // TODO make this dynamic
 					} else {
 						if (results.getRvCorr().isUndefined()) {
 							rv += record.getRvCorr();
 						}
-						writer.print("\t" + Util.formatDouble(rv, 2, 2, true));
+						writer.print("\t" + Util.formatDouble(rv, 3, 2, true));
 					}
 				}
 				writer.println();
@@ -124,5 +123,10 @@ public class RVResultItemListener implements SelectionListener {
 			messageBox.open();
 			return;
 		}
+		
+		MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_INFORMATION | SWT.OK);
+		messageBox.setMessage("File was succesfully written.");
+		messageBox.open();
+		return;
 	}
 }

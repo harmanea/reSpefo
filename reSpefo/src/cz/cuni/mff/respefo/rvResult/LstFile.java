@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,11 +26,11 @@ class LstFile {
 			
 			header = br.readLine();
 			
-			info = "";
+			List<String> infoLines = new ArrayList<>();
 			while (!(line = br.readLine()).isEmpty()) {
-				
-				info += line + '\n';
+				infoLines.add(line);
 			}
+			info = String.join("\n", infoLines);
 			
 			while (!(line = br.readLine()).isEmpty()) {
 				// skip table header

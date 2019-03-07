@@ -6,9 +6,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -79,7 +77,7 @@ class MeasurementInputDialog extends Dialog {
 		textTwo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		textTwo.setText(comment);
 
-		final Button buttonConfirm = new Button(shell, SWT.PUSH | SWT.CENTER);
+		Button buttonConfirm = new Button(shell, SWT.PUSH | SWT.CENTER);
 		buttonConfirm.setText("Confirm");
 		buttonConfirm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		if (textOne.getText().equals("")) {

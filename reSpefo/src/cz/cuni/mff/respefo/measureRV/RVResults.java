@@ -19,6 +19,7 @@ public class RVResults {
 	private RvCorrection rvCorr;
 	
 	public RVResults() {
+		results = new ArrayList<>();
 	}
 	
 	public RVResults(String rvrFileName) throws SpefoException {

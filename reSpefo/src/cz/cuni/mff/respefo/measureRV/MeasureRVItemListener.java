@@ -25,12 +25,14 @@ import org.swtchart.ILineSeries;
 import org.swtchart.ILineSeries.PlotSymbolType;
 import org.swtchart.LineStyle;
 
-import cz.cuni.mff.respefo.ChartBuilder;
 import cz.cuni.mff.respefo.FitsSpectrum;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
-import cz.cuni.mff.respefo.Util;
+import cz.cuni.mff.respefo.util.ArrayUtils;
+import cz.cuni.mff.respefo.util.ChartBuilder;
+import cz.cuni.mff.respefo.util.MathUtils;
+import cz.cuni.mff.respefo.util.Util;
 import nom.tam.fits.Header;
 
 public class MeasureRVItemListener implements SelectionListener {
@@ -113,9 +115,6 @@ public class MeasureRVItemListener implements SelectionListener {
 		}
 		
 		results.setRvCorr(getRvCorrection());
-		if (!results.getRvCorr().isUndefined()) {
-			spectrum.setXSeries(Util.adjustArrayValues(spectrum.getXSeries(), results.getRvCorr().getValue()));
-		}
 		
 		ySeries = spectrum.getYSeries();
 		xSeries = spectrum.getXSeries();
@@ -135,13 +134,27 @@ public class MeasureRVItemListener implements SelectionListener {
 		}
 		double[] newXSeries = xList.stream().mapToDouble(Double::doubleValue).toArray();
 		
-		double[] newYSeries = Util.intep(xSeries, ySeries, newXSeries);
+		double[] newYSeries = MathUtils.intep(xSeries, ySeries, newXSeries);
 		xSeries = newXSeries;
 		ySeries = newYSeries;
+		
+		/*
+		if (!results.getRvCorr().isUndefined()) {
+			xSeries = Util.adjustArrayValues(xSeries, results.getRvCorr().getValue() / (2*deltaRV));
+		}
+		*/
 	
 		rvMeasurements.loadMeasurements(measurements, false);
 		rvMeasurements.loadMeasurements(corrections, true);
 		rvMeasurements.removeInvalidMeasurements(xSeries);
+		
+		if (rvMeasurements.getCount() == 0) {
+			LOGGER.log(Level.WARNING, "There are no valid measurements.");
+			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
+			messageBox.setMessage("There are no valid measurements");
+			messageBox.open();
+			return;
+		}
 		
 		ReSpefo.setFilterPath(Paths.get(fileName).getParent().toString());
 		
@@ -211,7 +224,7 @@ public class MeasureRVItemListener implements SelectionListener {
 	
 	private void createChart(RVMeasurement rvMeasurement) {
 		double[] origXSeries = xSeries;
-		double[] tempXSeries = Util.fillArray(ySeries.length, 0, 1);
+		double[] tempXSeries = ArrayUtils.fillArray(ySeries.length, 0, 1);
 
 		double mid;
 		
@@ -227,11 +240,11 @@ public class MeasureRVItemListener implements SelectionListener {
 			mid = tempXSeries[index];
 		}
 
-		double[] mirroredYSeries = Util.trimArray(ySeries, xSeries, rvMeasurement.l0 - rvMeasurement.radius, rvMeasurement.l0 + rvMeasurement.radius);
-		Util.mirrorArray(mirroredYSeries);
+		double[] mirroredYSeries = ArrayUtils.trimArray(ySeries, xSeries, rvMeasurement.l0 - rvMeasurement.radius, rvMeasurement.l0 + rvMeasurement.radius);
+		ArrayUtils.mirrorArray(mirroredYSeries);
 
-		int j = Arrays.binarySearch(origXSeries, Util.trimArray(xSeries, rvMeasurement.l0 - rvMeasurement.radius, rvMeasurement.l0 + rvMeasurement.radius)[0]);
-		double[] temp = Util.fillArray(mirroredYSeries.length, j, 1);
+		int j = Arrays.binarySearch(origXSeries, ArrayUtils.trimArray(xSeries, rvMeasurement.l0 - rvMeasurement.radius, rvMeasurement.l0 + rvMeasurement.radius)[0]);
+		double[] temp = ArrayUtils.fillArray(mirroredYSeries.length, j, 1);
 
 		double[] mirroredXSeries = new double[temp.length];
 		for (int i = 0; i < temp.length; i++) {
@@ -243,7 +256,7 @@ public class MeasureRVItemListener implements SelectionListener {
 		if (chart != null && !chart.isDisposed()) {
 			chart.dispose();
 		}
-		chart = new ChartBuilder(container).setTitle(rvMeasurement.name + " #" + (index + 1) + " (" + rvMeasurement.l0 + ")")
+		chart = ChartBuilder.from(container).setTitle(rvMeasurement.name + " #" + (index + 1) + " (" + rvMeasurement.l0 + ")")
 				.setXAxisLabel("index").setYAxisLabel("relative flux I(λ)")
 				.addLineSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN, tempXSeries, ySeries)
 				.addLineSeries(LineStyle.SOLID, "mirrored", ChartBuilder.BLUE, mirroredXSeries, mirroredYSeries)
@@ -273,9 +286,9 @@ public class MeasureRVItemListener implements SelectionListener {
 		for (int i = 0; i < newXSeries.length; i++) {
 			newXSeries[i] = rvMeasurements.getAt(i).l0;
 		}
-		double newYSeries[] = Util.intep(xSeries, ySeries, newXSeries);
+		double newYSeries[] = MathUtils.intep(xSeries, ySeries, newXSeries);
 		
-		chart = new ChartBuilder(container).setTitle("Press ENTER to finish").setXAxisLabel("index")
+		chart = ChartBuilder.from(container).setTitle("Press ENTER to finish").setXAxisLabel("index")
 				.setYAxisLabel("relative flux I(λ)")
 				.addLineSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN, xSeries, ySeries)
 				.addScatterSeries(PlotSymbolType.CIRCLE, "measurements", ChartBuilder.PINK, newXSeries, newYSeries).adjustRange()
@@ -333,7 +346,7 @@ public class MeasureRVItemListener implements SelectionListener {
 				
 			Chart chart = ReSpefo.getChart();
 			ILineSeries series = (ILineSeries) chart.getSeriesSet().getSeries("mirrored");
-			series.setXSeries(Util.adjustArrayValues(series.getXSeries(), value));
+			series.setXSeries(ArrayUtils.addValueToArrayElements(series.getXSeries(), value));
 				
 			chart.redraw();
 		}
@@ -461,7 +474,7 @@ public class MeasureRVItemListener implements SelectionListener {
 			rvStep = dialog.getRVStep();
 			
 			if (rvStep < 0) {
-				rvStepLabel.setText(Double.toString(Util.round(getRelativeStep(), 2)));
+				rvStepLabel.setText(Double.toString(MathUtils.round(getRelativeStep(), 2)));
 			} else {
 				rvStepLabel.setText(Double.toString(rvStep));
 			}
@@ -485,7 +498,7 @@ public class MeasureRVItemListener implements SelectionListener {
 	public void adjustRVStepLabel() {
 		if (!summary) {
 			if (rvStep < 0) {
-				rvStepLabel.setText(Double.toString(Util.round(getRelativeStep() * deltaRV / 2, 4)));
+				rvStepLabel.setText(Double.toString(MathUtils.round(getRelativeStep() * deltaRV / 2, 4)));
 			} else {
 				rvStepLabel.setText(Double.toString(rvStep));
 			}
@@ -509,10 +522,13 @@ public class MeasureRVItemListener implements SelectionListener {
 			FitsSpectrum fitsSpectrum = (FitsSpectrum) spectrum;
 			Header header = fitsSpectrum.getHeader();
 			
-			if (header.containsKey("HJD")) {
-				return new RvCorrection(RvCorrection.HELIOCENTRIC, header.getDoubleValue("HJD"));
-			} else if (header.containsKey("BJD")) {
-				return new RvCorrection(RvCorrection.BARYCENTRIC, header.getDoubleValue("BJD"));
+			if (header.containsKey("HJD") || header.containsKey("BJD")) {
+				double rvCorr = header.getDoubleValue("VHELIO", Double.NaN);
+				if (!Double.isNaN(rvCorr)) {
+					return new RvCorrection(header.containsKey("HJD")
+							? RvCorrection.HELIOCENTRIC
+							: RvCorrection.BARYCENTRIC, rvCorr);
+				}
 			}
 		}
 		
