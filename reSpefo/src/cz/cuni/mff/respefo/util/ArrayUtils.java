@@ -22,16 +22,17 @@ public class ArrayUtils {
 	/**
 	 * Flips the array values
 	 * @param array
-	 * @return flipped array
+	 * @return new array with flipped values
 	 */
 	public static double[] mirrorArray(double[] array) {
-		for(int i = 0; i < array.length / 2; i++)
+		double[] newArray = array.clone();
+		for(int i = 0; i < newArray.length / 2; i++)
 		{
-		    double temp = array[i];
-		    array[i] = array[array.length - i - 1];
-		    array[array.length - i - 1] = temp;
+		    double temp = newArray[i];
+		    newArray[i] = newArray[newArray.length - i - 1];
+		    newArray[newArray.length - i - 1] = temp;
 		}
-		return array;
+		return newArray;
 	}
 	
 	/**
@@ -61,17 +62,12 @@ public class ArrayUtils {
 	/**
 	 * Applies BScale to all array values
 	 * @param array
-	 * @param BZero
-	 * @param BScale
+	 * @param bZero
+	 * @param bScale
 	 * @return array with applied BScale
 	 */
-	public static double[] applyBScale(double[] array, double BZero, double BScale) {
-		double[] result = new double[array.length];
-		for(int i = 0; i < result.length; i++) {
-			result[i] = array[i] * BScale;
-			result[i] += BZero;
-		}
-		return result;
+	public static double[] applyBScale(double[] array, double bZero, double bScale) {
+		return IntStream.range(0, array.length).mapToDouble(i -> array[i]*bScale + bZero).toArray();
 	}
 	
 	/**
@@ -83,11 +79,7 @@ public class ArrayUtils {
 	 * @return the created array
 	 */
 	public static double[] fillArray(int size, double from, double step) {
-		double[] result = new double[size];
-		for (int i = 0; i < size; i++) {
-			result[i] = from + (i * step);
-		}
-		return result;
+		return IntStream.range(0, size).mapToDouble(i -> from + i*step).toArray();
 	}
 	
 	/**

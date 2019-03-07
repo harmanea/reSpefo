@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import cz.cuni.mff.respefo.util.ArrayUtils;
 import cz.cuni.mff.respefo.util.MathUtils;
-import cz.cuni.mff.respefo.util.Util;
 
 class RectifyPoints {
 	private ArrayList<Double> xCoordinates;

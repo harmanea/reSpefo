@@ -1,5 +1,7 @@
 package cz.cuni.mff.respefo.util;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 
 public class MathUtils {	
@@ -137,13 +139,18 @@ public class MathUtils {
 	}
 	
 	/**
-	 * A very dumb implementation of rounding double values, use with caution
-	 * @param num
+	 * Rounds a double number
+	 * @param number
 	 * @param precision
 	 * @return rounded number
 	 */
-	public static double round(double num, int precision) {
-		double scale = Math.pow(10, precision);
-		return Math.round(num * scale) / scale;
+	public static double round(double number, int precision) {
+	    if (precision < 0) {
+	    	throw new IllegalArgumentException("Precision must be a positive value.");
+	    }
+
+	    BigDecimal bigDecimal = new BigDecimal(number);
+	    bigDecimal = bigDecimal.setScale(precision, RoundingMode.HALF_UP);
+	    return bigDecimal.doubleValue();
 	}
 }

@@ -6,9 +6,9 @@ import java.util.logging.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.MessageBox;
 
 import cz.cuni.mff.respefo.ReSpefo;
+import cz.cuni.mff.respefo.util.Message;
 
 public class FileQuitItemListener implements SelectionListener {
 	private static FileQuitItemListener instance;
@@ -40,13 +40,8 @@ public class FileQuitItemListener implements SelectionListener {
 	}
 
 	private void handle(SelectionEvent event) {
-		MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_INFORMATION | SWT.YES | SWT.NO);
-		messageBox.setMessage("Are you sure you want to quit?");
-		if (messageBox.open() == SWT.YES) {
-			LOGGER.log(Level.FINER, "Quit dialog confirmed");
+		if (Message.question("Are you sure you want to quit?") == SWT.YES) {
 			ReSpefo.getShell().dispose();
-		} else {
-			LOGGER.log(Level.FINER, "Quit dialog cancelled");
 		}
 	}
 

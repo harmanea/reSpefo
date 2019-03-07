@@ -41,7 +41,6 @@ public class ReSpefo {
 
 	private static Menu menuBar, fileMenu, toolsMenu, extraMenu;
 	private static MenuItem fileMenuHeader, toolsMenuHeader, extraMenuHeader;
-	@SuppressWarnings("unused")
 	private static MenuItem fileQuitItem, fileExportItem, fileImportItem, rectifyItem,
 		measureRVItem, rVResultsItem, clearCosmicsItem, chironToAsciiItem, extractFitsHeaderItem;
 
@@ -147,6 +146,7 @@ public class ReSpefo {
 		extractFitsHeaderItem = new MenuItem(extraMenu, SWT.PUSH);
 		extractFitsHeaderItem.setText("Extract &FITS header");
 		extractFitsHeaderItem.addSelectionListener(ExtractFitsHeaderItemListener.getInstance());
+		
 		
 		shell.setMenuBar(menuBar);
 		

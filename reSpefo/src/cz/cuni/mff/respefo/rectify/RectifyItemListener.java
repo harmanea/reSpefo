@@ -6,13 +6,12 @@ import java.util.logging.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.MessageBox;
 import org.swtchart.Chart;
 import org.swtchart.IAxis;
 import org.swtchart.ILineSeries;
+import org.swtchart.ILineSeries.PlotSymbolType;
 import org.swtchart.LineStyle;
 import org.swtchart.Range;
-import org.swtchart.ILineSeries.PlotSymbolType;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
@@ -22,6 +21,7 @@ import cz.cuni.mff.respefo.Listeners.MouseDragListener;
 import cz.cuni.mff.respefo.Listeners.MouseWheelZoomListener;
 import cz.cuni.mff.respefo.util.ArrayUtils;
 import cz.cuni.mff.respefo.util.ChartBuilder;
+import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.Util;
 
 public class RectifyItemListener implements SelectionListener {
@@ -73,10 +73,7 @@ public class RectifyItemListener implements SelectionListener {
 		try {
 			spectrum = Spectrum.createFromFile(fileName);
 		} catch (SpefoException exception) {
-			LOGGER.log(Level.WARNING, "Couldn't import file.", exception);
-			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			messageBox.setMessage("Couldn't import file.\n\nDebug message:\n" + exception.getMessage());
-			messageBox.open();
+			Message.error("Couldn't import file.", exception);
 			return;
 		}
 		
@@ -316,9 +313,7 @@ public class RectifyItemListener implements SelectionListener {
 
 	public void clearPoints() {
 		if (!summary) {
-			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.YES | SWT.NO);
-			messageBox.setMessage("Do you want to clear all points?");
-			if (messageBox.open() == SWT.YES) {
+			if (Message.question("Do you want to clear all points?") == SWT.YES) {
 				points.reset(spectrum.getX(0), spectrum.getY(0), spectrum.getX(spectrum.getSize() - 1),
 						spectrum.getY(spectrum.getSize() - 1));
 

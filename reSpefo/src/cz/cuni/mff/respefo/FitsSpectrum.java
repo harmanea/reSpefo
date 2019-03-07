@@ -12,10 +12,9 @@ import java.util.logging.Level;
 import java.util.stream.IntStream;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
 
 import cz.cuni.mff.respefo.util.ArrayUtils;
-import cz.cuni.mff.respefo.util.Util;
+import cz.cuni.mff.respefo.util.Message;
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.Fits;
 import nom.tam.fits.FitsException;
@@ -114,9 +113,7 @@ public class FitsSpectrum extends Spectrum {
 
 	@Override
 	public boolean exportToAscii(String fileName) {
-		MessageBox messageBox = new MessageBox(ReSpefo.getShell(),SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-		messageBox.setMessage("By saving a FITS file to an ASCII file you lose the header information. Do you want to dump the header into a separate file?");
-		if (messageBox.open() == SWT.YES) {
+		if (Message.question("By saving a FITS file to an ASCII file you lose the header information. Do you want to dump the header into a separate file?") == SWT.YES) {
 			String headerFile = fileName.substring(0, fileName.lastIndexOf('.')) + ".header";
 			try (PrintStream ps = new PrintStream(headerFile)) {
 				header.dumpHeader(ps);

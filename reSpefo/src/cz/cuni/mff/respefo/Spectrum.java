@@ -6,8 +6,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
 
+import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.Util;
 import nom.tam.fits.FitsException;
 import nom.tam.fits.FitsFactory;
@@ -274,9 +274,7 @@ public abstract class Spectrum {
 			try {
 				result = new FitsSpectrum(fileName);
 			} catch (FitsException exception) {
-				MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-				messageBox.setMessage("File is broken. Would you like to try to repair it?");
-				if (messageBox.open() == SWT.YES) {
+				if (Message.question("File is broken. Would you like to try to repair it?") == SWT.YES) {
 					try {
 						FitsFactory.setAllowHeaderRepairs(true);
 						result = new FitsSpectrum(fileName);

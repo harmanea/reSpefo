@@ -10,14 +10,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.MessageBox;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.SpefoException;
 import cz.cuni.mff.respefo.measureRV.RVResults;
+import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.Util;
 
 public class RVResultItemListener implements SelectionListener {
@@ -68,9 +67,7 @@ public class RVResultItemListener implements SelectionListener {
 				}
 				
 			} catch (SpefoException exception) {
-				MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-				messageBox.setMessage("Rvr file is invalid [" + rvrFileNames[i] +"].\n\nDebug message:\n" + exception.getMessage());
-				messageBox.open();
+				Message.error("Rvr file is invalid [" + rvrFileNames[i] +"].", exception);
 				return;
 			}
 		}
@@ -118,15 +115,11 @@ public class RVResultItemListener implements SelectionListener {
 				writer.println();
 			}
 		} catch (FileNotFoundException exception) {
-			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			messageBox.setMessage("Couldn't write into file [" + file.getName() +"].\n\nDebug message:\n" + exception.getMessage());
-			messageBox.open();
+			Message.error("Couldn't write into file [" + file.getName() +"].", exception);
 			return;
 		}
 		
-		MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_INFORMATION | SWT.OK);
-		messageBox.setMessage("File was succesfully written.");
-		messageBox.open();
+		Message.info("File was succesfully written.");
 		return;
 	}
 }

@@ -7,10 +7,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.MessageBox;
 import org.swtchart.Chart;
 import org.swtchart.IAxis;
 import org.swtchart.ILineSeries;
@@ -24,6 +22,7 @@ import cz.cuni.mff.respefo.Listeners.MouseDragListener;
 import cz.cuni.mff.respefo.Listeners.MouseWheelZoomListener;
 import cz.cuni.mff.respefo.util.ChartBuilder;
 import cz.cuni.mff.respefo.util.MathUtils;
+import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.Util;
 
 public class ClearCosmicsItemListener implements SelectionListener {
@@ -79,10 +78,7 @@ public class ClearCosmicsItemListener implements SelectionListener {
 		try {
 			spectrum = Spectrum.createFromFile(fileName);
 		} catch (SpefoException exception) {
-			LOGGER.log(Level.WARNING, "Couldn't import file.", exception);
-			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			messageBox.setMessage("Couldn't import file.\n\nDebug message:\n" + exception.getMessage());
-			messageBox.open();
+			Message.error("Couldn't import file", exception);
 			return;
 		}
 		
@@ -145,7 +141,6 @@ public class ClearCosmicsItemListener implements SelectionListener {
 		summary = true;
 	}
 	
-	@SuppressWarnings("unused")
 	private void updateLineSeries(String name, double[] xSeries, double[] ySeries) {
 		ILineSeries series = (ILineSeries) ReSpefo.getChart().getSeriesSet().getSeries(name);
 		
@@ -160,7 +155,6 @@ public class ClearCosmicsItemListener implements SelectionListener {
 		series.setXSeries(xSeries);
 	}
 	
-	@SuppressWarnings("unused")
 	private void updateYSeries(String name, double[] ySeries) {
 		ILineSeries series = (ILineSeries) ReSpefo.getChart().getSeriesSet().getSeries(name);
 		

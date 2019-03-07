@@ -8,10 +8,10 @@ import java.util.logging.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.MessageBox;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
+import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.Util;
 
 public class FileExportItemListener implements SelectionListener {
@@ -47,10 +47,7 @@ public class FileExportItemListener implements SelectionListener {
 		Spectrum spectrum = ReSpefo.getSpectrum();
 		
 		if (spectrum == null) { 
-			LOGGER.log(Level.WARNING, "Nothing to export");
-			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			messageBox.setMessage("No file loaded, nothing to export.");
-			messageBox.open();
+			Message.warning("No file loaded, nothing to export.");
 			return;
 		}
 		
@@ -70,9 +67,8 @@ public class FileExportItemListener implements SelectionListener {
 		
 		File destFile = new File(fileName);
 		if (destFile.exists()) {
-			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-			messageBox.setMessage("File already exists. Would you like to overwrite it?");
-			if (messageBox.open() != SWT.YES) {
+			if (Message.question("File already exists. Would you like to overwrite it?") != SWT.YES) {
+				
 				LOGGER.log(Level.FINER, "Overwrite dialog didn't return yes");
 				return false;
 			}
@@ -86,15 +82,9 @@ public class FileExportItemListener implements SelectionListener {
 		case "txt":
 		case "ascii":
 			if (spectrum.exportToAscii(fileName)) {
-				LOGGER.log(Level.INFO, "File was successfully saved");
-				MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_INFORMATION | SWT.OK);
-				messageBox.setMessage("File was successfully saved.");
-				messageBox.open();
+				Message.info("File was successfully saved.");
 			} else {
-				LOGGER.log(Level.WARNING, "Couldn't save file");
-				MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-				messageBox.setMessage("Couldn't save file.");
-				messageBox.open();
+				Message.warning("Couldn't save file.");
 				return false;
 			}
 			break;
@@ -102,15 +92,9 @@ public class FileExportItemListener implements SelectionListener {
 		case "fit":
 		case "fts":
 			if (spectrum.exportToFits(fileName)) {
-				LOGGER.log(Level.INFO, "File was successfully saved");
-				MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_INFORMATION | SWT.OK);
-				messageBox.setMessage("File was successfully saved.");
-				messageBox.open();
+				Message.info("File was successfully saved.");
 			} else {
-				LOGGER.log(Level.WARNING, "Couldn't save file");
-				MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-				messageBox.setMessage("Couldn't save file.");
-				messageBox.open();
+				Message.warning("Couldn't save file.");
 				return false;
 			}
 			break;
@@ -118,16 +102,10 @@ public class FileExportItemListener implements SelectionListener {
 		case "uui":
 		case "rci":
 		case "rfi":
-			LOGGER.log(Level.WARNING, "Old Spefo formats aren't supported yet");
-			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			messageBox.setMessage("Old Spefo formats aren't supported yet.");
-			messageBox.open();
+			Message.warning("Old Spefo formats aren't supported yet.");
 			return false;
 		default:
-			LOGGER.log(Level.WARNING, "Not a supported file format");
-			messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			messageBox.setMessage("Not a supported file format.");
-			messageBox.open();
+			Message.warning("Not a supported file format");
 			return false;
 		}
 		

@@ -8,10 +8,8 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
-
 import cz.cuni.mff.respefo.ReSpefo;
+import cz.cuni.mff.respefo.util.Message;
 
 class RVMeasurements {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
@@ -46,10 +44,7 @@ class RVMeasurements {
 						}
 					}
 				} catch (IOException exception) {
-					LOGGER.log(Level.WARNING, "Error loading file " + fileName, exception);
-					MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_ERROR | SWT.OK);
-					messageBox.setText("Error loading file: " + fileName);
-					messageBox.open();
+					Message.error("Error loading file: " + fileName, exception);
 				}
 			}
 		}

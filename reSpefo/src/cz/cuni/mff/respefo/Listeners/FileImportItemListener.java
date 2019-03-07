@@ -11,7 +11,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
 import org.swtchart.Chart;
 import org.swtchart.LineStyle;
 import org.swtchart.Range;
@@ -20,6 +19,7 @@ import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
 import cz.cuni.mff.respefo.util.ChartBuilder;
+import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.Util;
 
 public class FileImportItemListener implements SelectionListener {
@@ -63,10 +63,9 @@ public class FileImportItemListener implements SelectionListener {
 		
 		try {
 			spectrum = Spectrum.createFromFile(fileName);
-		} catch (SpefoException e) {
-			MessageBox mb = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			mb.setMessage("Couldn't import file.\n\nDebug message:\n" + e.getMessage());
-			mb.open();
+		} catch (SpefoException exception) {
+			
+			Message.error("Couldn't import file", exception);
 			return;
 		}
 		
@@ -116,5 +115,4 @@ public class FileImportItemListener implements SelectionListener {
         
         ReSpefo.getScene().layout();
 	}
-	
 }

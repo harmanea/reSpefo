@@ -18,7 +18,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.MessageBox;
 import org.swtchart.Chart;
 import org.swtchart.IAxis;
 import org.swtchart.ILineSeries;
@@ -32,7 +31,7 @@ import cz.cuni.mff.respefo.SpefoException;
 import cz.cuni.mff.respefo.util.ArrayUtils;
 import cz.cuni.mff.respefo.util.ChartBuilder;
 import cz.cuni.mff.respefo.util.MathUtils;
-import cz.cuni.mff.respefo.util.Util;
+import cz.cuni.mff.respefo.util.Message;
 import nom.tam.fits.Header;
 
 public class MeasureRVItemListener implements SelectionListener {
@@ -107,10 +106,7 @@ public class MeasureRVItemListener implements SelectionListener {
 		try {
 			spectrum = Spectrum.createFromFile(fileName);
 		} catch (SpefoException exception) {
-			LOGGER.log(Level.WARNING, "Couldn't import file.", exception);
-			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			messageBox.setMessage("Couldn't import file.\n\nDebug message:\n" + exception.getMessage());
-			messageBox.open();
+			Message.error("Couldn't import file.", exception);
 			return;
 		}
 		
@@ -149,10 +145,7 @@ public class MeasureRVItemListener implements SelectionListener {
 		rvMeasurements.removeInvalidMeasurements(xSeries);
 		
 		if (rvMeasurements.getCount() == 0) {
-			LOGGER.log(Level.WARNING, "There are no valid measurements.");
-			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			messageBox.setMessage("There are no valid measurements");
-			messageBox.open();
+			Message.warning("There are no valid measurements.");
 			return;
 		}
 		
@@ -240,10 +233,11 @@ public class MeasureRVItemListener implements SelectionListener {
 			mid = tempXSeries[index];
 		}
 
-		double[] mirroredYSeries = ArrayUtils.trimArray(ySeries, xSeries, rvMeasurement.l0 - rvMeasurement.radius, rvMeasurement.l0 + rvMeasurement.radius);
-		ArrayUtils.mirrorArray(mirroredYSeries);
+		double[] mirroredYSeries = ArrayUtils.mirrorArray(ArrayUtils.trimArray(ySeries, xSeries,
+				rvMeasurement.l0 - rvMeasurement.radius, rvMeasurement.l0 + rvMeasurement.radius));
 
-		int j = Arrays.binarySearch(origXSeries, ArrayUtils.trimArray(xSeries, rvMeasurement.l0 - rvMeasurement.radius, rvMeasurement.l0 + rvMeasurement.radius)[0]);
+		int j = Arrays.binarySearch(origXSeries, ArrayUtils.trimArray(xSeries, rvMeasurement.l0 - rvMeasurement.radius,
+				rvMeasurement.l0 + rvMeasurement.radius)[0]);
 		double[] temp = ArrayUtils.fillArray(mirroredYSeries.length, j, 1);
 
 		double[] mirroredXSeries = new double[temp.length];
@@ -433,17 +427,13 @@ public class MeasureRVItemListener implements SelectionListener {
 	
 	public void delete() {
 		if (listTwo.getSelectionIndex() != -1) {
-			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-			messageBox.setMessage("Are you sure you want to delete this measurement?");
-			if (messageBox.open() == SWT.YES) {
+			if (Message.question("Are you sure you want to delete this measurement?") == SWT.YES) {
 				results.remove(listTwo.getSelectionIndex());
 				listTwo.remove(listTwo.getSelectionIndex());
 				listTwo.setSelection(-1);
 			}
 		} else {
-			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_INFORMATION | SWT.OK);
-			messageBox.setMessage("Select the measurement you want to delete.");
-			messageBox.open();
+			Message.info("Select the measurement you want to delete.");
 		}
 	}
 	
@@ -509,11 +499,7 @@ public class MeasureRVItemListener implements SelectionListener {
 		RVResultsPrinter printer = new RVResultsPrinter(results);
 		if (printer.printResults(spectrum)) {
 			ReSpefo.reset();
-			
-			LOGGER.log(Level.INFO, "File was successfully saved.");
-			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_INFORMATION | SWT.OK);
-			messageBox.setMessage("File was successfully saved.");
-			messageBox.open();
+			Message.info("File was successfully saved.");
 		}
 	}
 	

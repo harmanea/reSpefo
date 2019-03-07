@@ -4,12 +4,11 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
-import org.eclipse.swt.SWT;
+
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.MessageBox;
 
-import cz.cuni.mff.respefo.ReSpefo;
+import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.Util;
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.Fits;
@@ -52,42 +51,51 @@ public class ChironToAsciiItemListener implements SelectionListener {
 			BasicHDU<?> hdu = HDUs[0];
 			float[][][] data = (float[][][]) hdu.getKernel();
 			
-			String headerFile = fileName.substring(0, fileName.lastIndexOf('.')) + ".header";
-			try (PrintStream ps = new PrintStream(headerFile)) {
-				hdu.getHeader().dumpHeader(ps);
-				
-				if (ps.checkError()) {
-					throw new IOException();
-				}
-			}
+			printHeaderToFile(fileName, hdu);
+			printDataToFile(fileName, data);
 			
-			String asciiFile = fileName.substring(0, fileName.lastIndexOf('.')) + ".txt";
-			try (PrintWriter writer = new PrintWriter(asciiFile)) {
-				writer.println(Paths.get(fileName).getFileName().toString());
-				
-				for (int i = 0; i < data.length; i++) {
-					for (int j = 0; j < data[i].length; j++) {
-						for (int k = 0; k < data[i][j].length; k++) {
-							if (k % 2 == 0) {
-								writer.print(data[i][j][k] + " ");
-							} else {
-								writer.println(data[i][j][k]);
-							}
-						}
-					}
-				}
-			}
 		} catch (Exception exception) {
-			MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-			messageBox.setMessage("Couldn't convert file.");
-			messageBox.open();
+			Message.error("Couldn't convert file.", exception);
 			return;
 		} finally {
 			FitsFactory.setAllowHeaderRepairs(false);
 		}
 		
-		MessageBox messageBox = new MessageBox(ReSpefo.getShell(), SWT.ICON_WARNING | SWT.OK);
-		messageBox.setMessage("File converted successfully.");
-		messageBox.open();
+		Message.info("File converted successfully.");
+	}
+	
+	private void printHeaderToFile(String fileName, BasicHDU<?> hdu) throws IOException {
+		String headerFile = fileName.substring(0, fileName.lastIndexOf('.')) + ".header";
+		try (PrintStream ps = new PrintStream(headerFile)) {
+			hdu.getHeader().dumpHeader(ps);
+			
+			if (ps.checkError()) {
+				throw new IOException("PrintStream encountered an error.");
+			}
+		}
+	}
+	
+	private void printDataToFile(String fileName, float[][][] data) throws IOException {
+		String asciiFile = fileName.substring(0, fileName.lastIndexOf('.')) + ".txt";
+		
+		try (PrintWriter writer = new PrintWriter(asciiFile)) {
+			writer.println(Paths.get(fileName).getFileName().toString());
+			
+			for (int i = 0; i < data.length; i++) {
+				for (int j = 0; j < data[i].length; j++) {
+					for (int k = 0; k < data[i][j].length; k++) {
+						if (k % 2 == 0) {
+							writer.print(data[i][j][k] + " ");
+						} else {
+							writer.println(data[i][j][k]);
+						}
+					}
+				}
+			}
+			
+			if (writer.checkError()) {
+				throw new IOException("PrintWriter encountered an error.");
+			}
+		}
 	}
 }

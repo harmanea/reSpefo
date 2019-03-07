@@ -7,7 +7,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 
 import cz.cuni.mff.respefo.FitsSpectrum;
-import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
 import cz.cuni.mff.respefo.util.Message;
@@ -50,18 +49,18 @@ public class ExtractFitsHeaderItemListener implements SelectionListener {
 				}
 			}
 			
-			Message.info(ReSpefo.getShell(), "Header extracted successfully");
+			Message.info("Header extracted successfully");
 		} catch (ClassCastException classCastException) {
-			Message.error(ReSpefo.getShell(), "Spectrum is not in FITS format.", classCastException);
+			Message.error("Spectrum is not in FITS format.", classCastException);
 			
 		} catch (SpefoException spefoException) {
-			Message.error(ReSpefo.getShell(), "Error while opening file.", spefoException);
+			Message.error("Error while opening file.", spefoException);
 			
 		} catch (IOException ioException) {
-			Message.error(ReSpefo.getShell(), "Error while writing to file.", ioException);
+			Message.error("Error while writing to file.", ioException);
 			
 		} catch (Exception exception) {
-			Message.error(ReSpefo.getShell(), "Internal error.", exception);
+			Message.error("Internal error.", exception);
 		}
 	}
 }
