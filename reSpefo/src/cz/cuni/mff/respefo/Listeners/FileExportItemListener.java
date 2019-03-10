@@ -11,8 +11,9 @@ import org.eclipse.swt.events.SelectionListener;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
+import cz.cuni.mff.respefo.util.FileType;
+import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.Message;
-import cz.cuni.mff.respefo.util.Util;
 
 public class FileExportItemListener implements SelectionListener {
 	private static FileExportItemListener instance;
@@ -56,7 +57,7 @@ public class FileExportItemListener implements SelectionListener {
 
 	
 	public boolean export(Spectrum spectrum) {
-		String fileName = Util.openFileDialog(Util.SPECTRUM_SAVE);
+		String fileName = FileUtils.fileSaveDialog(FileType.SPECTRUM);
 		
 		if (fileName == null) {
 			LOGGER.log(Level.FINER, "File dialog returned null");
@@ -74,7 +75,7 @@ public class FileExportItemListener implements SelectionListener {
 			}
 		}
 		
-		String extension = Util.getFileExtension(fileName);
+		String extension = FileUtils.getFileExtension(fileName);
 		
 		// TODO remove code repetition
 		switch (extension) {

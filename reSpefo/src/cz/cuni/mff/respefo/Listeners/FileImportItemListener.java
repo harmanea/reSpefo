@@ -19,8 +19,9 @@ import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
 import cz.cuni.mff.respefo.util.ChartBuilder;
+import cz.cuni.mff.respefo.util.FileType;
+import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.Message;
-import cz.cuni.mff.respefo.util.Util;
 
 public class FileImportItemListener implements SelectionListener {
 	private static FileImportItemListener instance;
@@ -52,7 +53,7 @@ public class FileImportItemListener implements SelectionListener {
 	}
 	
 	private void handle(SelectionEvent event) {	
-		String fileName = Util.openFileDialog(Util.SPECTRUM_LOAD);
+		String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM);
 
 		if (fileName == null) {
 			LOGGER.log(Level.FINER, "File dialog returned null");

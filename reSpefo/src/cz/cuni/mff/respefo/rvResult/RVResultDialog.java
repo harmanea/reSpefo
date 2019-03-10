@@ -23,7 +23,8 @@ import org.eclipse.swt.widgets.Text;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.SpefoException;
-import cz.cuni.mff.respefo.util.Util;
+import cz.cuni.mff.respefo.util.FileType;
+import cz.cuni.mff.respefo.util.FileUtils;
 
 class RVResultDialog extends Dialog {
 	private Shell parent;
@@ -164,7 +165,7 @@ class RVResultDialog extends Dialog {
 	}
 	
 	private void browse() {
-		String s = Util.openFileDialog(Util.LST_LOAD);
+		String s = FileUtils.fileOpenDialog(FileType.LST);
 		
 		if (s != null) {
 			lstFileField.setText(s);
@@ -244,7 +245,7 @@ class RVResultDialog extends Dialog {
 			return;
 		}
 		
-		String fileName = Util.openFileDialog(Util.RVR_LOAD);
+		String fileName = FileUtils.fileOpenDialog(FileType.RVR);
 		if (fileName == null) {
 			return;
 		}
@@ -285,7 +286,7 @@ class RVResultDialog extends Dialog {
 			
 			if (fileName != null) {
 				while (index < rvrFileNames.length - 1) {
-					String newFileName = Util.incrementFileName(fileName);
+					String newFileName = FileUtils.incrementFileName(fileName);
 					if (newFileName == null) {
 						break;
 					}

@@ -12,7 +12,6 @@ import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
 import cz.cuni.mff.respefo.util.MathUtils;
-import cz.cuni.mff.respefo.util.Util;
 
 class RVResultsPrinter {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
@@ -52,9 +51,9 @@ class RVResultsPrinter {
 				ArrayList<Double> values = new ArrayList<>();
 				
 				for (RVResult result : results.getResultsOfCategory(category)) {
-					writer.println(Util.formatDouble(result.rV, 4, 4) + '\t' +
-							Util.formatDouble(result.radius, 4, 4, false) + '\t' +
-							Util.formatDouble(result.l0, 8, 4, false) + '\t' +
+					writer.println(MathUtils.formatDouble(result.rV, 4, 4) + '\t' +
+							MathUtils.formatDouble(result.radius, 4, 4, false) + '\t' +
+							MathUtils.formatDouble(result.l0, 8, 4, false) + '\t' +
 							result.name + '\t' +
 							result.comment);
 					

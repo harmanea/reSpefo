@@ -8,8 +8,9 @@ import java.nio.file.Paths;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 
+import cz.cuni.mff.respefo.util.FileType;
+import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.Message;
-import cz.cuni.mff.respefo.util.Util;
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.Fits;
 import nom.tam.fits.FitsFactory;
@@ -38,7 +39,7 @@ public class ChironToAsciiItemListener implements SelectionListener {
 	}
 
 	private void handle(SelectionEvent event) {
-		String fileName = Util.openFileDialog(Util.SPECTRUM_LOAD);
+		String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM);
 		
 		if (fileName == null) {
 			return;

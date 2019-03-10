@@ -20,6 +20,8 @@ import cz.cuni.mff.respefo.clearCosmics.ClearCosmicsItemListener;
 import cz.cuni.mff.respefo.extra.ChironToAsciiItemListener;
 import cz.cuni.mff.respefo.extra.ExtractFitsHeaderItemListener;
 import cz.cuni.mff.respefo.measureRV.MeasureRVItemListener;
+import cz.cuni.mff.respefo.preparation.FitsToLstItemListener;
+import cz.cuni.mff.respefo.preparation.PrepareDirectoryItemListener;
 import cz.cuni.mff.respefo.rectify.RectifyItemListener;
 import cz.cuni.mff.respefo.rvResult.RVResultItemListener;
 
@@ -32,7 +34,7 @@ import cz.cuni.mff.respefo.rvResult.RVResultItemListener;
 public class ReSpefo {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 
-	public static final String VERSION = "0.8.3";
+	public static final String VERSION = "0.8.4";
 
 	private static Display display;
 	private static Shell shell;
@@ -42,7 +44,8 @@ public class ReSpefo {
 	private static Menu menuBar, fileMenu, toolsMenu, extraMenu;
 	private static MenuItem fileMenuHeader, toolsMenuHeader, extraMenuHeader;
 	private static MenuItem fileQuitItem, fileExportItem, fileImportItem, rectifyItem,
-		measureRVItem, rVResultsItem, clearCosmicsItem, chironToAsciiItem, extractFitsHeaderItem;
+		measureRVItem, rVResultsItem, clearCosmicsItem, chironToAsciiItem, extractFitsHeaderItem,
+		prepareDirectoryItem, fitsToLstItem;
 
 	private static Spectrum spectrum;
 
@@ -63,7 +66,7 @@ public class ReSpefo {
 
 		display = new Display();
 		Display.setAppName("reSpefo");
-		shell = new Shell(display, SWT.RESIZE);
+		shell = new Shell(display, SWT.APPLICATION_MODAL | SWT.RESIZE);
 		shell.setText("reSpefo (v" + VERSION + ")");
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
@@ -110,13 +113,23 @@ public class ReSpefo {
 		toolsMenu = new Menu(shell, SWT.DROP_DOWN);
 		toolsMenuHeader.setMenu(toolsMenu);
 
+		fitsToLstItem = new MenuItem(toolsMenu, SWT.PUSH);
+		fitsToLstItem.setText("FITS to Lst");
+		fitsToLstItem.addSelectionListener(FitsToLstItemListener.getInstance());
+		
+		prepareDirectoryItem = new MenuItem(toolsMenu, SWT.PUSH);
+		prepareDirectoryItem.setText("Prepare Directory");
+		prepareDirectoryItem.addSelectionListener(PrepareDirectoryItemListener.getInstance());
+		
+		new MenuItem(toolsMenu, SWT.SEPARATOR);
+		
 		rectifyItem = new MenuItem(toolsMenu, SWT.PUSH);
 		rectifyItem.setText("&Rectify\tCtrl+R");
 		rectifyItem.setAccelerator('R' | SWT.CTRL);
 		rectifyItem.addSelectionListener(RectifyItemListener.getInstance());
 
 		clearCosmicsItem = new MenuItem(toolsMenu, SWT.PUSH);
-		clearCosmicsItem.setText("&Clear cosmics\tCtrl+C");
+		clearCosmicsItem.setText("&Clear Cosmics\tCtrl+C");
 		clearCosmicsItem.setAccelerator('C' | SWT.CTRL);
 		clearCosmicsItem.addSelectionListener(ClearCosmicsItemListener.getInstance());
 		
@@ -144,7 +157,7 @@ public class ReSpefo {
 		chironToAsciiItem.addSelectionListener(ChironToAsciiItemListener.getInstance());
 		
 		extractFitsHeaderItem = new MenuItem(extraMenu, SWT.PUSH);
-		extractFitsHeaderItem.setText("Extract &FITS header");
+		extractFitsHeaderItem.setText("Extract &FITS Header");
 		extractFitsHeaderItem.addSelectionListener(ExtractFitsHeaderItemListener.getInstance());
 		
 		

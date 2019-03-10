@@ -2,6 +2,8 @@ package cz.cuni.mff.respefo.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 
 public class MathUtils {	
@@ -110,7 +112,7 @@ public class MathUtils {
 	 */
 	public static double rms(double[] values) {
 		if (values.length == 0) {
-			return Double.NaN;
+			throw new IllegalArgumentException("Array must contain some values.");
 		}
 		
 		double sum = Arrays.stream(values).map(value -> Math.pow(value, 2)).sum();
@@ -128,7 +130,7 @@ public class MathUtils {
 	 */
 	public static double rms(double[] values, double middle) {
 		if (values.length == 0) {
-			return Double.NaN;
+			throw new IllegalArgumentException("Array must contain some values.");
 		}
 		
 		double sum = Arrays.stream(values).map(value -> Math.pow(value - middle, 2)).sum();
@@ -152,5 +154,101 @@ public class MathUtils {
 	    BigDecimal bigDecimal = new BigDecimal(number);
 	    bigDecimal = bigDecimal.setScale(precision, RoundingMode.HALF_UP);
 	    return bigDecimal.doubleValue();
+	}
+	
+	/**
+	 * Converts a Turbo Pascal Extended type to double
+	 * @param data byte array containing the extended value in little endian byte order
+	 * @return converted double value
+	 */
+	public static double pascalExtendedToDouble(byte[] data) {
+		if (data.length != 10) {
+			throw new IllegalArgumentException("Extended format takes up 10 bytes");
+		}
+		
+		byte sign = (byte) ((data[9] & 0x80) >> 7); // 0 positive, 1 negative
+		
+		byte[] bytes = Arrays.copyOfRange(data, 8, 10);
+		short exponent = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
+		exponent -= 16382; // to get the actual value;
+		
+		double result;
+		if (exponent >= -1024) {
+			double mantissa = 0;
+			
+			for (int i = 0; i < 8; i++) {
+				mantissa += (int) (data[i] & 0xFF);
+				mantissa /= 256;
+			}
+			
+			result = Math.pow(-1, sign) * mantissa * Math.pow(2, exponent);
+		} else {
+			result = 0;
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Converts a Turbo Pascal Real type to double
+	 * @param data byte array containing the real value in little endian byte order
+	 * @return converted double value
+	 */
+	public static double pascalRealToDouble(byte[] data) {
+		if (data.length != 6) {
+			throw new IllegalArgumentException("Real format takes up 6 bytes");
+		}
+		
+		byte sign = (byte) ((data[5] & 0x80) >> 7); // 0 positive, 1 negative
+		
+		int exponent = (byte) (data[0] & 0xFF);
+		exponent -= 129;
+		
+		double mantissa = 0;
+		for (int i = 1; i < 5; i++) {
+			mantissa += (int) (data[i] & 0xFF);
+			mantissa /= 256;
+		}
+		
+		mantissa += (int) (data[5] & 0x7F);
+		mantissa /= 128;
+		mantissa += 1;
+		
+		if ((byte) (data[0] & 0xFF) == 0 && mantissa == 1) {
+			return 0;
+		}
+		
+		return Math.pow(-1, sign) * mantissa * Math.pow(2, exponent);
+	}
+	
+	
+	/**
+	 * Formats a double to String and pads it with spaces if necessary
+	 * @param num to be formated
+	 * @param before number of digits before decimal point
+	 * @param after number of digits after decimal point
+	 * @param sign include sign
+	 * @return formated String
+	 */
+	public static String formatDouble(double num, int before, int after, boolean sign) {
+		String format = "%" + (sign ? " " : "") + before + "." + after + "f";
+		String formattedNumber = String.format(format, num);
+		
+		for (int i = formattedNumber.length(); i <  before + after + (sign ? 2 : 1); i++) {
+			formattedNumber = ' ' + formattedNumber;
+		}
+		
+		return formattedNumber;
+	}
+	
+	/**
+	 * Formats a double to String and pads it with spaces if necessary, including sign
+	 * @param num to be formated
+	 * @param before number of digits before decimal point
+	 * @param after number of digits after decimal point
+	 * @return formated String
+	 */
+	public static String formatDouble(double num, int before, int after) {
+		return formatDouble(num, before, after, true);
 	}
 }

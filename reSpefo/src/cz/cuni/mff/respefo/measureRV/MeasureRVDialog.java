@@ -15,7 +15,8 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import cz.cuni.mff.respefo.util.Util;
+import cz.cuni.mff.respefo.util.FileType;
+import cz.cuni.mff.respefo.util.FileUtils;
 
 public class MeasureRVDialog extends Dialog {
 	private Shell parent;
@@ -297,7 +298,7 @@ public class MeasureRVDialog extends Dialog {
 	}
 	
 	private void browseForSpectrumFileAndValidate() {
-		String fileName = Util.openFileDialog(Util.SPECTRUM_LOAD);
+		String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM);
 		
 		if (fileName != null) {
 			spectrumField.setText(fileName);
@@ -331,7 +332,7 @@ public class MeasureRVDialog extends Dialog {
 	}
 	
 	private void addStlFileToListAndValidate(List list) {
-		String fileName = Util.openFileDialog(Util.STL_LOAD);
+		String fileName = FileUtils.fileOpenDialog(FileType.LST);
 		
 		if (fileName != null) {
 			list.add(fileName);

@@ -16,8 +16,8 @@ import org.eclipse.swt.events.SelectionListener;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.SpefoException;
 import cz.cuni.mff.respefo.measureRV.RVResults;
+import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.Message;
-import cz.cuni.mff.respefo.util.Util;
 
 public class RVResultItemListener implements SelectionListener {
 	private static RVResultItemListener instance;
@@ -92,9 +92,9 @@ public class RVResultItemListener implements SelectionListener {
 				LstFileRecord record = lstFile.getAt(i);
 				RVResults results = rvResultsList[i];
 				
-				writer.print(Util.formatDouble(record.getIndex(), 3, 0, false) + "\t");
-				writer.print(Util.formatDouble(record.getJulianDate(), 5, 4, false) + "\t");
-				writer.print(Util.formatDouble(record.getRvCorr(), 2, 2, true));
+				writer.print(MathUtils.formatDouble(record.getIndex(), 3, 0, false) + "\t");
+				writer.print(MathUtils.formatDouble(record.getJulianDate(), 5, 4, false) + "\t");
+				writer.print(MathUtils.formatDouble(record.getRvCorr(), 2, 2, true));
 				
 				if (results == null) {
 					continue;
@@ -109,7 +109,7 @@ public class RVResultItemListener implements SelectionListener {
 						if (results.getRvCorr().isUndefined()) {
 							rv += record.getRvCorr();
 						}
-						writer.print("\t" + Util.formatDouble(rv, 3, 2, true));
+						writer.print("\t" + MathUtils.formatDouble(rv, 3, 2, true));
 					}
 				}
 				writer.println();

@@ -21,9 +21,10 @@ import cz.cuni.mff.respefo.Listeners.FileExportItemListener;
 import cz.cuni.mff.respefo.Listeners.MouseDragListener;
 import cz.cuni.mff.respefo.Listeners.MouseWheelZoomListener;
 import cz.cuni.mff.respefo.util.ChartBuilder;
+import cz.cuni.mff.respefo.util.FileType;
+import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.Message;
-import cz.cuni.mff.respefo.util.Util;
 
 public class ClearCosmicsItemListener implements SelectionListener {
 	private static ClearCosmicsItemListener instance;
@@ -69,7 +70,7 @@ public class ClearCosmicsItemListener implements SelectionListener {
 	private void handle(SelectionEvent event) {
 		ReSpefo.reset();
 		
-		String fileName = Util.openFileDialog(Util.SPECTRUM_LOAD);
+		String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM);
 		if (fileName == null) {
 			LOGGER.log(Level.FINER, "File dialog returned null");
 			return;

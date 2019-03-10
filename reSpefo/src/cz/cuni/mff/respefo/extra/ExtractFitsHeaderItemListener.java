@@ -9,8 +9,9 @@ import org.eclipse.swt.events.SelectionListener;
 import cz.cuni.mff.respefo.FitsSpectrum;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
+import cz.cuni.mff.respefo.util.FileType;
+import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.Message;
-import cz.cuni.mff.respefo.util.Util;
 
 public class ExtractFitsHeaderItemListener implements SelectionListener {
 	private static ExtractFitsHeaderItemListener instance;
@@ -36,7 +37,7 @@ public class ExtractFitsHeaderItemListener implements SelectionListener {
 
 	private void handle(SelectionEvent event) {
 		try {
-			String fileName = Util.openFileDialog(Util.SPECTRUM_LOAD);
+			String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM);
 			
 			FitsSpectrum spectrum = (FitsSpectrum) Spectrum.createFromFile(fileName);
 			

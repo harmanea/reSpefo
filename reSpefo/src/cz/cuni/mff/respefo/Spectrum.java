@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 
 import org.eclipse.swt.SWT;
 
+import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.Message;
-import cz.cuni.mff.respefo.util.Util;
 import nom.tam.fits.FitsException;
 import nom.tam.fits.FitsFactory;
 
@@ -257,7 +257,7 @@ public abstract class Spectrum {
 	 * @throws SpefoException if an error occurred while loading file
 	 */
 	public static final Spectrum createFromFile(String fileName) throws SpefoException {
-		String extension = Util.getFileExtension(fileName);
+		String extension = FileUtils.getFileExtension(fileName);
 		
 		Spectrum result = null;
 		
