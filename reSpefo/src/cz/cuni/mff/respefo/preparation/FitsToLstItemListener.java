@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.swt.events.SelectionEvent;
@@ -20,10 +19,8 @@ import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.SpefoException;
 import cz.cuni.mff.respefo.rvResult.LstFile;
 import cz.cuni.mff.respefo.rvResult.LstFileRecord;
-import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.Message;
 import nom.tam.fits.FitsException;
-import nom.tam.fits.Header;
 
 public class FitsToLstItemListener implements SelectionListener {
 	private static final Logger LOGGER = Logger.getLogger(FitsToLstItemListener.class.toString());

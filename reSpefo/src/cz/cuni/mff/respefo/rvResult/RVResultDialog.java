@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -146,6 +148,14 @@ class RVResultDialog extends Dialog {
         buttonBrowse.addListener(SWT.Selection, event -> browse());
         table.addListener(SWT.Selection, event -> verifySelection());
         table.addListener(SWT.DefaultSelection, event -> selectRvrFile());
+        table.addKeyListener(new KeyAdapter() {
+        	@Override
+        	public void keyPressed(KeyEvent e) {
+        		if (e.keyCode == SWT.DEL) {
+        			removeRvrFile();
+        		}
+        	};
+		});
         buttonSelect.addListener(SWT.Selection, event -> selectRvrFile());
         buttonRemove.addListener(SWT.Selection, event -> removeRvrFile());
         buttonFill.addListener(SWT.Selection, event -> fillFilenamesBelow());

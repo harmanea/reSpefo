@@ -1,6 +1,5 @@
 package cz.cuni.mff.respefo.measureRV;
 
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;

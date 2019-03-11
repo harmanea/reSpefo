@@ -4,7 +4,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.DeviceData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Control;
@@ -25,7 +24,6 @@ import cz.cuni.mff.respefo.preparation.FitsToLstItemListener;
 import cz.cuni.mff.respefo.preparation.PrepareDirectoryItemListener;
 import cz.cuni.mff.respefo.rectify.RectifyItemListener;
 import cz.cuni.mff.respefo.rvResult.RVResultItemListener;
-import cz.cuni.mff.respefo.util.Sleak;
 
 /**
  * Main class responsible for creating a Display and a Shell for the application as well as the main menu
