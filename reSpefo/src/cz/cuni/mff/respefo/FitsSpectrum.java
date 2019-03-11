@@ -207,4 +207,14 @@ public class FitsSpectrum extends Spectrum {
 	public Header getHeader() {
 		return header;
 	}
+	
+	public int getExpTime() {
+		int exp = header.getBigDecimalValue("EXPTIME").intValue();
+		return exp;
+	}
+	
+	public String getDate() {
+		String date = header.getStringValue("DATE-OBS");
+		return date;
+	}
 }

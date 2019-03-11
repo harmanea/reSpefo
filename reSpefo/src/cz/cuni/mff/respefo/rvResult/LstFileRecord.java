@@ -1,6 +1,10 @@
 package cz.cuni.mff.respefo.rvResult;
 
-class LstFileRecord {
+public class LstFileRecord implements Comparable<LstFileRecord> { 
+	public LstFileRecord() {
+		
+	}
+	
 	public LstFileRecord(int index, int exp, double julianDate, double rvCorr, String date) {
 		this.index = index;
 		this.exp = exp;
@@ -18,30 +22,18 @@ class LstFileRecord {
 		this.fileName = fileName;
 	}
 
-	/**
-	 * @return the index
-	 */
 	public int getIndex() {
 		return index;
 	}
 
-	/**
-	 * @return the exp
-	 */
 	public int getExp() {
 		return exp;
 	}
 
-	/**
-	 * @return the julianDate
-	 */
 	public double getJulianDate() {
 		return julianDate;
 	}
-
-	/**
-	 * @return the rvCorr
-	 */
+	
 	public double getRvCorr() {
 		return rvCorr;
 	}
@@ -54,17 +46,11 @@ class LstFileRecord {
 		
 		return tokens[2] + ". " + tokens[1] + ". " + tokens[0];
 	}
-	
-	/**
-	 * @return the date
-	 */
+
 	public String getDate() {
 		return date;
 	}
 	
-	/**
-	 * @return the fileName
-	 */
 	public String getFileName() {
 		return fileName;
 	}
@@ -78,8 +64,41 @@ class LstFileRecord {
 		return Integer.toString(index) + ' ' + date + ' ' + Integer.toString(exp) + ' ' + Double.toString(julianDate)
 				+ ' ' + Double.toString(rvCorr) + ((fileName != null) ? (' ' + fileName) : "");
 	}
+	
+	@Override
+	public int compareTo(LstFileRecord other) {
+		if (this.date == null) {
+			return (other.date == null) ? 0 : 1;
+		} else {
+			return (other.date == null) ? -1 : this.date.compareTo(other.date);
+		}
+	}
 
 	private int index, exp;
 	private double julianDate, rvCorr;
 	private String date, fileName;
+	
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
+	public void setExp(int exp) {
+		this.exp = exp;
+	}
+
+	public void setJulianDate(double julianDate) {
+		this.julianDate = julianDate;
+	}
+
+	public void setRvCorr(double rvCorr) {
+		this.rvCorr = rvCorr;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
 }

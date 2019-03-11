@@ -332,7 +332,7 @@ public class MeasureRVDialog extends Dialog {
 	}
 	
 	private void addStlFileToListAndValidate(List list) {
-		String fileName = FileUtils.fileOpenDialog(FileType.LST);
+		String fileName = FileUtils.fileOpenDialog(FileType.STL, false);
 		
 		if (fileName != null) {
 			list.add(fileName);

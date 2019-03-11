@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.SpefoException;
 
-class LstFile {
+public class LstFile {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 
 	private String header, info, fileName;
@@ -89,30 +89,38 @@ class LstFile {
 		
 	}
 	
-	/**
-	 * @return the fileName
-	 */
+	public LstFile() {
+		records = new ArrayList<>();
+	}
+
 	public String getFileName() {
 		return fileName;
 	}
+	
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
 
-	/**
-	 * @return the header
-	 */
 	public String getHeader() {
 		return header;
 	}
+	
+	public void setHeader(String header) {
+		this.header = header;
+	}
 
-	/**
-	 * @return the info
-	 */
 	public String getInfo() {
 		return info;
 	}
 
-	/**
-	 * @return the records
-	 */
+	public void addRecord(LstFileRecord record) {
+		records.add(record);
+	}
+	
+	public void addRecords(List<LstFileRecord> records) {
+		this.records.addAll(records);
+	}
+	
 	public ArrayList<LstFileRecord> getRecords() {
 		return records;
 	}

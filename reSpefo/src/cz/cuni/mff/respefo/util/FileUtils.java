@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 
 import cz.cuni.mff.respefo.ReSpefo;
@@ -42,6 +43,25 @@ public class FileUtils {
 		}
 		
 		return fileName;
+	}
+	
+	public static String directoryDialog() {
+		return directoryDialog(true);
+	}
+	
+	public static String directoryDialog(boolean saveFilterPath) {
+		DirectoryDialog dialog = new DirectoryDialog(ReSpefo.getShell());
+		
+		dialog.setText("Choose directory");
+		dialog.setFilterPath(ReSpefo.getFilterPath());
+		
+		String directoryName = dialog.open();
+		
+		if (saveFilterPath && directoryName != null) {
+			ReSpefo.setFilterPath(Paths.get(directoryName).toString());
+		}
+		
+		return directoryName;
 	}
 	
 	public static String getFileExtension(String fileName) {

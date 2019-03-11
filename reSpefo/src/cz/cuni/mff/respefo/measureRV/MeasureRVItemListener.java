@@ -149,8 +149,6 @@ public class MeasureRVItemListener implements SelectionListener {
 			return;
 		}
 		
-		ReSpefo.setFilterPath(Paths.get(fileName).getParent().toString());
-		
 		SashForm sashFormOne = new SashForm(ReSpefo.getScene(), SWT.HORIZONTAL);
 		sashFormOne.setLayout(new FillLayout());
 		sashFormOne.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

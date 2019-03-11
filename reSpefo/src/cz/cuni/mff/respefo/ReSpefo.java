@@ -4,6 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.DeviceData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Control;
@@ -24,6 +25,7 @@ import cz.cuni.mff.respefo.preparation.FitsToLstItemListener;
 import cz.cuni.mff.respefo.preparation.PrepareDirectoryItemListener;
 import cz.cuni.mff.respefo.rectify.RectifyItemListener;
 import cz.cuni.mff.respefo.rvResult.RVResultItemListener;
+import cz.cuni.mff.respefo.util.Sleak;
 
 /**
  * Main class responsible for creating a Display and a Shell for the application as well as the main menu
@@ -34,7 +36,7 @@ import cz.cuni.mff.respefo.rvResult.RVResultItemListener;
 public class ReSpefo {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 
-	public static final String VERSION = "0.8.4";
+	public static final String VERSION = "0.8.5";
 
 	private static Display display;
 	private static Shell shell;
@@ -61,12 +63,10 @@ public class ReSpefo {
 		}
 	}
 	 
-
 	public ReSpefo() {
-
 		display = new Display();
 		Display.setAppName("reSpefo");
-		shell = new Shell(display, SWT.APPLICATION_MODAL | SWT.RESIZE);
+		shell = new Shell(display, SWT.SHELL_TRIM);
 		shell.setText("reSpefo (v" + VERSION + ")");
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
@@ -164,7 +164,7 @@ public class ReSpefo {
 		shell.setMenuBar(menuBar);
 		
 		shell.pack();
-		shell.setSize(1000, 1000);
+		shell.setSize(shell.computeSize(1000, 1000));
 		shell.open();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())
