@@ -285,6 +285,7 @@ public class ClearCosmicsItemListener implements SelectionListener {
 	public void escape() {
 		if (summary) {
 			createChart();
+			updateAllSeries(false);
 		}
 	}
 }

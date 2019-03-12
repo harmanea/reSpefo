@@ -103,7 +103,7 @@ public class AsciiSpectrum extends Spectrum {
 			hdu.addValue("CDELT1", getX(1) - getX(0), "Coordinate increment");
 			fits.addHDU(hdu);
 			try {
-				fits.getHDU(0).addValue("SIMPLE", true, "Created by reSpefo v" + ReSpefo.VERSION + " on " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+				fits.getHDU(0).addValue("SIMPLE", true, "Created by reSpefo " + Version.toFullString() + " on " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 			} catch (IOException exception) {
 				LOGGER.log(Level.FINEST, "Couldn't change the SIMPLE value", exception);
 			}

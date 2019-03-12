@@ -17,6 +17,7 @@ import nom.tam.fits.FitsFactory;
  */
 public abstract class Spectrum {
 	protected String name;
+	protected String fileName;
 	
 	protected double[] xSeries;
 	protected double[] ySeries;
@@ -27,6 +28,7 @@ public abstract class Spectrum {
 	protected static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 	
 	protected Spectrum(String fileName) {
+		this.fileName = fileName;
 		name = Paths.get(fileName).getFileName().toString();
 		int pos = name.lastIndexOf('.');
 		if (pos > 0 && pos < name.length() - 1) {
@@ -51,6 +53,16 @@ public abstract class Spectrum {
 	 */
 	public String getName() {
 		return name;
+	}
+	
+	
+	/**
+	 * Returns the file name with which the object was created.
+	 * 
+	 * @return spectrum file name
+	 */
+	public String getFileName() {
+		return this.fileName;
 	}
 	
 	/**

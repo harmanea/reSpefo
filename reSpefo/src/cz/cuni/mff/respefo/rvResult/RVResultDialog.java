@@ -23,7 +23,6 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.SpefoException;
 import cz.cuni.mff.respefo.util.FileType;
 import cz.cuni.mff.respefo.util.FileUtils;
@@ -191,7 +190,7 @@ class RVResultDialog extends Dialog {
 					if (r.hasFileName()) {
 						item.setText(new String[] {Integer.toString(r.getIndex()), r.getFormattedDate(), r.getFileName() + ".rvr"});
 						
-						String fileName = ReSpefo.getFilterPath() + File.separatorChar + r.getFileName().toLowerCase() + ".rvr";
+						String fileName = FileUtils.getFilterPath() + File.separatorChar + r.getFileName().toLowerCase() + ".rvr";
 						if (!Files.exists(Paths.get(fileName))) {
 							item.setForeground(2, table.getDisplay().getSystemColor(SWT.COLOR_RED));
 							

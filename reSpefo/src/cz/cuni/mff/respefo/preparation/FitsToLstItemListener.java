@@ -104,7 +104,7 @@ public class FitsToLstItemListener implements SelectionListener {
 		
 		result.setExp(spectrum.getExpTime());
 		result.setDate(spectrum.getDate());
-		result.setFileName(spectrum.getName());
+		result.setFileName(spectrum.getFileName());
 		
 		return result;
 	}

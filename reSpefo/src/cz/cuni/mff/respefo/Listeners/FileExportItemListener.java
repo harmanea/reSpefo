@@ -1,7 +1,6 @@
 package cz.cuni.mff.respefo.Listeners;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,24 +59,17 @@ public class FileExportItemListener implements SelectionListener {
 		String fileName = FileUtils.fileSaveDialog(FileType.SPECTRUM);
 		
 		if (fileName == null) {
-			LOGGER.log(Level.FINER, "File dialog returned null");
 			return false;
-		} else if (Paths.get(fileName).getParent() != null) {
-			ReSpefo.setFilterPath(Paths.get(fileName).getParent().toString());
 		}
 		
 		File destFile = new File(fileName);
 		if (destFile.exists()) {
 			if (Message.question("File already exists. Would you like to overwrite it?") != SWT.YES) {
-				
-				LOGGER.log(Level.FINER, "Overwrite dialog didn't return yes");
 				return false;
 			}
 		}
 		
 		String extension = FileUtils.getFileExtension(fileName);
-		
-		// TODO remove code repetition
 		switch (extension) {
 		case "":
 		case "txt":

@@ -1,6 +1,8 @@
 package cz.cuni.mff.respefo.util;
 
 import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,6 +13,26 @@ import org.eclipse.swt.widgets.FileDialog;
 import cz.cuni.mff.respefo.ReSpefo;
 
 public class FileUtils {
+	private static final Logger LOGGER = Logger.getLogger(FileUtils.class.getName());
+	
+	private static String filterPath;
+	static {
+		try {
+			filterPath = System.getProperty("user.dir");
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Couldn't determine current user directory", e);
+			filterPath = "";
+		}
+	}
+	
+	public static String getFilterPath() {
+		return filterPath;
+	}
+
+	public static void setFilterPath(String filterPath) {
+		FileUtils.filterPath = filterPath;
+	}
+
 	public static String fileOpenDialog(FileType fileType) {
 		return fileOpenDialog(fileType, true);
 	}
@@ -34,12 +56,12 @@ public class FileUtils {
 		dialog.setFilterNames(new String[] {fileType.filterNames(), "All Files"});
 		dialog.setFilterExtensions(new String[] {fileType.filterExtensions(), "*"});
 		
-		dialog.setFilterPath(ReSpefo.getFilterPath());
+		dialog.setFilterPath(getFilterPath());
 		
 		String fileName = dialog.open();
 		
 		if (saveFilterPath && fileName != null && Paths.get(fileName).getParent() != null) {
-			ReSpefo.setFilterPath(Paths.get(fileName).getParent().toString());
+			setFilterPath(Paths.get(fileName).getParent().toString());
 		}
 		
 		return fileName;
@@ -53,12 +75,12 @@ public class FileUtils {
 		DirectoryDialog dialog = new DirectoryDialog(ReSpefo.getShell());
 		
 		dialog.setText("Choose directory");
-		dialog.setFilterPath(ReSpefo.getFilterPath());
+		dialog.setFilterPath(getFilterPath());
 		
 		String directoryName = dialog.open();
 		
 		if (saveFilterPath && directoryName != null) {
-			ReSpefo.setFilterPath(Paths.get(directoryName).toString());
+			setFilterPath(Paths.get(directoryName).toString());
 		}
 		
 		return directoryName;

@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
+import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.MathUtils;
 
 class RVResultsPrinter {
@@ -32,9 +33,9 @@ class RVResultsPrinter {
 	 * @return True if successful, False if not
 	 */
 	public boolean printResults(Spectrum spectrum) {	
-		File file = new File(ReSpefo.getFilterPath(), spectrum.getName() + ".rvr"); 
+		File file = new File(FileUtils.getFilterPath(), spectrum.getName() + ".rvr"); 
 		for (int num = 1; file.exists(); num++) {
-		    file = new File(ReSpefo.getFilterPath(), spectrum.getName() + "(" + num + ").rvr");
+		    file = new File(FileUtils.getFilterPath(), spectrum.getName() + "(" + num + ").rvr");
 		}
 		
 		try (PrintWriter writer = new PrintWriter(new FileOutputStream(file))) {

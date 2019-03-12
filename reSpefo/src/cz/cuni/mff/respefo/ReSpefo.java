@@ -34,8 +34,6 @@ import cz.cuni.mff.respefo.rvResult.RVResultItemListener;
 public class ReSpefo {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 
-	public static final String VERSION = "0.8.5";
-
 	private static Display display;
 	private static Shell shell;
 	
@@ -50,22 +48,12 @@ public class ReSpefo {
 	private static Spectrum spectrum;
 
 	private static Chart chart;
-	private static String filterPath;
-	static {
-		try {
-			filterPath = System.getProperty("user.dir");
-			LOGGER.log(Level.FINEST, "Filter path set to " + filterPath);
-		} catch (Exception e) {
-			LOGGER.log(Level.WARNING, "Couldn't determine current user directory", e);
-			filterPath = "";
-		}
-	}
 	 
 	public ReSpefo() {
 		display = new Display();
 		Display.setAppName("reSpefo");
 		shell = new Shell(display, SWT.SHELL_TRIM);
-		shell.setText("reSpefo (v" + VERSION + ")");
+		shell.setText("reSpefo (" + Version.toFullString() + ")");
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
@@ -219,18 +207,10 @@ public class ReSpefo {
 	public static void setChart(Chart chart) {
 		ReSpefo.chart = chart;
 	}
-
-	public static String getFilterPath() {
-		return filterPath;
-	}
-
-	public static void setFilterPath(String path) {
-		ReSpefo.filterPath = path;
-	}
 	
 	public static void main(String[] args) {
 	
-		LOGGER.log(Level.INFO, "This is ReSpefo " + VERSION);
+		LOGGER.log(Level.INFO, "This is ReSpefo " + Version.toFullString());
 		new ReSpefo();
 		LOGGER.log(Level.INFO, "Program terminated");
 	}
