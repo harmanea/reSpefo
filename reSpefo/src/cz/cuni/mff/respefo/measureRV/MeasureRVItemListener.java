@@ -128,7 +128,6 @@ public class MeasureRVItemListener implements SelectionListener {
 			xList.add(xList.get(xList.size() - 1) * (1 + deltaRV / SPEED_OF_LIGHT));
 		}
 		double[] newXSeries = xList.stream().mapToDouble(Double::doubleValue).toArray();
-		
 		double[] newYSeries = MathUtils.intep(xSeries, ySeries, newXSeries);
 		xSeries = newXSeries;
 		ySeries = newYSeries;
@@ -247,7 +246,7 @@ public class MeasureRVItemListener implements SelectionListener {
 		if (chart != null && !chart.isDisposed()) {
 			chart.dispose();
 		}
-		chart = ChartBuilder.from(container).setTitle(rvMeasurement.name + " #" + (index + 1) + " (" + rvMeasurement.l0 + ")")
+		chart = ChartBuilder.in(container).setTitle(rvMeasurement.name + " #" + (index + 1) + " (" + rvMeasurement.l0 + ")")
 				.setXAxisLabel("index").setYAxisLabel("relative flux I(λ)")
 				.addLineSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN, tempXSeries, ySeries)
 				.addLineSeries(LineStyle.SOLID, "mirrored", ChartBuilder.BLUE, mirroredXSeries, mirroredYSeries)
@@ -279,7 +278,7 @@ public class MeasureRVItemListener implements SelectionListener {
 		}
 		double newYSeries[] = MathUtils.intep(xSeries, ySeries, newXSeries);
 		
-		chart = ChartBuilder.from(container).setTitle("Press ENTER to finish").setXAxisLabel("index")
+		chart = ChartBuilder.in(container).setTitle("Press ENTER to finish").setXAxisLabel("index")
 				.setYAxisLabel("relative flux I(λ)")
 				.addLineSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN, xSeries, ySeries)
 				.addScatterSeries(PlotSymbolType.CIRCLE, "measurements", ChartBuilder.PINK, newXSeries, newYSeries).adjustRange()

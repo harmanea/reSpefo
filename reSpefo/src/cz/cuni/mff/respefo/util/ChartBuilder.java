@@ -81,7 +81,7 @@ public class ChartBuilder {
 	 * @param shell
 	 *            to be set as chart's parent
 	 */
-	public static ChartBuilder from(Shell shell) {
+	public static ChartBuilder in(Shell shell) {
 		return new ChartBuilder(shell);
 	}
 	
@@ -91,7 +91,7 @@ public class ChartBuilder {
 	 * @param parent
 	 *            to be set as chart's parent
 	 */
-	public static ChartBuilder from(Composite parent) {
+	public static ChartBuilder in(Composite parent) {
 		return new ChartBuilder(parent);
 	}
 	

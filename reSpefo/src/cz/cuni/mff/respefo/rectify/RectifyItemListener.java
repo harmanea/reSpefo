@@ -95,7 +95,7 @@ public class RectifyItemListener implements SelectionListener {
 		if (chart != null && !chart.isDisposed()) {
 			chart.dispose();
 		}
-		chart = ChartBuilder.from(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)")
+		chart = ChartBuilder.in(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)")
 				.setYAxisLabel("relative flux")
 				.addLineSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN,
 						spectrum.getXSeries(), spectrum.getYSeries())
@@ -130,7 +130,7 @@ public class RectifyItemListener implements SelectionListener {
 		if (chart != null && !chart.isDisposed()) {
 			chart.dispose();
 		}
-		chart = ChartBuilder.from(ReSpefo.getScene()).setTitle("press ESC to edit, press ENTER to save")
+		chart = ChartBuilder.in(ReSpefo.getScene()).setTitle("press ESC to edit, press ENTER to save")
 				.setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux I(λ)")
 				.addLineSeries(LineStyle.SOLID, "series", ChartBuilder.GREEN, spectrum.getXSeries(), ySeries)
 				.adjustRange().build();

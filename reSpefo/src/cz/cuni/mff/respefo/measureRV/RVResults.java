@@ -111,7 +111,7 @@ public class RVResults {
 	
 	public String[] getCategories() {
 		return results.stream()
-				.map(result -> result.category).distinct().toArray(String[]::new);
+				.map(result -> result.category).distinct().sorted().toArray(String[]::new);
 	}
 	
 	public RVResult[] getResultsOfCategory(String category) {

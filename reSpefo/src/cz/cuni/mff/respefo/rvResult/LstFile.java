@@ -36,8 +36,8 @@ public class LstFile {
 				// skip table header
 			}
 			
-			int index, exp;
-			double julianDate, rvCorr;
+			int index;
+			double exp, julianDate, rvCorr;
 			String date, name = null;
 			
 			int inc; // used if there is a file name between exp and JD
@@ -52,7 +52,7 @@ public class LstFile {
 					
 					date = tokens[1] + ' ' + tokens[2] + ' ' + tokens[3] + ' ' + tokens[4] + ' ' + tokens[5] + ' ' + tokens[6];
 					
-					exp = Integer.parseInt(tokens[7]);
+					exp = Double.parseDouble(tokens[7]);
 					
 					if (tokens.length > 10) {
 						inc = 1;
@@ -72,7 +72,7 @@ public class LstFile {
 					}
 					
 				} catch (NumberFormatException | IndexOutOfBoundsException e) {
-					LOGGER.log(Level.FINEST, "Skipped line (" + line + ")", e);
+					LOGGER.log(Level.WARNING, "Skipped line (" + line + ")", e);
 					continue;
 				}
 			}

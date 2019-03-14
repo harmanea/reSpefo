@@ -5,7 +5,7 @@ public class LstFileRecord implements Comparable<LstFileRecord> {
 		
 	}
 	
-	public LstFileRecord(int index, int exp, double julianDate, double rvCorr, String date) {
+	public LstFileRecord(int index, double exp, double julianDate, double rvCorr, String date) {
 		this.index = index;
 		this.exp = exp;
 		this.julianDate = julianDate;
@@ -13,7 +13,7 @@ public class LstFileRecord implements Comparable<LstFileRecord> {
 		this.date = date;
 	}
 	
-	public LstFileRecord(int index, int exp, double julianDate, double rvCorr, String date, String fileName) {
+	public LstFileRecord(int index, double exp, double julianDate, double rvCorr, String date, String fileName) {
 		this.index = index;
 		this.exp = exp;
 		this.julianDate = julianDate;
@@ -26,7 +26,7 @@ public class LstFileRecord implements Comparable<LstFileRecord> {
 		return index;
 	}
 
-	public int getExp() {
+	public double getExp() {
 		return exp;
 	}
 
@@ -61,7 +61,7 @@ public class LstFileRecord implements Comparable<LstFileRecord> {
  	
 	@Override
 	public String toString() {
-		return Integer.toString(index) + ' ' + date + ' ' + Integer.toString(exp) + ' ' + Double.toString(julianDate)
+		return Integer.toString(index) + ' ' + date + ' ' + Double.toString(exp) + ' ' + Double.toString(julianDate)
 				+ ' ' + Double.toString(rvCorr) + ((fileName != null) ? (' ' + fileName) : "");
 	}
 	
@@ -74,15 +74,15 @@ public class LstFileRecord implements Comparable<LstFileRecord> {
 		}
 	}
 
-	private int index, exp;
-	private double julianDate, rvCorr;
+	private int index;
+	private double exp, julianDate, rvCorr;
 	private String date, fileName;
 	
 	public void setIndex(int index) {
 		this.index = index;
 	}
 
-	public void setExp(int exp) {
+	public void setExp(double exp) {
 		this.exp = exp;
 	}
 

@@ -41,7 +41,7 @@ public class MathUtils {
 		for (int i = 0; i < xinter.length; i++) {
 			if (xinter[i] < x[0]) {
 				ilow = i + 1;
-				if (Double.isNaN(fillValue)) {
+				if (fillValue == null) {
 					result[i] = y[0];
 				} else {
 					result[i] = fillValue;

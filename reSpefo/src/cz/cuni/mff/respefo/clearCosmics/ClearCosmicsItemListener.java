@@ -102,7 +102,7 @@ public class ClearCosmicsItemListener implements SelectionListener {
 		if (chart != null && !chart.isDisposed()) {
 			chart.dispose();
 		}
-		chart = ChartBuilder.from(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)")
+		chart = ChartBuilder.in(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)")
 				.setYAxisLabel("relative flux I(λ)")
 				.addScatterSeries(PlotSymbolType.CIRCLE, 2, "points", ChartBuilder.GREEN, xSeries, ySeries)
 				.addScatterSeries(PlotSymbolType.CIRCLE, 2, "deleted", ChartBuilder.PINK, new double[] {}, new double[] {})
@@ -128,7 +128,7 @@ public class ClearCosmicsItemListener implements SelectionListener {
 		if (chart != null && !chart.isDisposed()) {
 			chart.dispose();
 		}
-		chart = ChartBuilder.from(ReSpefo.getScene()).setTitle("press ESC to edit, press ENTER to save")
+		chart = ChartBuilder.in(ReSpefo.getScene()).setTitle("press ESC to edit, press ENTER to save")
 				.setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux I(λ)")
 				.addScatterSeries(PlotSymbolType.CIRCLE, 1, "series", ChartBuilder.GREEN, xSeries, ySeries)
 				.adjustRange().build();
