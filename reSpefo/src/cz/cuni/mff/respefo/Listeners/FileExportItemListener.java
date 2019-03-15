@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
@@ -14,7 +13,7 @@ import cz.cuni.mff.respefo.util.FileType;
 import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.Message;
 
-public class FileExportItemListener implements SelectionListener {
+public class FileExportItemListener extends AbstractSelectionListener {
 	private static FileExportItemListener instance;
 	
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
@@ -31,19 +30,7 @@ public class FileExportItemListener implements SelectionListener {
 		return instance;
 	}
 	
-	@Override
-	public void widgetSelected(SelectionEvent event) {
-		LOGGER.log(Level.FINEST, "Export file widget selected");
-		handle(event);
-	}
-	
-	@Override
-	public void widgetDefaultSelected(SelectionEvent event) {
-		LOGGER.log(Level.FINEST, "Import file default widget selected");
-		handle(event);
-	}
-	
-	private void handle(SelectionEvent event) {
+	public void handle(SelectionEvent event) {
 		Spectrum spectrum = ReSpefo.getSpectrum();
 		
 		if (spectrum == null) { 

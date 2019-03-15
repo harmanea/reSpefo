@@ -154,12 +154,12 @@ public class FitsToLstDialog extends Dialog {
 		buttonOk = new Button(compButtons, SWT.PUSH | SWT.CENTER);
 		buttonOk.setText("Ok");
 		buttonOk.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		buttonOk.addListener(SWT.Selection, event -> setStatusAndDisposeShell(true, shell));
+		buttonOk.addListener(SWT.Selection, event -> setStatusAndCloseShell(true, shell));
 
 		buttonCancel = new Button(compButtons, SWT.PUSH | SWT.CENTER);
 		buttonCancel.setText("  Cancel  ");
 		buttonCancel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		buttonCancel.addListener(SWT.Selection, event -> setStatusAndDisposeShell(false, shell));
+		buttonCancel.addListener(SWT.Selection, event -> setStatusAndCloseShell(false, shell));
 
 		shell.pack();
 		shell.open();
@@ -182,9 +182,9 @@ public class FitsToLstDialog extends Dialog {
 		}
 	}
 
-	private void setStatusAndDisposeShell(boolean status, Shell shell) {
+	private void setStatusAndCloseShell(boolean status, Shell shell) {
 		this.status = status;
-		shell.dispose();
+		shell.close();
 	}
 
 	private Button createCheckbox(Shell shell, String text) {

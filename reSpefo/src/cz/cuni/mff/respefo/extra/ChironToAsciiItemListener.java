@@ -6,8 +6,8 @@ import java.io.PrintWriter;
 import java.nio.file.Paths;
 
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 
+import cz.cuni.mff.respefo.Listeners.AbstractSelectionListener;
 import cz.cuni.mff.respefo.util.FileType;
 import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.Message;
@@ -15,7 +15,7 @@ import nom.tam.fits.BasicHDU;
 import nom.tam.fits.Fits;
 import nom.tam.fits.FitsFactory;
 
-public class ChironToAsciiItemListener implements SelectionListener {
+public class ChironToAsciiItemListener extends AbstractSelectionListener {
 	private static ChironToAsciiItemListener instance;
 	
 	private ChironToAsciiItemListener() {}
@@ -27,18 +27,8 @@ public class ChironToAsciiItemListener implements SelectionListener {
 		
 		return instance;
 	}
-	
-	@Override
-	public void widgetDefaultSelected(SelectionEvent event) {
-		handle(event);
-	}
 
-	@Override
-	public void widgetSelected(SelectionEvent event) {
-		handle(event);
-	}
-
-	private void handle(SelectionEvent event) {
+	public void handle(SelectionEvent event) {
 		String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM);
 		
 		if (fileName == null) {

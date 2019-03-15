@@ -159,8 +159,8 @@ class RVResultDialog extends Dialog {
         buttonRemove.addListener(SWT.Selection, event -> removeRvrFile());
         buttonFill.addListener(SWT.Selection, event -> fillFilenamesBelow());
         
-		buttonOk.addListener(SWT.Selection, event -> setStatusAndDisposeShell(true, shell));
-		buttonCancel.addListener(SWT.Selection, event -> setStatusAndDisposeShell(false, shell));
+		buttonOk.addListener(SWT.Selection, event -> setStatusAndCloseShell(true, shell));
+		buttonCancel.addListener(SWT.Selection, event -> setStatusAndCloseShell(false, shell));
         
 		shell.pack();
 		shell.open();
@@ -283,9 +283,9 @@ class RVResultDialog extends Dialog {
 		verifyFields();
 	}
 	
-	private void setStatusAndDisposeShell(boolean status, Shell shell) {
+	private void setStatusAndCloseShell(boolean status, Shell shell) {
 		this.status = status;
-		shell.dispose();
+		shell.close();
 	}
 	
 	private void fillFilenamesBelow() {

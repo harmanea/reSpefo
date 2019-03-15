@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -27,13 +26,14 @@ import cz.cuni.mff.respefo.FitsSpectrum;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
+import cz.cuni.mff.respefo.Listeners.AbstractSelectionListener;
 import cz.cuni.mff.respefo.util.ArrayUtils;
 import cz.cuni.mff.respefo.util.ChartBuilder;
 import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.Message;
 import nom.tam.fits.Header;
 
-public class MeasureRVItemListener implements SelectionListener {
+public class MeasureRVItemListener extends AbstractSelectionListener {
 	private static MeasureRVItemListener instance;
 	
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
@@ -70,20 +70,8 @@ public class MeasureRVItemListener implements SelectionListener {
 		
 		return instance;
 	}
-	
-	@Override
-	public void widgetDefaultSelected(SelectionEvent event) {
-		LOGGER.log(Level.FINEST, "Measure RV widget default selected");
-		handle(event);
-	}
 
-	@Override
-	public void widgetSelected(SelectionEvent event) {
-		LOGGER.log(Level.FINEST, "Measure RV widget selected");
-		handle(event);
-	}
-
-	private void handle(SelectionEvent event) {
+	public void handle(SelectionEvent event) {
 		ReSpefo.reset();
 		
 		MeasureRVDialog dialog = new MeasureRVDialog(ReSpefo.getShell());

@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.swtchart.Chart;
 import org.swtchart.IAxis;
 import org.swtchart.ILineSeries;
@@ -17,6 +16,7 @@ import org.swtchart.ILineSeries.PlotSymbolType;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
+import cz.cuni.mff.respefo.Listeners.AbstractSelectionListener;
 import cz.cuni.mff.respefo.Listeners.FileExportItemListener;
 import cz.cuni.mff.respefo.Listeners.MouseDragListener;
 import cz.cuni.mff.respefo.Listeners.MouseWheelZoomListener;
@@ -26,7 +26,7 @@ import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.Message;
 
-public class ClearCosmicsItemListener implements SelectionListener {
+public class ClearCosmicsItemListener extends AbstractSelectionListener {
 	private static ClearCosmicsItemListener instance;
 	
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
@@ -53,21 +53,7 @@ public class ClearCosmicsItemListener implements SelectionListener {
 		return instance;
 	}
 	
-	@Override
-	public void widgetDefaultSelected(SelectionEvent event) {
-		LOGGER.log(Level.FINEST, "Clear Cosmics widget default selected");
-
-		handle(event);
-	}
-
-	@Override
-	public void widgetSelected(SelectionEvent event) {
-		LOGGER.log(Level.FINEST, "Clear Cosmics widget selected");
-		
-		handle(event);
-	}
-	
-	private void handle(SelectionEvent event) {
+	public void handle(SelectionEvent event) {
 		ReSpefo.reset();
 		
 		String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM);

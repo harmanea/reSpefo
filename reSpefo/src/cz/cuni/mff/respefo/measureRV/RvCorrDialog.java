@@ -109,7 +109,7 @@ public class RvCorrDialog extends Dialog {
 		confirmButton = new Button(shell, SWT.PUSH);
 		confirmButton.setText("Confirm");
 		confirmButton.setLayoutData(new GridData(SWT.CENTER, SWT.BOTTOM, false, false));
-		confirmButton.addListener(SWT.Selection, event -> setStatusAndDisposeShell(true, shell));
+		confirmButton.addListener(SWT.Selection, event -> setStatusAndCloseShell(true, shell));
 		
 		shell.setDefaultButton(confirmButton);
 		
@@ -174,8 +174,8 @@ public class RvCorrDialog extends Dialog {
 		}
 	}
 	
-	private void setStatusAndDisposeShell(boolean status, Shell shell) {
+	private void setStatusAndCloseShell(boolean status, Shell shell) {
 		this.status = status;
-		shell.dispose();
+		shell.close();
 	}
 }

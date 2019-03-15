@@ -94,7 +94,7 @@ class MeasurementInputDialog extends Dialog {
 			textOne.addListener(SWT.Modify, event -> buttonConfirm.setEnabled(!textOne.getText().equals("")));
 		}
 
-		buttonConfirm.addListener(SWT.Selection, event -> setValueCommentAndDisposeShell(textOne, textTwo, shell));
+		buttonConfirm.addListener(SWT.Selection, event -> setValueCommentAndCloseShell(textOne, textTwo, shell));
 		buttonCancel.addListener(SWT.Selection, event -> shell.dispose());
 
 		shell.pack();
@@ -108,9 +108,9 @@ class MeasurementInputDialog extends Dialog {
 		return value;
 	}
 	
-	private void setValueCommentAndDisposeShell(Text valueText, Text commentText, Shell shell) {
+	private void setValueCommentAndCloseShell(Text valueText, Text commentText, Shell shell) {
 		value = valueText.getText();
 		comment = commentText.getText();
-		shell.dispose();
+		shell.close();
 	}
 }

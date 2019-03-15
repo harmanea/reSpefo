@@ -147,11 +147,11 @@ class RVStepDialog extends Dialog {
 				}
 				status = true;
 				
-				shell.dispose();
+				shell.close();
 			}
 		});
 
-		buttonCancel.addListener(SWT.Selection, event -> shell.dispose());
+		buttonCancel.addListener(SWT.Selection, event -> shell.close());
         
 		shell.pack();
 		shell.open();

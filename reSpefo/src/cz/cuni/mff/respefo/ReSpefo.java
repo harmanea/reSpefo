@@ -24,6 +24,7 @@ import cz.cuni.mff.respefo.preparation.FitsToLstItemListener;
 import cz.cuni.mff.respefo.preparation.PrepareDirectoryItemListener;
 import cz.cuni.mff.respefo.rectify.RectifyItemListener;
 import cz.cuni.mff.respefo.rvResult.RVResultItemListener;
+import cz.cuni.mff.respefo.util.Message;
 
 /**
  * Main class responsible for creating a Display and a Shell for the application as well as the main menu
@@ -148,6 +149,7 @@ public class ReSpefo {
 		
 		
 		shell.setMenuBar(menuBar);
+		shell.addListener(SWT.Close, event -> event.doit = Message.question("Are you sure you want to quit?") == SWT.YES);
 		
 		shell.pack();
 		shell.setSize(shell.computeSize(1000, 1000));

@@ -7,7 +7,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Label;
@@ -23,7 +22,7 @@ import cz.cuni.mff.respefo.util.FileType;
 import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.Message;
 
-public class FileImportItemListener implements SelectionListener {
+public class FileImportItemListener extends AbstractSelectionListener {
 	private static FileImportItemListener instance;
 	
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
@@ -39,20 +38,8 @@ public class FileImportItemListener implements SelectionListener {
 		
 		return instance;
 	}
-
-	@Override
-	public void widgetSelected(SelectionEvent event) {
-		LOGGER.log(Level.FINEST, "Import file widget selected");
-		handle(event);
-	}
-
-	@Override
-	public void widgetDefaultSelected(SelectionEvent event) {
-		LOGGER.log(Level.FINEST, "Import file widget default selected");
-		handle(event);
-	}
 	
-	private void handle(SelectionEvent event) {	
+	public void handle(SelectionEvent event) {	
 		String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM);
 
 		if (fileName == null) {

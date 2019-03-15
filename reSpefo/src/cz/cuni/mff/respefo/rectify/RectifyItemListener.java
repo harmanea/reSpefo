@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.swtchart.Chart;
 import org.swtchart.IAxis;
 import org.swtchart.ILineSeries;
@@ -16,6 +15,7 @@ import org.swtchart.Range;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
+import cz.cuni.mff.respefo.Listeners.AbstractSelectionListener;
 import cz.cuni.mff.respefo.Listeners.FileExportItemListener;
 import cz.cuni.mff.respefo.Listeners.MouseDragListener;
 import cz.cuni.mff.respefo.Listeners.MouseWheelZoomListener;
@@ -25,7 +25,7 @@ import cz.cuni.mff.respefo.util.FileType;
 import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.Message;
 
-public class RectifyItemListener implements SelectionListener {
+public class RectifyItemListener extends AbstractSelectionListener {
 	private static RectifyItemListener instance;
 	
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
@@ -48,20 +48,8 @@ public class RectifyItemListener implements SelectionListener {
 		
 		return instance;
 	}
-	
-	@Override
-	public void widgetDefaultSelected(SelectionEvent event) {
-		LOGGER.log(Level.FINEST, "Rectify widget default selected");
-		handle(event);
-	}
 
-	@Override
-	public void widgetSelected(SelectionEvent event) {
-		LOGGER.log(Level.FINEST, "Rectify widget selected");
-		handle(event);
-	}
-
-	private void handle(SelectionEvent event) {
+	public void handle(SelectionEvent event) {
 		ReSpefo.reset();
 		
 		String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM);

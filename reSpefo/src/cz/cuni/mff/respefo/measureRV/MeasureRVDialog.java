@@ -239,7 +239,7 @@ public class MeasureRVDialog extends Dialog {
 		
 		buttonOk.addListener(SWT.Selection, event -> confirmAndCloseDialog(shell));
 		
-		buttonCancel.addListener(SWT.Selection, event -> setStatusAndDisposeShell(false, shell));
+		buttonCancel.addListener(SWT.Selection, event -> setStatusAndCloseShell(false, shell));
 		
 		// Pack and open
 		validate();
@@ -318,12 +318,12 @@ public class MeasureRVDialog extends Dialog {
 		} else {
 			rvStep = Double.parseDouble(rvStepField.getText());
 		}
-		setStatusAndDisposeShell(true, shell);
+		setStatusAndCloseShell(true, shell);
 	}
 	
-	private void setStatusAndDisposeShell(boolean status, Shell shell) {
+	private void setStatusAndCloseShell(boolean status, Shell shell) {
 		this.status = status;
-		shell.dispose();
+		shell.close();
 	}
 	
 	private void deselectButtonAndValidate(Button button) {

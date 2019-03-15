@@ -11,15 +11,15 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.SpefoException;
+import cz.cuni.mff.respefo.Listeners.AbstractSelectionListener;
 import cz.cuni.mff.respefo.measureRV.RVResults;
 import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.Message;
 
-public class RVResultItemListener implements SelectionListener {
+public class RVResultItemListener extends AbstractSelectionListener {
 	private static RVResultItemListener instance;
 	
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
@@ -35,22 +35,8 @@ public class RVResultItemListener implements SelectionListener {
 		
 		return instance;
 	}
-	
-	@Override
-	public void widgetDefaultSelected(SelectionEvent event) {
-		LOGGER.log(Level.FINEST, "RV Result widget default selected");
-		
-		handle(event);
-	}
 
-	@Override
-	public void widgetSelected(SelectionEvent event) {
-		LOGGER.log(Level.FINEST, "RV Result widget selected");
-		
-		handle(event);
-	}
-
-	private void handle(SelectionEvent event) {
+	public void handle(SelectionEvent event) {
 		RVResultDialog dialog = new RVResultDialog(ReSpefo.getShell());
 		if (!dialog.open()) {
 			return;

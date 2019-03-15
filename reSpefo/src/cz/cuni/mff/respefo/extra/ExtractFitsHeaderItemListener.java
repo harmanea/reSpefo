@@ -4,16 +4,16 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 
 import cz.cuni.mff.respefo.FitsSpectrum;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
+import cz.cuni.mff.respefo.Listeners.AbstractSelectionListener;
 import cz.cuni.mff.respefo.util.FileType;
 import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.Message;
 
-public class ExtractFitsHeaderItemListener implements SelectionListener {
+public class ExtractFitsHeaderItemListener extends AbstractSelectionListener {
 	private static ExtractFitsHeaderItemListener instance;
 	private ExtractFitsHeaderItemListener() {}
 	
@@ -24,18 +24,8 @@ public class ExtractFitsHeaderItemListener implements SelectionListener {
 		
 		return instance;
 	}
-	
-	@Override
-	public void widgetDefaultSelected(SelectionEvent event) {
-		handle(event);
-	}
 
-	@Override
-	public void widgetSelected(SelectionEvent event) {
-		handle(event);
-	}
-
-	private void handle(SelectionEvent event) {
+	public void handle(SelectionEvent event) {
 		try {
 			String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM);
 			
