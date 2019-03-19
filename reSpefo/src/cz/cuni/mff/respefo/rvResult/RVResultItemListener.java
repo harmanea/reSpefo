@@ -65,7 +65,6 @@ public class RVResultItemListener extends AbstractSelectionListener {
 		
 		try (PrintWriter writer = new PrintWriter(new FileOutputStream(file))) {
 			writer.println(lstFile.getHeader());
-			writer.println(lstFile.getInfo());
 			writer.println();
 			
 			writer.print("  N.\tJul. date \t corr \t");

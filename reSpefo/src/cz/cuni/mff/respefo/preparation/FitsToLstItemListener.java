@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collector;
@@ -47,7 +48,10 @@ public class FitsToLstItemListener extends AbstractSelectionListener {
 			return;
 		}
 		boolean nestedDirectories = dialog.isNestedDirectories();
-		String header = dialog.getHeader();
+		String header = Optional.ofNullable(dialog.getHeader()).orElse("");
+		for (long i = header.chars().filter(ch -> ch == '\n').count(); i < 3; ++i) {
+			header += '\n';
+		}
 		
 		try (Stream<Path> paths = Files.walk(Paths.get(directoryName), nestedDirectories ? Integer.MAX_VALUE : 1)) {
 			LstFile file = paths.parallel()
@@ -68,9 +72,15 @@ public class FitsToLstItemListener extends AbstractSelectionListener {
 			file.setFileName(fileName);
 			file.setHeader(header);
 			
-			file.getRecords().stream().forEach(System.out::println);
+			for (int i = 0; i < file.recordsCount(); ++i) {
+				file.getAt(i).setIndex(i + 1);
+			}
+			
+			file.save();
 		} catch (IOException exception) {
-			Message.error("Error reading files", exception);
+			Message.error("Error reading files.", exception);
+		} catch (SpefoException exception) {
+			Message.error("Error saving file.", exception);
 		}
 	}
 	
@@ -89,11 +99,11 @@ public class FitsToLstItemListener extends AbstractSelectionListener {
 		}
 	}
 	
-	private LstFileRecord lstFileRecordFromSpectrum(FitsSpectrum spectrum) { // TODO this needs to be better
+	private LstFileRecord lstFileRecordFromSpectrum(FitsSpectrum spectrum) {
 		LstFileRecord result = new LstFileRecord();
 		
 		result.setExp(spectrum.getExpTime());
-		result.setDate(spectrum.getDate());
+		result.setDate(spectrum.getLstDate());
 		result.setFileName(spectrum.getFileName());
 		
 		return result;

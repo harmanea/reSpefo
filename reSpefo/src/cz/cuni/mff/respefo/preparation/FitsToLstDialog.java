@@ -138,9 +138,7 @@ public class FitsToLstDialog extends Dialog {
 
 		headerField = new Text(shell, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
 		headerField.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		headerField.addListener(SWT.Modify, event -> {
-			header = headerField.getText();
-		});
+		headerField.addListener(SWT.Modify, event -> verifyAndSetHeader());
 
 		// Part four
 
@@ -163,7 +161,7 @@ public class FitsToLstDialog extends Dialog {
 
 		shell.pack();
 		shell.open();
-		shell.setSize(600, 550);
+		shell.setSize(600, 500);
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())
 				display.sleep();
@@ -179,6 +177,18 @@ public class FitsToLstDialog extends Dialog {
 			directoryField.setText(directoryName);
 			directoryField.setSelection(directoryField.getText().length());
 			this.directoryName = directoryName;
+		}
+	}
+	
+	private void verifyAndSetHeader() {
+		if (headerField.getLineCount() > 4) {
+			headerField.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+			headerField.setToolTipText("Header can only have up to four lines.");
+		} else {
+			headerField.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_FOREGROUND));
+			headerField.setToolTipText(null);
+			
+			header = headerField.getText();
 		}
 	}
 

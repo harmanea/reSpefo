@@ -47,16 +47,16 @@ public class ArrayUtils {
 	
 	/**
 	 * Divide all array entries by values in another array
-	 * @param a1 array to be divided
-	 * @param a2 array to divide with
+	 * @param numerators array to be divided
+	 * @param denominators array to divide with
 	 * @return adjusted array
 	 */
-	public static double[] divideArrayValues(double[] a1, double[] a2) {
-		if (a1.length != a2.length) {
+	public static double[] divideArrayValues(double[] numerators, double[] denominators) {
+		if (numerators.length != denominators.length) {
 			throw new IllegalArgumentException("Arrays must be of equal length");
 		}
 		
-		return IntStream.range(0, a1.length).mapToDouble(i -> a1[i] / a2[i]).toArray();
+		return IntStream.range(0, numerators.length).mapToDouble(i -> numerators[i] / denominators[i]).toArray();
 	}
 	
 	/**
