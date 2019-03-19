@@ -4,11 +4,18 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import org.eclipse.swt.SWT;
@@ -29,13 +36,12 @@ public class FitsSpectrum extends Spectrum {
 	private static final String[] FILE_EXTENSIONS = {"fits", "fit", "fts"};
 	
 	private Header header;
+	private LocalDateTime date;
 
 	public FitsSpectrum(String fileName) throws SpefoException, FitsException {
 		super(fileName);
-		LOGGER.log(Level.FINEST, "Creating a new FitsSpectrum (" + name + ")");
 		
 		try (Fits f = new Fits(fileName)) {
-			LOGGER.log(Level.FINER, "Opened a file (" + fileName + ")");
 			BasicHDU<?>[] HDUs = f.read();
 			
 			if (HDUs.length == 0) {
@@ -48,13 +54,11 @@ public class FitsSpectrum extends Spectrum {
 					.findFirst().orElseThrow(() -> new SpefoException("No ImageHDU in the FITS file."));
 			
 			Object data = imageHdu.getKernel();
-			
 			if (data == null || !data.getClass().isArray()) {
 				throw new SpefoException("The HDU does not contain array data.");
 			}
 			
 			int nDims = 1 + data.getClass().getName().lastIndexOf('[');
-			
 			if (nDims > 1) {
 				throw new SpefoException("The data array is " + nDims + "-dimensional.");
 			}
@@ -100,6 +104,7 @@ public class FitsSpectrum extends Spectrum {
 			xSeries = ArrayUtils.fillArray(ySeries.length, (1 - CRPIX) * CDELT + CRVAL, CDELT);
 			
 			header = imageHdu.getHeader();
+			parseDate();
 		} catch (IOException | ClassCastException exception) {
 			LOGGER.log(Level.WARNING, "Error while reading file", exception);
 			throw new SpefoException(exception.getClass().getName() + " occurred!");
@@ -149,8 +154,7 @@ public class FitsSpectrum extends Spectrum {
 		}
 	}
 
-	// TODO this could be more elegant
-	private static final List<String> ignoredKeys = Arrays.asList(new String[]{"", "END", "BITPIX", "NAXIS", "NAXIS1", "EXTEND", "CRPIX1", "CRVAL1", "CDELT1", "SIMPLE"});
+	private static final Set<String> ignoredKeys = new HashSet<>( Arrays.asList(new String[]{"", "END", "BITPIX", "NAXIS", "NAXIS1", "EXTEND", "CRPIX1", "CRVAL1", "CDELT1", "SIMPLE"}));
 	
 	@Override
 	public boolean exportToFits(String fileName) {
@@ -212,7 +216,47 @@ public class FitsSpectrum extends Spectrum {
 		return header.getBigDecimalValue("EXPTIME").doubleValue();
 	}
 	
-	public String getDate() {
-		return header.getStringValue("DATE-OBS");
+	public String getLstDate() {
+		if (date.equals(LocalDateTime.MIN)) {
+			return "0000 00 00 00 00 00";
+		} else {
+			return date.format(DateTimeFormatter.ofPattern("yyyy MM dd HH mm ss"));
+		}
+	}
+	
+	private void parseDate() {
+		String dateValue = header.getStringValue("DATE-OBS");
+		if (parseDateTime(dateValue)) {
+			return;
+		}
+		
+		String timeValue = header.getStringValue("UT");
+		if (parseDateAndTime(dateValue, timeValue)) {
+			return;
+		}
+		
+		date = LocalDateTime.MIN;
+	}
+	
+	private boolean parseDateTime(String dateTimeValue) {
+		try {
+			date = LocalDateTime.parse(dateTimeValue);
+			return true;
+			
+		} catch (Exception exception) {
+			return false;
+		}
+	}
+	
+	private boolean parseDateAndTime(String dateValue, String timeValue) {
+		try {
+			LocalDate localDate = LocalDate.parse(dateValue);
+			LocalTime localTime = LocalTime.parse(timeValue);
+			date = localDate.atTime(localTime);
+			
+			return true;
+		} catch (Exception exception) {
+			return false;
+		}
 	}
 }

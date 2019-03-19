@@ -149,6 +149,8 @@ public class MathUtils {
 	public static double round(double number, int precision) {
 	    if (precision < 0) {
 	    	throw new IllegalArgumentException("Precision must be a positive value.");
+	    } else if (Double.isNaN(number) || Double.isInfinite(number)) {
+	    	return number;
 	    }
 
 	    BigDecimal bigDecimal = new BigDecimal(number);
@@ -223,18 +225,55 @@ public class MathUtils {
 	
 	
 	/**
-	 * Formats a double to String and pads it with spaces if necessary
-	 * @param num to be formated
+	 * Formats a double to String and pads it with spaces from the left if necessary
+	 * @param number to be formated
 	 * @param before number of digits before decimal point
 	 * @param after number of digits after decimal point
 	 * @param sign include sign
-	 * @return formated String
+	 * @return formatted String
 	 */
-	public static String formatDouble(double num, int before, int after, boolean sign) {
+	public static String formatDouble(double number, int before, int after, boolean sign) {
 		String format = "%" + (sign ? " " : "") + before + "." + after + "f";
-		String formattedNumber = String.format(format, num);
+		return formatNumber(number, format, before + after + (sign ? 2 : 1));
+	}
+	
+	/**
+	 * Formats a double to String and pads it with spaces from the left if necessary, including sign
+	 * @param number to be formated
+	 * @param before number of digits before decimal point
+	 * @param after number of digits after decimal point
+	 * @return formatted String
+	 */
+	public static String formatDouble(double number, int before, int after) {
+		return formatDouble(number, before, after, true);
+	}
+	
+	/**
+	 * Formats an integer to String and pads it with spaces from the left if necessary
+	 * @param number to be formatted
+	 * @param digits number of digits to show
+	 * @param sign include sign
+	 * @return formatted String
+	 */
+	public static String formatInteger(int number, int digits, boolean sign) {
+		String format = "%" + (sign ? " " : "") + digits + "d";
+		return formatNumber(number, format, digits + (sign ? 1 : 0));
+	}
+	
+	/**
+	 * Formats an integer to String and pads it with spaces from the left if necessary, including sign
+	 * @param number to be formatted
+	 * @param digits number of digits to show
+	 * @return formatted String
+	 */
+	public static String formatInteger(int number, int digits) {
+		return formatInteger(number, digits, true);
+	}
+	
+	private static String formatNumber(Object number, String format, int targetLength) {
+		String formattedNumber = String.format(format, number);
 		
-		for (int i = formattedNumber.length(); i <  before + after + (sign ? 2 : 1); i++) {
+		for (int i = formattedNumber.length(); i <  targetLength; i++) {
 			formattedNumber = ' ' + formattedNumber;
 		}
 		
@@ -242,13 +281,17 @@ public class MathUtils {
 	}
 	
 	/**
-	 * Formats a double to String and pads it with spaces if necessary, including sign
-	 * @param num to be formated
-	 * @param before number of digits before decimal point
-	 * @param after number of digits after decimal point
-	 * @return formated String
+	 * Transform an index to wavelength using Taylor polynomials
+	 * @param index
+	 * @param coefficients array of polynomial coefficients
+	 * @return wavelength
 	 */
-	public static String formatDouble(double num, int before, int after) {
-		return formatDouble(num, before, after, true);
+	public static double indexToLambda(double index, double[] coefficients) {
+		double result = coefficients[5];
+		for (int i = 4; i >= 0; --i) {
+			result *= index;
+			result += coefficients[i];
+		}
+		return result;
 	}
 }

@@ -1,8 +1,13 @@
 package cz.cuni.mff.respefo.rvResult;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -10,11 +15,12 @@ import java.util.logging.Logger;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.SpefoException;
+import cz.cuni.mff.respefo.util.MathUtils;
 
 public class LstFile {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 
-	private String header, info, fileName;
+	private String header, fileName;
 	private ArrayList<LstFileRecord> records;
 	
 	public LstFile(String fileName) throws SpefoException {
@@ -24,13 +30,14 @@ public class LstFile {
 			String line;
 			String tokens[];
 			
-			header = br.readLine();
-			
-			List<String> infoLines = new ArrayList<>();
-			while (!(line = br.readLine()).isEmpty()) {
-				infoLines.add(line);
+			List<String> headerLines = new ArrayList<>();
+			for (int i = 0; i < 4; ++i) {
+				line = br.readLine();
+				if (!line.isEmpty()) {
+					headerLines.add(line);
+				}
 			}
-			info = String.join("\n", infoLines);
+			header = String.join("\n", headerLines);
 			
 			while (!(line = br.readLine()).isEmpty()) {
 				// skip table header
@@ -40,7 +47,7 @@ public class LstFile {
 			double exp, julianDate, rvCorr;
 			String date, name = null;
 			
-			int inc; // used if there is a file name between exp and JD
+			int offset; // used if there is a file name between exp and JD
 			
 			records = new ArrayList<>();
 			
@@ -55,17 +62,17 @@ public class LstFile {
 					exp = Double.parseDouble(tokens[7]);
 					
 					if (tokens.length > 10) {
-						inc = 1;
+						offset = 1;
 						
 						name = tokens[8];
 					} else {
-						inc = 0;
+						offset = 0;
 					}
 					
-					julianDate = Double.parseDouble(tokens[8 + inc]);
+					julianDate = Double.parseDouble(tokens[8 + offset]);
 					
-					rvCorr = Double.parseDouble(tokens[9 + inc]);
-					if (inc == 0) {
+					rvCorr = Double.parseDouble(tokens[9 + offset]);
+					if (offset == 0) {
 						records.add(new LstFileRecord(index, exp, julianDate, rvCorr, date));
 					} else {
 						records.add(new LstFileRecord(index, exp, julianDate, rvCorr, date, name));
@@ -76,15 +83,9 @@ public class LstFile {
 					continue;
 				}
 			}
-			
-		} catch (IOException e) {
-			LOGGER.log(Level.WARNING, "Error while reading file", e);
-			// TODO specialized exception?
-			throw new SpefoException("IOException occurred!");
-		} catch (NullPointerException e) {
-			LOGGER.log(Level.WARNING, "File has invalid format", e);
-			// TODO specialized exception?
-			throw new SpefoException("NullPointerException occurred!");
+
+		} catch (IOException | NullPointerException e) {
+			throw new SpefoException(e.getMessage());
 		}
 		
 	}
@@ -109,10 +110,6 @@ public class LstFile {
 		this.header = header;
 	}
 
-	public String getInfo() {
-		return info;
-	}
-
 	public void addRecord(LstFileRecord record) {
 		records.add(record);
 	}
@@ -131,5 +128,38 @@ public class LstFile {
 	
 	public int recordsCount() {
 		return records.size();
+	}
+	
+	public void save() throws SpefoException {
+		File file = new File(fileName);
+		try (PrintWriter wr = new PrintWriter(new FileOutputStream(file))) {
+			wr.println(header);
+			wr.println(getTableHeader());
+			
+			for (LstFileRecord record : records) {
+				wr.println(String.join("\t", 
+								MathUtils.formatInteger(record.getIndex(), 5),
+								record.getDate(),
+								MathUtils.formatDouble(record.getExp(), 5, 3, false),
+								Paths.get(record.getFileName()).getFileName().toString(),
+								MathUtils.formatDouble(record.getJulianDate(), 5, 3),
+								MathUtils.formatDouble(record.getRvCorr(), 3, 2)));
+			}
+			
+		} catch (FileNotFoundException exception) {
+			throw new SpefoException(exception.getMessage());
+		}
+	}
+	
+	public String getTableHeader() { // TODO change this
+		if (records.stream().anyMatch(record -> record.hasFileName())) {
+			return "==============================================================================\n" + 
+					"   N.  Date & UT start       exp[s]      Filename       J.D.hel.  RVcorr\n" + 
+					"==============================================================================\n";
+		} else {
+			return "==============================================================================\n" + 
+					"   N.  Date & UT start       exp[s]                     J.D.hel.  RVcorr\n" + 
+					"==============================================================================\n";
+		}
 	}
 }
