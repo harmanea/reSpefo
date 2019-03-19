@@ -18,11 +18,10 @@ import org.eclipse.swt.widgets.Text;
 public class RvCorrDialog extends Dialog {
 	private double value;
 	private int type;
+	private boolean applyCorrection;
 	
-	private Composite compOne, compTwo, compThree;
-	private Label labelOne, labelTwo, labelThree;
-	private Button helCorrButton, barCorrButton, noneButton, confirmButton;
-	private Text helCorrText, barCorrText;
+	private Button noneButton, appliedButton, notAppliedButton, helCorrButton, barCorrButton, confirmButton;
+	private Text corrText;
 	
 	private boolean status = false;
 
@@ -31,14 +30,15 @@ public class RvCorrDialog extends Dialog {
 		
 		value = Double.NaN;
 		type = UNDEFINED;
+		applyCorrection = false;
 	}
 	
-	public double getValue() {
-		return value;
+	public RvCorrection getCorrection() {
+		return new RvCorrection(type, value);
 	}
 	
-	public int getType() {
-		return type;
+	public boolean applyCorrection() {
+		return applyCorrection;
 	}
 
 	public boolean open() {
@@ -51,60 +51,75 @@ public class RvCorrDialog extends Dialog {
 		layout.marginWidth = 10;
 		shell.setLayout(layout);
 		
-		labelOne = new Label(shell, SWT.LEFT | SWT.WRAP);
+		Label labelOne = new Label(shell, SWT.LEFT | SWT.WRAP);
 		labelOne.setText("No rv correction information was gathered from the spectrum file. Please insert it manually.");
 		labelOne.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 		
-		compOne = new Composite(shell, SWT.NONE);
-		layout = new GridLayout(3, false);
+		
+		Composite compOne = new Composite(shell, SWT.NONE);
+		layout = new GridLayout(3, true);
 		compOne.setLayout(layout);
 		compOne.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
-		helCorrButton = new Button(compOne, SWT.RADIO);
-		helCorrButton.setText("Heliocentric correction:");
-		helCorrButton.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true));
-		helCorrButton.addListener(SWT.Selection, event -> selectRadioButton(helCorrButton));
+		noneButton = new Button(compOne, SWT.TOGGLE);
+		noneButton.setText("Do not specify");
+		noneButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		noneButton.setSelection(true);
+		noneButton.setEnabled(false);
+		noneButton.addListener(SWT.Selection, event -> selectTopButton(noneButton));
 		
-		helCorrText = new Text(compOne, SWT.RIGHT);
-		helCorrText.setText("0");
-		helCorrText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		helCorrText.setEnabled(false);
-		helCorrText.addListener(SWT.Modify, event -> verifyAndSetText(helCorrText));
+		appliedButton = new Button(compOne, SWT.TOGGLE);
+		appliedButton.setText("Correction applied");
+		appliedButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		appliedButton.setSelection(false);
+		appliedButton.addListener(SWT.Selection, event -> selectTopButton(appliedButton));
 		
-		labelTwo = new Label(compOne, SWT.RIGHT);
-		labelTwo.setText("km/s");
-		labelTwo.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
+		notAppliedButton = new Button(compOne, SWT.TOGGLE);
+		notAppliedButton.setText("Apply correction");
+		notAppliedButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		notAppliedButton.setSelection(false);
+		notAppliedButton.addListener(SWT.Selection, event -> selectTopButton(notAppliedButton));
 		
-		compTwo = new Composite(shell, SWT.NONE);
-		layout = new GridLayout(3, false);
+		
+		Composite compTwo = new Composite(shell, SWT.NONE);
+		layout = new GridLayout(2, true);
 		compTwo.setLayout(layout);
 		compTwo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
-		barCorrButton = new Button(compTwo, SWT.RADIO);
-		barCorrButton.setText("Barycentric correction:");
-		barCorrButton.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true));
-		barCorrButton.addListener(SWT.Selection, event -> selectRadioButton(barCorrButton));
+		helCorrButton = new Button(compTwo, SWT.TOGGLE);
+		helCorrButton.setText("Heliocentric correction");
+		helCorrButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		helCorrButton.setSelection(true);
+		helCorrButton.setEnabled(false);
+		helCorrButton.addListener(SWT.Selection, event -> selectBottomButton(helCorrButton));
 		
-		barCorrText = new Text(compTwo, SWT.RIGHT);
-		barCorrText.setText("0");
-		barCorrText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		barCorrText.setEnabled(false);
-		barCorrText.addListener(SWT.Modify, event -> verifyAndSetText(barCorrText));
+		barCorrButton = new Button(compTwo, SWT.TOGGLE);
+		barCorrButton.setText("Barycentric correction");
+		barCorrButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		barCorrButton.setSelection(false);
+		barCorrButton.setEnabled(false);
+		barCorrButton.addListener(SWT.Selection, event -> selectBottomButton(barCorrButton));
 		
-		labelThree = new Label(compTwo, SWT.RIGHT);
-		labelThree.setText("km/s");
-		labelThree.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 		
-		compThree = new Composite(shell, SWT.NONE);
-		layout = new GridLayout(1, false);
+		Composite compThree = new Composite(shell, SWT.NONE);
+		layout = new GridLayout(3, false);
 		compThree.setLayout(layout);
 		compThree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
-		noneButton = new Button(compThree, SWT.RADIO);
-		noneButton.setText("Do not specify.");
-		noneButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		noneButton.setSelection(true);
-		noneButton.addListener(SWT.Selection, event -> selectRadioButton(noneButton));
+		Label labelTwo = new Label(compThree, SWT.LEFT);
+		labelTwo.setText("Value:");
+		labelTwo.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+		
+		corrText = new Text(compThree, SWT.BORDER);
+		corrText.setText("0");
+		corrText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		corrText.setEnabled(false);
+		corrText.addListener(SWT.Modify, event -> verifyAndSetText(corrText));
+		
+		Label labelThree = new Label(compThree, SWT.RIGHT);
+		labelThree.setText("km/s");
+		labelThree.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+		
 		
 		confirmButton = new Button(shell, SWT.PUSH);
 		confirmButton.setText("Confirm");
@@ -115,7 +130,7 @@ public class RvCorrDialog extends Dialog {
 		
 		shell.pack();
 		shell.open();
-		shell.setSize(380, 230);
+		shell.setSize(500, 300);
 		Display display = parent.getDisplay();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())
@@ -125,39 +140,66 @@ public class RvCorrDialog extends Dialog {
 		return status;
 	}
 	
-	private void selectRadioButton(Button selected) {
-		if (selected == helCorrButton) {
-			helCorrText.setEnabled(true);
+	private void selectTopButton(Button selected) {
+		selected.setEnabled(false);
+		applyCorrection = notAppliedButton.getSelection();
+		
+		if (selected == noneButton) {
+			appliedButton.setSelection(false);
+			appliedButton.setEnabled(true);
+			notAppliedButton.setSelection(false);
+			notAppliedButton.setEnabled(true);
 			
-			barCorrButton.setSelection(false);
-			barCorrText.setEnabled(false);
+			helCorrButton.setEnabled(false);
+			barCorrButton.setEnabled(false);
 			
-			noneButton.setSelection(false);
-			
-			verifyAndSetText(helCorrText);
-			
-			type = HELIOCENTRIC;
-		} else if (selected == barCorrButton) {
-			barCorrText.setEnabled(true);
-			
-			helCorrButton.setSelection(false);
-			helCorrText.setEnabled(false);
-			
-			noneButton.setSelection(false);
-			
-			verifyAndSetText(barCorrText);
-			
-			type = BARYCENTRIC;
-		} else if (selected == noneButton) {
-			helCorrButton.setSelection(false);
-			helCorrText.setEnabled(false);
-			
-			barCorrButton.setSelection(false);
-			barCorrText.setEnabled(false);
+			corrText.setEnabled(false);
 			
 			confirmButton.setEnabled(true);
 			
 			type = UNDEFINED;
+		} else if (selected == appliedButton) {
+			noneButton.setSelection(false);
+			noneButton.setEnabled(true);
+			notAppliedButton.setSelection(false);
+			notAppliedButton.setEnabled(true);
+			
+			helCorrButton.setEnabled(!helCorrButton.getSelection());
+			barCorrButton.setEnabled(!barCorrButton.getSelection());
+			
+			corrText.setEnabled(true);	
+			verifyAndSetText(corrText);
+			
+			type = helCorrButton.getSelection() ? HELIOCENTRIC : BARYCENTRIC;
+		} else if (selected == notAppliedButton) {
+			noneButton.setSelection(false);
+			noneButton.setEnabled(true);
+			appliedButton.setSelection(false);
+			appliedButton.setEnabled(true);
+			
+			helCorrButton.setEnabled(!helCorrButton.getSelection());
+			barCorrButton.setEnabled(!barCorrButton.getSelection());
+			
+			corrText.setEnabled(true);
+			verifyAndSetText(corrText);
+			
+			type = helCorrButton.getSelection() ? HELIOCENTRIC : BARYCENTRIC;
+		}
+	}
+	
+	private void selectBottomButton(Button selected) {
+		selected.setEnabled(false);
+		
+		if (selected == helCorrButton) {
+			barCorrButton.setSelection(false);
+			barCorrButton.setEnabled(true);
+			
+			type = HELIOCENTRIC;
+		} else if (selected == barCorrButton) {
+			helCorrButton.setSelection(false);
+			helCorrButton.setEnabled(true);
+			
+			type = BARYCENTRIC;
 		}
 	}
 	

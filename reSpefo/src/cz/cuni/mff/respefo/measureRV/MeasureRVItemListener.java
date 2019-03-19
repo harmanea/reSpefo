@@ -97,10 +97,22 @@ public class MeasureRVItemListener extends AbstractSelectionListener {
 			return;
 		}
 		
-		results.setRvCorr(getRvCorrection());
-		
 		ySeries = spectrum.getYSeries();
 		xSeries = spectrum.getXSeries();
+		
+		RvCorrection rvCorr = getRvCorrectionFromFitsHeader();
+		if (rvCorr == null) {
+			RvCorrDialog corrDialog = new RvCorrDialog(ReSpefo.getShell());
+			if (corrDialog.open()) {
+				rvCorr = corrDialog.getCorrection();
+				if (corrDialog.applyCorrection()) {
+					applyCorrection(rvCorr);
+				}
+			} else {
+				rvCorr = new RvCorrection(RvCorrection.UNDEFINED, Double.NaN);
+			}
+		}
+		results.setRvCorr(rvCorr);
 		
 		for (int i = 0; i < ySeries.length; i++) {
 			if (Double.isNaN(ySeries[i])) {
@@ -198,7 +210,7 @@ public class MeasureRVItemListener extends AbstractSelectionListener {
 		
 		ReSpefo.getScene().layout();
 	}
-	
+
 	private void createChart(RVMeasurement rvMeasurement) {
 		double[] origXSeries = xSeries;
 		double[] tempXSeries = ArrayUtils.fillArray(ySeries.length, 0, 1);
@@ -487,7 +499,7 @@ public class MeasureRVItemListener extends AbstractSelectionListener {
 		}
 	}
 	
-	private RvCorrection getRvCorrection() {
+	private RvCorrection getRvCorrectionFromFitsHeader() {
 		if (spectrum instanceof FitsSpectrum) {
 			FitsSpectrum fitsSpectrum = (FitsSpectrum) spectrum;
 			Header header = fitsSpectrum.getHeader();
@@ -502,12 +514,10 @@ public class MeasureRVItemListener extends AbstractSelectionListener {
 			}
 		}
 		
-		RvCorrDialog dialog = new RvCorrDialog(ReSpefo.getShell());
-		if (dialog.open()) {
-			
-			return new RvCorrection(dialog.getType(), dialog.getValue());
-		} else {
-			return new RvCorrection(RvCorrection.UNDEFINED, Double.NaN);
-		}
+		return null;
+	}
+	
+	private void applyCorrection(RvCorrection rvCorr) {
+		xSeries = Arrays.stream(xSeries).map(value -> value + rvCorr.getValue()*(value / SPEED_OF_LIGHT)).toArray();
 	}
 }
