@@ -5,7 +5,7 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry exported="true" kind="lib" path="/home/adam/Eclipse_Java/libs/org.swtchart_0.10.0.v20160212.jar"/>
 	<classpathentry exported="true" kind="lib" path="/home/adam/Eclipse_Java/libs/nom-tam-fits/fits.jar" sourcepath="/nom-tam-fits"/>
-	<classpathentry exported="true" kind="lib" path="/home/adam/Eclipse_Java/libs/swt/swt_unix64(x86_64).jar"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="/home/adam/Eclipse_Java/libs/swt/swt_unix64(x86_64).jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

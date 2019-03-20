@@ -82,7 +82,7 @@ public class RVResultItemListener extends AbstractSelectionListener {
 				writer.print(MathUtils.formatDouble(record.getRvCorr(), 2, 2, true));
 				
 				if (results == null) {
-					continue;
+					results = new RVResults();
 				}
 				
 				for (String category : categories) {

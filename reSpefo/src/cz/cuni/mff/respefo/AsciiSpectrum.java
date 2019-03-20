@@ -68,6 +68,7 @@ public class AsciiSpectrum extends Spectrum {
 	public boolean exportToAscii(String fileName) {
 		try (PrintWriter writer = new PrintWriter(fileName)) {
 			LOGGER.log(Level.FINER, "Opened a file (" + fileName + ")");
+			writer.println(getName());
 			
 			for (int i = 0; i < getSize(); i++) {
 				writer.print(getX(i));

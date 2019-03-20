@@ -20,6 +20,7 @@ public class RVResults {
 	
 	public RVResults() {
 		results = new ArrayList<>();
+		rvCorr = new RvCorrection(RvCorrection.UNDEFINED, Double.NaN);
 	}
 	
 	public RVResults(String rvrFileName) throws SpefoException {
@@ -115,14 +116,7 @@ public class RVResults {
 	}
 	
 	public RVResult[] getResultsOfCategory(String category) {
-		ArrayList<RVResult> matchingResults = new ArrayList<>();
-		for (RVResult result : results) {
-			if (result.category.equals(category)) {
-				matchingResults.add(result);
-			}
-		}
-		
-		return matchingResults.toArray(new RVResult[matchingResults.size()]);
+		return results.stream().filter(result -> result.category.equals(category)).toArray(RVResult[]::new);
 	}
 	
 	public double getRvOfCategory(String category) {

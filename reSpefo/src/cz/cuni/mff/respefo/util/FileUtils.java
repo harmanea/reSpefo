@@ -1,5 +1,6 @@
 package cz.cuni.mff.respefo.util;
 
+import java.io.File;
 import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -55,8 +56,11 @@ public class FileUtils {
 		dialog.setText(text);
 		dialog.setFilterNames(new String[] {fileType.filterNames(), "All Files"});
 		dialog.setFilterExtensions(new String[] {fileType.filterExtensions(), "*"});
-		
 		dialog.setFilterPath(getFilterPath());
+		
+		if (style == SWT.SAVE && ReSpefo.getSpectrum() != null) {
+			dialog.setFileName(ReSpefo.getSpectrum().getName());
+		}
 		
 		String fileName = dialog.open();
 		
@@ -133,5 +137,14 @@ public class FileUtils {
 		
 		return fileName + fileExtension;
 		
+	}
+	
+	public static File firstPossibleFile(String fileName, String extension) {
+		File file = new File(fileName + "." + extension); 
+		for (int num = 1; file.exists(); num++) {
+		    file = new File(fileName + " (" + num + ")." + extension);
+		}
+		
+		return file;
 	}
 }

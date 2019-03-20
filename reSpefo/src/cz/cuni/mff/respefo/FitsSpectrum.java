@@ -17,6 +17,7 @@ import java.util.stream.IntStream;
 import org.eclipse.swt.SWT;
 
 import cz.cuni.mff.respefo.util.ArrayUtils;
+import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.Message;
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.Fits;
@@ -129,11 +130,12 @@ public class FitsSpectrum extends Spectrum {
 		
 		try (PrintWriter writer = new PrintWriter(fileName)) {
 			LOGGER.log(Level.FINER, "Opened a file (" + fileName + ")");
+			writer.println(getName());
 			
 			for (int i = 0; i < getSize(); i++) {
-				writer.print(getX(i));
+				writer.print(MathUtils.formatDouble(getX(i), 4, 4));
 				writer.print("  ");
-				writer.println(getY(i));
+				writer.println(MathUtils.formatDouble(getY(i), 1, 4));
 			}
 			
 			if (writer.checkError()) {

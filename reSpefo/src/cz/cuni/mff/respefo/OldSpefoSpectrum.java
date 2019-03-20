@@ -1,7 +1,9 @@
 package cz.cuni.mff.respefo;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
@@ -14,6 +16,7 @@ import java.util.stream.IntStream;
 import cz.cuni.mff.respefo.util.ArrayUtils;
 import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.MathUtils;
+import cz.cuni.mff.respefo.util.Message;
 
 public class OldSpefoSpectrum extends Spectrum {
 	private static final String[] FILE_EXTENSIONS = {"uui", "rui", "rci", "rfi"};
@@ -41,7 +44,7 @@ public class OldSpefoSpectrum extends Spectrum {
 			processHeader(data);
 			processBody(data);
 			
-			if (!FileUtils.getFileExtension(fileName).equals(".rui")) {
+			if (FileUtils.getFileExtension(fileName).equals("uui")) {
 				String conFileName = fileName.substring(0, fileName.lastIndexOf('.')) + ".con";
 				File conFile = new File(conFileName);
 				
@@ -79,7 +82,7 @@ public class OldSpefoSpectrum extends Spectrum {
 		
 		byte[] bytes = Arrays.copyOfRange(data, 0, 30);
 		remark = new String(bytes);
-		remark = remark.replaceAll("\00", "");
+		remark = remark.replaceAll("\00", "").trim();
 		
 		bytes = Arrays.copyOfRange(data, 30, 38);
 		usedCal = new String(bytes);
@@ -140,7 +143,7 @@ public class OldSpefoSpectrum extends Spectrum {
 			yList.add((double) num);
 		}
 		ySeries = yList.stream().mapToDouble(Double::doubleValue).toArray();
-		xSeries = ArrayUtils.fillArray(ySeries.length, 1, 1);
+		xSeries = ArrayUtils.fillArray(ySeries.length, 0, 1);
 	}
 	
 	private void readConFile(File conFile) throws Exception {
@@ -191,13 +194,33 @@ public class OldSpefoSpectrum extends Spectrum {
 
 	@Override
 	public boolean exportToAscii(String fileName) {
-		// TODO Auto-generated method stub
-		return false;
+		try (PrintWriter writer = new PrintWriter(fileName)) {
+			LOGGER.log(Level.FINER, "Opened a file (" + fileName + ")");
+			writer.println(remark);
+			
+			for (int i = 0; i < getSize(); i++) {
+				writer.print(MathUtils.formatDouble(getX(i), 4, 4));
+				writer.print("  ");
+				writer.println(MathUtils.formatDouble(getY(i), 1, 4));
+			}
+			
+			if (writer.checkError()) {
+				LOGGER.log(Level.WARNING, "Error while writing to file");
+				return false;
+			} else {
+				LOGGER.log(Level.FINER, "Closing file (" + xSeries.length + "lines written)");
+				return true;
+			}
+			
+		} catch (FileNotFoundException e) {
+			LOGGER.log(Level.WARNING, "Error while writing to file", e);
+			return false;
+		}
 	}
 
 	@Override
 	public boolean exportToFits(String fileName) {
-		// TODO Auto-generated method stub
+		Message.warning("This doesn't work yet.");
 		return false;
 	}
 
