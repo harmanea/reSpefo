@@ -1,4 +1,4 @@
-package cz.cuni.mff.respefo.Listeners;
+package cz.cuni.mff.respefo.listeners;
 
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;

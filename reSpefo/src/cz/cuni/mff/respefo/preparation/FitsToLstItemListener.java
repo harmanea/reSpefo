@@ -17,7 +17,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import cz.cuni.mff.respefo.FitsSpectrum;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.SpefoException;
-import cz.cuni.mff.respefo.Listeners.AbstractSelectionListener;
+import cz.cuni.mff.respefo.listeners.AbstractSelectionListener;
 import cz.cuni.mff.respefo.rvResult.LstFile;
 import cz.cuni.mff.respefo.rvResult.LstFileRecord;
 import cz.cuni.mff.respefo.util.Message;

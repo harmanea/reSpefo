@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.SpefoException;
+import cz.cuni.mff.respefo.util.MathUtils;
 
 public class RVResults {
 	@SuppressWarnings("unused")
@@ -122,6 +123,10 @@ public class RVResults {
 	public double getRvOfCategory(String category) {
 		RVResult[] results = getResultsOfCategory(category);
 		
-		return Arrays.stream(results).mapToDouble(result -> result.rV).average().orElse(Double.NaN);
+		if (results.length < 5) {
+			return Arrays.stream(results).mapToDouble(result -> result.rV).average().orElse(Double.NaN);
+		} else {
+			return MathUtils.robustMean(Arrays.stream(results).mapToDouble(result -> result.rV).toArray());
+		}
 	}
 }

@@ -1,4 +1,4 @@
-package cz.cuni.mff.respefo.Listeners;
+package cz.cuni.mff.respefo.listeners;
 
 import java.io.File;
 import java.util.logging.Level;

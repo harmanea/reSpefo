@@ -3,7 +3,7 @@ package cz.cuni.mff.respefo.rectify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 
-import cz.cuni.mff.respefo.Listeners.DefaultKeyListener;
+import cz.cuni.mff.respefo.listeners.DefaultKeyListener;
 
 public class RectifyKeyListener extends DefaultKeyListener {
 	public RectifyKeyListener() {

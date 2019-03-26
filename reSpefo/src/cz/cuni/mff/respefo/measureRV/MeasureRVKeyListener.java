@@ -4,7 +4,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 
 import cz.cuni.mff.respefo.ReSpefo;
-import cz.cuni.mff.respefo.Listeners.DefaultKeyListener;
+import cz.cuni.mff.respefo.listeners.DefaultKeyListener;
 import cz.cuni.mff.respefo.util.ChartBuilder;
 
 public class MeasureRVKeyListener extends DefaultKeyListener {

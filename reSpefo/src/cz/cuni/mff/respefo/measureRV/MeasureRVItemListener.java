@@ -26,7 +26,7 @@ import cz.cuni.mff.respefo.FitsSpectrum;
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.Spectrum;
 import cz.cuni.mff.respefo.SpefoException;
-import cz.cuni.mff.respefo.Listeners.AbstractSelectionListener;
+import cz.cuni.mff.respefo.listeners.AbstractSelectionListener;
 import cz.cuni.mff.respefo.util.ArrayUtils;
 import cz.cuni.mff.respefo.util.ChartBuilder;
 import cz.cuni.mff.respefo.util.MathUtils;

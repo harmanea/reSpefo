@@ -139,7 +139,7 @@ public class FileUtils {
 		
 	}
 	
-	public static File firstPossibleFile(String fileName, String extension) {
+	public static File firstUniqueFileName(String fileName, String extension) {
 		File file = new File(fileName + "." + extension); 
 		for (int num = 1; file.exists(); num++) {
 		    file = new File(fileName + " (" + num + ")." + extension);

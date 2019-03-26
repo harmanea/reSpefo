@@ -3,7 +3,7 @@ package cz.cuni.mff.respefo.clearCosmics;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 
-import cz.cuni.mff.respefo.Listeners.DefaultKeyListener;
+import cz.cuni.mff.respefo.listeners.DefaultKeyListener;
 
 public class ClearCosmicsKeyListener extends DefaultKeyListener {
 	

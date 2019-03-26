@@ -2,7 +2,7 @@ package cz.cuni.mff.respefo.preparation;
 
 import org.eclipse.swt.events.SelectionEvent;
 
-import cz.cuni.mff.respefo.Listeners.AbstractSelectionListener;
+import cz.cuni.mff.respefo.listeners.AbstractSelectionListener;
 import cz.cuni.mff.respefo.util.Message;
 
 public class PrepareDirectoryItemListener extends AbstractSelectionListener {

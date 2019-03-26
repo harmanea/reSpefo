@@ -30,13 +30,10 @@ class RVResultsPrinter {
 	/**
 	 * Prints the results for a spectrum
 	 * @param spectrum
-	 * @return True if successful, False if not
+	 * @return True if successful, False otherwise
 	 */
 	public boolean printResults(Spectrum spectrum) {	
-		File file = new File(FileUtils.getFilterPath(), spectrum.getName() + ".rvr"); 
-		for (int num = 1; file.exists(); num++) {
-		    file = new File(FileUtils.getFilterPath(), spectrum.getName() + "(" + num + ").rvr");
-		}
+		File file = FileUtils.firstUniqueFileName(FileUtils.getFilterPath() + File.separator + spectrum.getName(), "rvr");
 		
 		try (PrintWriter writer = new PrintWriter(new FileOutputStream(file))) {
 			writer.println("# Summary of radial velocities measured on " + spectrum.getName());
@@ -61,9 +58,15 @@ class RVResultsPrinter {
 					values.add(result.rV);
 				}
 				if (values.size() > 1) {
-					double average = values.stream().mapToDouble(Double::doubleValue).average().getAsDouble();
-					writer.println("Average RV: " + MathUtils.round(average, 4) + "\t (" + values.size() + " values)");
-					writer.println("rms: " + MathUtils.round(MathUtils.rms(values.stream().mapToDouble(Double::doubleValue).toArray(), average),4));
+					double mean = results.getRvOfCategory(category);
+					
+					if (values.size() < 5) {
+						writer.println(String.format("Mean RV: {}", + MathUtils.round(mean, 4)));
+					} else {
+						writer.println(String.format("Robust mean RV: {}\t ({} values)", MathUtils.round(mean, 4), values.size()));
+					}
+					
+					writer.println("rms: " + MathUtils.round(MathUtils.rmse(values.stream().mapToDouble(Double::doubleValue).toArray(), mean),4));
 				}
 				writer.println();
 			}

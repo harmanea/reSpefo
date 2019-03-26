@@ -105,14 +105,89 @@ public class MathUtils {
 		return result;
 	}
 	
+	public static double robustMean(double[] x) {
+		double t;
+		int n = x.length;
+		double[] dd = new double[n];
+		
+		int j, m1, m3, m1old, m3old;
+		double s, ss, sc, z, xu, xl;
+		
+		Arrays.sort(x);
+		
+		m1 = n / 2;
+		t = median(x);
+		for (int i = 0; i < 5; i++) {
+			for (int k = 0; k < n; k++) {
+				dd[k] = Math.abs(x[k] - t);
+			}
+			
+			Arrays.sort(dd);
+			
+			m1 = (n - 1) / 2;
+			m3 = n / 2;
+			
+			s = 2.1 * median(dd);
+			
+			m1old = -1;
+			m3old = -1;
+			
+			while (m1 != m1old && m3 != m3old) {
+				xl = t - Math.PI * s;
+				xu = t + Math.PI * s;
+				
+				j = 0;
+				while (j < n && x[j] <= xl) {
+					j++;
+				}
+				m1 = j - 1;
+				
+				j = n - 1;
+				while (j >= 0 && x[j] >= xu) {
+					j--;
+				}
+				m3 = j + 1;
+				
+				if (m1 != m1old || m3 != m3old) {
+					m1old = m1;
+					m3old = m3;
+					
+					ss = 0;
+					sc = 0;
+					for (j = m1 + 1; j <= m3 - 1; j++) {
+						z = (x[j] - t) / s;
+						ss += Math.sin(z);
+						sc += Math.cos(z);
+					}
+					
+					t += s * Math.atan(ss / sc);
+				}
+			}
+			
+		}
+		
+		return t;
+	}
+	
+	/**
+	 * @param values sorted list
+	 * @return median of the values
+	 */
+	public static double median(double[] values) {
+		if (values.length % 2 == 0)
+		    return (values[values.length / 2] + values[values.length / 2 - 1]) / 2;
+		else
+		    return values[values.length / 2];
+	}
+	
 	/**
 	 * Calculate root mean square.
 	 * @param values
 	 * @return root mean square
 	 */
 	public static double rms(double[] values) {
-		if (values.length == 0) {
-			throw new IllegalArgumentException("Array must contain some values.");
+		if (values.length <= 1) {
+			throw new IllegalArgumentException("Array must contain at least two values.");
 		}
 		
 		double sum = Arrays.stream(values).map(value -> Math.pow(value, 2)).sum();
@@ -125,15 +200,15 @@ public class MathUtils {
 	/**
 	 * Calculate root mean square error
 	 * @param values 
-	 * @param middle predicted value
+	 * @param actual predicted value
 	 * @return root mean square error
 	 */
-	public static double rms(double[] values, double middle) {
-		if (values.length == 0) {
-			throw new IllegalArgumentException("Array must contain some values.");
+	public static double rmse(double[] values, double actual) {
+		if (values.length <= 1) {
+			throw new IllegalArgumentException("Array must contain at least two values.");
 		}
 		
-		double sum = Arrays.stream(values).map(value -> Math.pow(value - middle, 2)).sum();
+		double sum = Arrays.stream(values).map(value -> Math.pow(value - actual, 2)).sum();
 		sum /= values.length;
 		sum /= values.length - 1;
 		

@@ -14,7 +14,7 @@ import org.eclipse.swt.events.SelectionEvent;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.SpefoException;
-import cz.cuni.mff.respefo.Listeners.AbstractSelectionListener;
+import cz.cuni.mff.respefo.listeners.AbstractSelectionListener;
 import cz.cuni.mff.respefo.measureRV.RVResults;
 import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.Message;

@@ -3,7 +3,7 @@ package cz.cuni.mff.respefo.measureRV;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 
-import cz.cuni.mff.respefo.Listeners.MouseWheelZoomListener;
+import cz.cuni.mff.respefo.listeners.MouseWheelZoomListener;
 
 public class MeasureRVMouseWheelZoomListener extends MouseWheelZoomListener {
 	public MeasureRVMouseWheelZoomListener() {
