@@ -126,7 +126,7 @@ public class RVResults {
 		if (results.length < 5) {
 			return Arrays.stream(results).mapToDouble(result -> result.rV).average().orElse(Double.NaN);
 		} else {
-			return MathUtils.robustMean(Arrays.stream(results).mapToDouble(result -> result.rV).toArray());
+			return MathUtils.robustMean(Arrays.stream(results).mapToDouble(result -> result.rV).sorted().toArray());
 		}
 	}
 }

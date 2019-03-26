@@ -1,6 +1,8 @@
 package cz.cuni.mff.respefo.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -65,6 +67,7 @@ public class MathUtilsTest {
 	public void testRobustMean() {
 		double[] values = { 29.3936, 27.9973, 25.5745, 23.6468, 29.7703, 29.4919, 28.4588, 27.6771, 24.1238, 28.1947,
 				30.3977, 26.3970, 27.2327, 23.0827, 33.0418, 31.5371, 34.0490 };
+		Arrays.sort(values);
 		double expected = 28.2193;
 
 		double actual = MathUtils.robustMean(values);
@@ -73,6 +76,7 @@ public class MathUtilsTest {
 
 		values = new double[] { 28.392, 23.949, 28.848, 22.65, 27.622, 27.937, 27.5, 29.081, 26.116, 25.472, 32.387,
 				27.795, 24.517, 25.654, 30.337, 29.419, 30.763, 23.517 };
+		Arrays.sort(values);
 		expected = 27.345;
 
 		actual = MathUtils.robustMean(values);

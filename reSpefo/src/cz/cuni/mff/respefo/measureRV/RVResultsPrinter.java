@@ -61,12 +61,12 @@ class RVResultsPrinter {
 					double mean = results.getRvOfCategory(category);
 					
 					if (values.size() < 5) {
-						writer.println(String.format("Mean RV: {}", + MathUtils.round(mean, 4)));
+						writer.println(String.format("mean RV: %f", + MathUtils.round(mean, 4)));
 					} else {
-						writer.println(String.format("Robust mean RV: {}\t ({} values)", MathUtils.round(mean, 4), values.size()));
+						writer.println(String.format("robust mean RV: %f\t (%d values)", MathUtils.round(mean, 4), values.size()));
 					}
 					
-					writer.println("rms: " + MathUtils.round(MathUtils.rmse(values.stream().mapToDouble(Double::doubleValue).toArray(), mean),4));
+					writer.println("rmse: " + MathUtils.round(MathUtils.rmse(values.stream().mapToDouble(Double::doubleValue).toArray(), mean),4));
 				}
 				writer.println();
 			}

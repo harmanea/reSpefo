@@ -34,7 +34,7 @@ public class MathUtils {
 	 */
 	public static double[] intep(double[] x, double[] y, double[] xinter, Double fillValue) {
 		// create result array
-		double [] result = new double[xinter.length];
+		double[] result = new double[xinter.length];
 		
 		// treat points outside of given bounds
 		int ilow = 0; // lowest index of xinter value in the given bounds
@@ -105,62 +105,62 @@ public class MathUtils {
 		return result;
 	}
 	
-	public static double robustMean(double[] x) {
-		double t;
-		int n = x.length;
+	/**
+	 * Calculates robust mean of given sorted values
+	 * 
+	 * Andrews, D. F. (1972): Robust Estimates of Location,
+	 * Princeton Univ. Press, Princeton
+	 * This implementation is based on the FORTRAN code stated therein.
+	 * 
+	 * @param sorted ascending values
+	 * @return robust mean
+	 */
+	public static double robustMean(double[] values) {
+		int n = values.length;
 		double[] dd = new double[n];
+		double t = median(values);
 		
-		int j, m1, m3, m1old, m3old;
-		double s, ss, sc, z, xu, xl;
-		
-		Arrays.sort(x);
-		
-		m1 = n / 2;
-		t = median(x);
 		for (int i = 0; i < 5; i++) {
 			for (int k = 0; k < n; k++) {
-				dd[k] = Math.abs(x[k] - t);
+				dd[k] = Math.abs(values[k] - t);
 			}
 			
 			Arrays.sort(dd);
+			double s = 2.1 * median(dd);
 			
-			m1 = (n - 1) / 2;
-			m3 = n / 2;
+			int m1 = 0;
+			int m3 = 0;
 			
-			s = 2.1 * median(dd);
-			
-			m1old = -1;
-			m3old = -1;
+			int m1old = -1;
+			int m3old = -1;
 			
 			while (m1 != m1old && m3 != m3old) {
-				xl = t - Math.PI * s;
-				xu = t + Math.PI * s;
+			
+				// Compute Winsorizing counts and decide on stopping
+				double xLower = t - Math.PI * s;
+				double xUpper = t + Math.PI * s;
+
+				for (m1 = 0; m1 < n && values[m1] <= xLower; m1++) {}
+				m1--;
 				
-				j = 0;
-				while (j < n && x[j] <= xl) {
-					j++;
-				}
-				m1 = j - 1;
-				
-				j = n - 1;
-				while (j >= 0 && x[j] >= xu) {
-					j--;
-				}
-				m3 = j + 1;
+				for (m3 = n - 1; m3 >= 0 && values[m3] >= xUpper; m3--) {}
+				m3++;
 				
 				if (m1 != m1old || m3 != m3old) {
+					
 					m1old = m1;
 					m3old = m3;
 					
-					ss = 0;
-					sc = 0;
-					for (j = m1 + 1; j <= m3 - 1; j++) {
-						z = (x[j] - t) / s;
-						ss += Math.sin(z);
-						sc += Math.cos(z);
+					// Update estimate set
+					double sSin = 0;
+					double sCos = 0;
+					for (int j = m1 + 1; j <= m3 - 1; j++) {
+						double z = (values[j] - t) / s;
+						sSin += Math.sin(z);
+						sCos += Math.cos(z);
 					}
 					
-					t += s * Math.atan(ss / sc);
+					t += s * Math.atan(sSin / sCos);
 				}
 			}
 			
