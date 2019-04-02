@@ -22,6 +22,7 @@ import cz.cuni.mff.respefo.listeners.FileQuitItemListener;
 import cz.cuni.mff.respefo.measureRV.MeasureRVItemListener;
 import cz.cuni.mff.respefo.preparation.FitsToLstItemListener;
 import cz.cuni.mff.respefo.preparation.PrepareDirectoryItemListener;
+import cz.cuni.mff.respefo.preparation.UuiToFitsItemListener;
 import cz.cuni.mff.respefo.rectify.RectifyItemListener;
 import cz.cuni.mff.respefo.rvResult.RVResultItemListener;
 import cz.cuni.mff.respefo.util.Message;
@@ -44,7 +45,7 @@ public class ReSpefo {
 	private static MenuItem fileMenuHeader, toolsMenuHeader, extraMenuHeader;
 	private static MenuItem fileQuitItem, fileExportItem, fileImportItem, rectifyItem,
 		measureRVItem, rVResultsItem, clearCosmicsItem, chironToAsciiItem, extractFitsHeaderItem,
-		prepareDirectoryItem, fitsToLstItem;
+		prepareDirectoryItem, fitsToLstItem, UuiToFitsItem;
 
 	private static Spectrum spectrum;
 
@@ -100,6 +101,10 @@ public class ReSpefo {
 		toolsMenu = new Menu(shell, SWT.DROP_DOWN);
 		toolsMenuHeader.setMenu(toolsMenu);
 
+		UuiToFitsItem = new MenuItem(toolsMenu, SWT.PUSH);
+		UuiToFitsItem.setText("UUI to FITS");
+		UuiToFitsItem.addSelectionListener(UuiToFitsItemListener.getInstance());
+		
 		fitsToLstItem = new MenuItem(toolsMenu, SWT.PUSH);
 		fitsToLstItem.setText("FITS to Lst");
 		fitsToLstItem.addSelectionListener(FitsToLstItemListener.getInstance());

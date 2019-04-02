@@ -15,8 +15,6 @@ import cz.cuni.mff.respefo.util.Message;
 public class RVResultItemListener extends AbstractSelectionListener {
 	private static RVResultItemListener instance;
 	
-	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
-	
 	private RVResultItemListener() {
 		LOGGER.log(Level.FINEST, "Creating a new RVResultItemListener");
 	}
