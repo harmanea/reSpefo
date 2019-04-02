@@ -8,6 +8,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -17,6 +19,11 @@ import cz.cuni.mff.respefo.util.ArrayUtils;
 import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.Message;
+import nom.tam.fits.BasicHDU;
+import nom.tam.fits.Fits;
+import nom.tam.fits.FitsException;
+import nom.tam.fits.FitsFactory;
+import nom.tam.util.BufferedFile;
 
 public class OldSpefoSpectrum extends Spectrum {
 	private static final String[] FILE_EXTENSIONS = {"uui", "rui", "rci", "rfi"};
@@ -220,8 +227,29 @@ public class OldSpefoSpectrum extends Spectrum {
 
 	@Override
 	public boolean exportToFits(String fileName) {
-		Message.warning("This doesn't work yet.");
-		return false;
+		double[] data = getYSeries();
+
+		BasicHDU<?> hdu;
+		try (Fits fits = new Fits(); BufferedFile bf = new BufferedFile(fileName, "rw")) {
+			hdu = FitsFactory.hduFactory(data);
+			
+			hdu.addValue("CRPIX1", 1, "Reference pixel");
+			hdu.addValue("CRVAL1", getX(0), "Coordinate at reference pixel");
+			hdu.addValue("CDELT1", getX(1) - getX(0), "Coordinate increment");
+			fits.addHDU(hdu);
+			try {
+				fits.getHDU(0).addValue("SIMPLE", true, "Created by reSpefo " + Version.toFullString() + " on " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+			} catch (IOException exception) {
+				LOGGER.log(Level.FINEST, "Couldn't change the SIMPLE value", exception);
+			}
+
+			fits.write(bf);
+			
+			return true;
+		} catch (FitsException | IOException exception) {
+			LOGGER.log(Level.WARNING, "Error while writing to file", exception);
+			return false;
+		}
 	}
 
 	public String getRemark() {
