@@ -129,4 +129,17 @@ public class RVResults {
 			return MathUtils.robustMean(Arrays.stream(results).mapToDouble(result -> result.rV).sorted().toArray());
 		}
 	}
+	
+	public double getRmseOfCategory(String category) {
+		double rv = getRvOfCategory(category);
+		
+		return getRmseOfCategory(category, rv);
+	}
+	
+	public double getRmseOfCategory(String category, double rv) {
+		double[] rvs = results.stream().filter(result -> result.category.equals(category))
+				.mapToDouble(result -> result.rV).toArray();
+		
+		return MathUtils.rmse(rvs, rv);
+	}
 }

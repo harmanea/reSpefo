@@ -1,14 +1,8 @@
 package cz.cuni.mff.respefo.rvResult;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 import org.eclipse.swt.events.SelectionEvent;
 
@@ -16,7 +10,6 @@ import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.SpefoException;
 import cz.cuni.mff.respefo.listeners.AbstractSelectionListener;
 import cz.cuni.mff.respefo.measureRV.RVResults;
-import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.Message;
 
 public class RVResultItemListener extends AbstractSelectionListener {
@@ -58,53 +51,27 @@ public class RVResultItemListener extends AbstractSelectionListener {
 			}
 		}
 		
-		String[] categories = Arrays.stream(rvResultsList).filter(Objects::nonNull).map(r -> r.getCategories())
-				.flatMap(Stream::of).distinct().sorted().toArray(String[]::new);
+		RVResultsTable table = new RVResultsTable(lstFile, rvResultsList);
+		String fileNameWithoutSuffix = lstFile.getFileName().substring(0, lstFile.getFileName().lastIndexOf('.'));
+		File rvsFile = new File(fileNameWithoutSuffix + ".rvs");
+		File corFile = new File(fileNameWithoutSuffix + ".cor");
 		
-		File file = new File(lstFile.getFileName().substring(0, lstFile.getFileName().lastIndexOf('.')) + ".rvs");
-		
-		try (PrintWriter writer = new PrintWriter(new FileOutputStream(file))) {
-			writer.println(lstFile.getHeader());
-			writer.println();
+		try {
+			table.printToRvsFile(rvsFile);
 			
-			writer.print("  N.\tJul. date \t corr \t");
-			for (String category : categories) {
-				writer.print(category + "\t");
-			}
-			writer.println();
-			
-			for (int i = 0; i < lstFile.recordsCount(); i++) {
-				LstFileRecord record = lstFile.getAt(i);
-				RVResults results = rvResultsList[i];
-				
-				writer.print(MathUtils.formatDouble(record.getIndex(), 3, 0, false) + "\t");
-				writer.print(MathUtils.formatDouble(record.getJulianDate(), 5, 4, false) + "\t");
-				writer.print(MathUtils.formatDouble(record.getRvCorr(), 2, 2, true));
-				
-				if (results == null) {
-					results = new RVResults();
-				}
-				
-				for (String category : categories) {
-					double rv = results.getRvOfCategory(category);
-					
-					if (Double.isNaN(rv)) {
-						writer.print("\t9999.99"); // TODO make this dynamic
-					} else {
-						if (results.getRvCorr().isUndefined()) {
-							rv += record.getRvCorr();
-						}
-						writer.print("\t" + MathUtils.formatDouble(rv, 3, 2, true));
-					}
-				}
-				writer.println();
-			}
-		} catch (FileNotFoundException exception) {
-			Message.error("Couldn't write into file [" + file.getName() +"].", exception);
+		} catch (SpefoException exception) {
+			Message.error("Couldn't save rvs file.", exception);
 			return;
 		}
 		
-		Message.info("File was succesfully written.");
-		return;
+		try {
+			table.printToCorFile(corFile);
+			
+		} catch (SpefoException exception) {
+			Message.error("Couldn't save cor file.", exception);
+			return;
+		}
+		
+		Message.info("Files were successfully written.");
 	}
 }

@@ -1,6 +1,6 @@
 package cz.cuni.mff.respefo.measureRV;
 
-class RVResult {
+public class RVResult {
 	double rV;
 	double shift;
 	double radius;
