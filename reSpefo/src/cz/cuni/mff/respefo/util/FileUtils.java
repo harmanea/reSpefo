@@ -99,6 +99,15 @@ public class FileUtils {
 		}
 	}
 	
+	public static String stripFileExtension(String fileName) {
+		int index = fileName.lastIndexOf('.');
+		if (index >= 0) {
+			return fileName.substring(0, index);
+		} else {
+			return fileName;
+		}
+	}
+	
 	/**
 	 * Increments the last number in a file name
 	 * <br/>
