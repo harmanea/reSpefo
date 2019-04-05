@@ -370,4 +370,12 @@ public class MathUtils {
 		}
 		return result;
 	}
+	
+	public static boolean doublesEqual(double first, double second, double epsilon) {
+		return Math.abs(first - second) < epsilon;
+	}
+	
+	public static boolean doublesEqual(double first, double second) {
+		return doublesEqual(first, second, 0.0000001);
+	}
 }

@@ -125,4 +125,19 @@ public class ArrayUtils {
 		
 		return Arrays.copyOfRange(array, lowerIndex, upperIndex);
 	}
+	
+	public static int nDims(Object data) {
+		return 1 + data.getClass().getName().lastIndexOf('[');
+	}
+	
+	public static boolean valuesHaveSameDifference(double[] values) {
+		if (values.length < 2) {
+			throw new IllegalArgumentException("Values must contain at least two values");
+		} else if (values.length == 2) {
+			return true;
+		}
+		
+		return IntStream.range(2, values.length - 1)
+				.allMatch(i -> MathUtils.doublesEqual(values[i] - values[i - 1], values[i - 1] - values[i - 2]));
+	}
 }
