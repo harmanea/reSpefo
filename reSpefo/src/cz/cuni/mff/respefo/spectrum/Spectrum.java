@@ -5,8 +5,6 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.eclipse.swt.SWT;
-
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.Message;

@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 
 import cz.cuni.mff.respefo.ReSpefo;

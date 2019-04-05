@@ -3,7 +3,6 @@ package cz.cuni.mff.respefo.function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.swtchart.Chart;
 import org.swtchart.IAxis;

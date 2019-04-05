@@ -142,12 +142,6 @@ public class MeasureRVItemListener extends Function {
 		double[] newYSeries = MathUtils.intep(xSeries, ySeries, newXSeries);
 		xSeries = newXSeries;
 		ySeries = newYSeries;
-		
-		/*
-		if (!results.getRvCorr().isUndefined()) {
-			xSeries = Util.adjustArrayValues(xSeries, results.getRvCorr().getValue() / (2*deltaRV));
-		}
-		*/
 	
 		rvMeasurements.loadMeasurements(measurements, false);
 		rvMeasurements.loadMeasurements(corrections, true);
