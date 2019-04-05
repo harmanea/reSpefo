@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
+import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -14,8 +14,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.IntStream;
-
-import org.eclipse.swt.SWT;
 
 import cz.cuni.mff.respefo.Version;
 import cz.cuni.mff.respefo.component.RvCorrection;
@@ -59,37 +57,20 @@ public class FitsSpectrum extends Spectrum {
 				throw new SpefoException("The HDU does not contain array data.");
 			}
 			
-			int nDims = 1 + data.getClass().getName().lastIndexOf('[');
-			if (nDims > 1) {
+			int nDims = ArrayUtils.nDims(data);
+			if (nDims == 1) {
+				ySeries = getSeriesFromData(data, imageHdu.getBitPix());
+				xSeries = getSeriesFromCData(imageHdu.getHeader());
+			} else if (nDims == 2) {
+				int length = Array.getLength(data);
+				if (length != 2) {
+					throw new SpefoException("The 2-D data array is too long in the first dimension.");
+				}
+				
+				getBothSeriesFromData(data, imageHdu.getBitPix());
+			} else {
 				throw new SpefoException("The data array is " + nDims + "-dimensional.");
 			}
-			
-			switch (imageHdu.getBitPix()) {
-			case BasicHDU.BITPIX_DOUBLE:
-				ySeries = (double[]) data;
-				break;
-			case BasicHDU.BITPIX_FLOAT:
-				ySeries = IntStream.range(0, ((float[]) data).length).mapToDouble(j -> ((float[]) data)[j]).toArray();
-				break;
-			case BasicHDU.BITPIX_INT:
-				ySeries = IntStream.range(0, ((int[]) data).length).mapToDouble(j -> ((int[]) data)[j]).toArray();
-				break;
-			case BasicHDU.BITPIX_SHORT:
-				ySeries = IntStream.range(0, ((short[]) data).length).mapToDouble(j -> ((short[]) data)[j]).toArray();
-				break;
-			case BasicHDU.BITPIX_LONG:
-				ySeries = IntStream.range(0, ((long[]) data).length).mapToDouble(j -> ((long[]) data)[j]).toArray();
-				break;
-			case BasicHDU.BITPIX_BYTE:
-				ySeries = IntStream.range(0, ((byte[]) data).length).mapToDouble(j -> ((byte[]) data)[j]).toArray();
-				break;
-			default:
-				throw new SpefoException("Data is not of a valid value type.");
-			}
-			
-			double CRPIX = imageHdu.getHeader().getDoubleValue("CRPIX1", 1);
-			double CDELT = imageHdu.getHeader().getDoubleValue("CDELT1", 1);
-			double CRVAL = imageHdu.getHeader().getDoubleValue("CRVAL1", 0);
 			
 			String ctype = imageHdu.getHeader().getStringValue("CTYPE1");
 			String bunit = imageHdu.getHeader().getStringValue("BUNIT");
@@ -102,13 +83,70 @@ public class FitsSpectrum extends Spectrum {
 				yLabel = bunit;
 			}
 			
-			xSeries = ArrayUtils.fillArray(ySeries.length, (1 - CRPIX) * CDELT + CRVAL, CDELT);
-			
 			header = imageHdu.getHeader();
 			parseDate();
 		} catch (IOException | ClassCastException exception) {
 			LOGGER.log(Level.WARNING, "Error while reading file", exception);
 			throw new SpefoException(exception.getClass().getName() + " occurred!");
+		}
+	}
+
+	private double[] getSeriesFromData(Object data, int bitPix) throws SpefoException {
+		switch (bitPix) {
+		case BasicHDU.BITPIX_DOUBLE:
+			return (double[]) data;
+		case BasicHDU.BITPIX_FLOAT:
+			return IntStream.range(0, ((float[]) data).length).mapToDouble(j -> ((float[]) data)[j]).toArray();
+		case BasicHDU.BITPIX_INT:
+			return IntStream.range(0, ((int[]) data).length).mapToDouble(j -> ((int[]) data)[j]).toArray();
+		case BasicHDU.BITPIX_SHORT:
+			return IntStream.range(0, ((short[]) data).length).mapToDouble(j -> ((short[]) data)[j]).toArray();
+		case BasicHDU.BITPIX_LONG:
+			return IntStream.range(0, ((long[]) data).length).mapToDouble(j -> ((long[]) data)[j]).toArray();
+		case BasicHDU.BITPIX_BYTE:
+			return IntStream.range(0, ((byte[]) data).length).mapToDouble(j -> ((byte[]) data)[j]).toArray();
+		default:
+			throw new SpefoException("Data is not of a valid value type.");
+		}
+	}
+	
+	private double[] getSeriesFromCData(Header header) {
+		double CRPIX = header.getDoubleValue("CRPIX1", 1);
+		double CDELT = header.getDoubleValue("CDELT1", 1);
+		double CRVAL = header.getDoubleValue("CRVAL1", 0);
+		
+		return ArrayUtils.fillArray(ySeries.length, (1 - CRPIX) * CDELT + CRVAL, CDELT);
+	}
+	
+	
+	private void getBothSeriesFromData(Object data, int bitPix) throws SpefoException {
+		switch (bitPix) {
+		case BasicHDU.BITPIX_DOUBLE:
+			xSeries = getSeriesFromData(((double[][]) data)[0], bitPix);
+			ySeries = getSeriesFromData(((double[][]) data)[1], bitPix);
+			break;
+		case BasicHDU.BITPIX_FLOAT:
+			xSeries = getSeriesFromData(((float[][]) data)[0], bitPix);
+			ySeries = getSeriesFromData(((float[][]) data)[1], bitPix);
+			break;
+		case BasicHDU.BITPIX_INT:
+			xSeries = getSeriesFromData(((int[][]) data)[0], bitPix);
+			ySeries = getSeriesFromData(((int[][]) data)[1], bitPix);
+			break;
+		case BasicHDU.BITPIX_SHORT:
+			xSeries = getSeriesFromData(((short[][]) data)[0], bitPix);
+			ySeries = getSeriesFromData(((short[][]) data)[1], bitPix);
+			break;
+		case BasicHDU.BITPIX_LONG:
+			xSeries = getSeriesFromData(((long[][]) data)[0], bitPix);
+			ySeries = getSeriesFromData(((long[][]) data)[1], bitPix);
+			break;
+		case BasicHDU.BITPIX_BYTE:
+			xSeries = getSeriesFromData(((byte[][]) data)[0], bitPix);
+			ySeries = getSeriesFromData(((byte[][]) data)[1], bitPix);
+			break;
+		default:
+			throw new SpefoException("Data is not of a valid value type.");
 		}
 	}
 	
