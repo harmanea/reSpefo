@@ -13,18 +13,19 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.swtchart.Chart;
 
-import cz.cuni.mff.respefo.clearCosmics.ClearCosmicsItemListener;
-import cz.cuni.mff.respefo.extra.ChironToAsciiItemListener;
-import cz.cuni.mff.respefo.extra.ExtractFitsHeaderItemListener;
-import cz.cuni.mff.respefo.listeners.FileExportItemListener;
-import cz.cuni.mff.respefo.listeners.FileImportItemListener;
-import cz.cuni.mff.respefo.listeners.FileQuitItemListener;
-import cz.cuni.mff.respefo.measureRV.MeasureRVItemListener;
-import cz.cuni.mff.respefo.preparation.FitsToLstItemListener;
-import cz.cuni.mff.respefo.preparation.PrepareDirectoryItemListener;
-import cz.cuni.mff.respefo.preparation.UuiToFitsItemListener;
-import cz.cuni.mff.respefo.rectify.RectifyItemListener;
-import cz.cuni.mff.respefo.rvResult.RVResultItemListener;
+import cz.cuni.mff.respefo.function.ChironToAsciiItemListener;
+import cz.cuni.mff.respefo.function.ClearCosmicsItemListener;
+import cz.cuni.mff.respefo.function.ExtractFitsHeaderItemListener;
+import cz.cuni.mff.respefo.function.FileExportItemListener;
+import cz.cuni.mff.respefo.function.FileImportItemListener;
+import cz.cuni.mff.respefo.function.FileQuitItemListener;
+import cz.cuni.mff.respefo.function.FitsToLstItemListener;
+import cz.cuni.mff.respefo.function.MeasureRVItemListener;
+import cz.cuni.mff.respefo.function.PrepareDirectoryItemListener;
+import cz.cuni.mff.respefo.function.RVResultItemListener;
+import cz.cuni.mff.respefo.function.RectifyItemListener;
+import cz.cuni.mff.respefo.function.UuiToFitsItemListener;
+import cz.cuni.mff.respefo.spectrum.Spectrum;
 import cz.cuni.mff.respefo.util.Message;
 
 /**
@@ -154,7 +155,7 @@ public class ReSpefo {
 		
 		
 		shell.setMenuBar(menuBar);
-		shell.addListener(SWT.Close, event -> event.doit = Message.question("Are you sure you want to quit?") == SWT.YES);
+		shell.addListener(SWT.Close, event -> event.doit = Message.question("Are you sure you want to quit?"));
 		
 		shell.pack();
 		shell.setSize(shell.computeSize(1000, 1000));

@@ -246,8 +246,9 @@ public class MathUtils {
 		byte sign = (byte) ((data[9] & 0x80) >> 7); // 0 positive, 1 negative
 		
 		byte[] bytes = Arrays.copyOfRange(data, 8, 10);
-		short exponent = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
-		exponent -= 16382; // to get the actual value;
+		bytes[1] &= 0x7F; // except the sign bit
+		int exponent = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getShort() - 16382; // subtract to get the actual value
+		
 		
 		double result;
 		if (exponent >= -1024) {
@@ -358,7 +359,7 @@ public class MathUtils {
 	/**
 	 * Transform an index to wavelength using Taylor polynomials
 	 * @param index
-	 * @param coefficients array of polynomial coefficients
+	 * @param coefficients array of up to 5 polynomial coefficients
 	 * @return wavelength
 	 */
 	public static double indexToLambda(double index, double[] coefficients) {

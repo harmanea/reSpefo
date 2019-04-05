@@ -12,6 +12,22 @@ import cz.cuni.mff.respefo.ReSpefo;
 public class Message {
 	private static final Logger logger = Logger.getLogger(Message.class.getName());
 	
+	public static void fileSavedSuccessfuly() {
+		info("File was successfully saved.");
+	}
+	
+	public static void filesSavedSuccessfuly() {
+		info("Files were successfully saved.");
+	}
+	
+	public static void couldNotSaveFile() {
+		warning("Couldn't save file.");
+	}
+	
+	public static void couldNotSaveFile(Throwable thrown) {
+		error("Couldn't save file.", thrown);
+	}
+	
 	public static void info(String message) {
 		info(ReSpefo.getShell(), message);
 	}
@@ -39,12 +55,12 @@ public class Message {
 		openMessageBox(shell, message + "\n\nError message:\n" + thrown.getMessage(), SWT.ICON_ERROR | SWT.OK);
 	}
 	
-	public static int question(String message) {
+	public static boolean question(String message) {
 		return question(ReSpefo.getShell(), message);
 	}
 	
-	public static int question(Shell shell, String message) {
-		return openMessageBox(shell, message, SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+	public static boolean question(Shell shell, String message) {
+		return openMessageBox(shell, message, SWT.ICON_QUESTION | SWT.YES | SWT.NO) == SWT.YES;
 	}
 	
 	private static int openMessageBox(Shell shell, String message, int style) {
