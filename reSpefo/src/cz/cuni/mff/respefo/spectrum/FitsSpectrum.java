@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.IntStream;
 
+import javax.xml.stream.events.StartDocument;
+
 import cz.cuni.mff.respefo.Version;
 import cz.cuni.mff.respefo.component.RvCorrection;
 import cz.cuni.mff.respefo.util.ArrayUtils;
@@ -28,62 +30,60 @@ import nom.tam.fits.FitsFactory;
 import nom.tam.fits.Header;
 import nom.tam.fits.HeaderCard;
 import nom.tam.fits.ImageHDU;
+import nom.tam.fits.header.Standard;
 import nom.tam.util.BufferedFile;
 import nom.tam.util.Cursor;
 
 public class FitsSpectrum extends Spectrum {
-	private static final String[] FILE_EXTENSIONS = {"fits", "fit", "fts"};
-	
+	private static final String[] FILE_EXTENSIONS = { "fits", "fit", "fts" };
+
 	private Header header;
 	private LocalDateTime date;
 
 	public FitsSpectrum(String fileName) throws SpefoException, FitsException {
 		super(fileName);
-		
+
 		try (Fits f = new Fits(fileName)) {
 			BasicHDU<?>[] HDUs = f.read();
-			
+
 			if (HDUs.length == 0) {
 				throw new SpefoException("There are no HDUs in the file.");
 			} else if (HDUs.length > 1) {
 				LOGGER.log(Level.INFO, "There are more than one HDUs in the file. The first ImageHDU will be chosen.");
 			}
-			
-			ImageHDU imageHdu = (ImageHDU) Arrays.stream(HDUs).filter(hdu -> hdu instanceof ImageHDU)
-					.findFirst().orElseThrow(() -> new SpefoException("No ImageHDU in the FITS file."));
-			
+
+			ImageHDU imageHdu = (ImageHDU) Arrays.stream(HDUs).filter(hdu -> hdu instanceof ImageHDU).findFirst()
+					.orElseThrow(() -> new SpefoException("No ImageHDU in the FITS file."));
+
 			Object data = imageHdu.getKernel();
 			if (data == null || !data.getClass().isArray()) {
 				throw new SpefoException("The HDU does not contain array data.");
 			}
 			
+			header = imageHdu.getHeader();
+
 			int nDims = ArrayUtils.nDims(data);
 			if (nDims == 1) {
 				ySeries = getSeriesFromData(data, imageHdu.getBitPix());
-				xSeries = getSeriesFromCData(imageHdu.getHeader());
+				xSeries = getSeriesFromCData();
 			} else if (nDims == 2) {
 				int length = Array.getLength(data);
 				if (length != 2) {
 					throw new SpefoException("The 2-D data array is too long in the first dimension.");
 				}
-				
+
 				getBothSeriesFromData(data, imageHdu.getBitPix());
 			} else {
 				throw new SpefoException("The data array is " + nDims + "-dimensional.");
 			}
-			
-			String ctype = imageHdu.getHeader().getStringValue("CTYPE1");
-			String bunit = imageHdu.getHeader().getStringValue("BUNIT");
-			
-			if (ctype != null) {
-				xLabel = ctype;
+
+			double bZero = header.getDoubleValue(Standard.BZERO, 0);
+			double bScale = header.getDoubleValue(Standard.BSCALE, 1);
+
+			if (bZero != 0 || bScale != 1) {
+				ySeries = ArrayUtils.applyBScale(ySeries, bZero, bScale);
 			}
-			
-			if (bunit != null) {
-				yLabel = bunit;
-			}
-			
-			header = imageHdu.getHeader();
+
 			parseDate();
 		} catch (IOException | ClassCastException exception) {
 			LOGGER.log(Level.WARNING, "Error while reading file", exception);
@@ -109,16 +109,15 @@ public class FitsSpectrum extends Spectrum {
 			throw new SpefoException("Data is not of a valid value type.");
 		}
 	}
-	
-	private double[] getSeriesFromCData(Header header) {
+
+	private double[] getSeriesFromCData() {
 		double CRPIX = header.getDoubleValue("CRPIX1", 1);
 		double CDELT = header.getDoubleValue("CDELT1", 1);
 		double CRVAL = header.getDoubleValue("CRVAL1", 0);
-		
+
 		return ArrayUtils.fillArray(ySeries.length, (1 - CRPIX) * CDELT + CRVAL, CDELT);
 	}
-	
-	
+
 	private void getBothSeriesFromData(Object data, int bitPix) throws SpefoException {
 		switch (bitPix) {
 		case BasicHDU.BITPIX_DOUBLE:
@@ -149,7 +148,7 @@ public class FitsSpectrum extends Spectrum {
 			throw new SpefoException("Data is not of a valid value type.");
 		}
 	}
-	
+
 	@Override
 	public String[] getFileExtensions() {
 		return FILE_EXTENSIONS;
@@ -157,11 +156,12 @@ public class FitsSpectrum extends Spectrum {
 
 	@Override
 	public boolean exportToAscii(String fileName) {
-		if (Message.question("By saving a FITS file to an ASCII file you lose the header information. Do you want to dump the header into a separate file?")) {
+		if (Message.question(
+				"By saving a FITS file to an ASCII file you lose the header information. Do you want to dump the header into a separate file?")) {
 			String headerFile = fileName.substring(0, fileName.lastIndexOf('.')) + ".header";
 			try (PrintStream ps = new PrintStream(headerFile)) {
 				header.dumpHeader(ps);
-				
+
 				if (ps.checkError()) {
 					throw new IOException();
 				}
@@ -169,17 +169,17 @@ public class FitsSpectrum extends Spectrum {
 				LOGGER.log(Level.WARNING, "Error while dumping the header", exception);
 			}
 		}
-		
+
 		try (PrintWriter writer = new PrintWriter(fileName)) {
 			LOGGER.log(Level.FINER, "Opened a file (" + fileName + ")");
 			writer.println(getName());
-			
+
 			for (int i = 0; i < getSize(); i++) {
 				writer.print(MathUtils.formatDouble(getX(i), 4, 4));
 				writer.print("  ");
 				writer.println(MathUtils.formatDouble(getY(i), 1, 4));
 			}
-			
+
 			if (writer.checkError()) {
 				LOGGER.log(Level.WARNING, "Error while writing to file");
 				return false;
@@ -187,15 +187,16 @@ public class FitsSpectrum extends Spectrum {
 				LOGGER.log(Level.FINER, "Closing file (" + xSeries.length + "lines written)");
 				return true;
 			}
-			
+
 		} catch (FileNotFoundException exception) {
 			LOGGER.log(Level.WARNING, "Error while writing to file", exception);
 			return false;
 		}
 	}
 
-	private static final Set<String> ignoredKeys = new HashSet<>( Arrays.asList(new String[]{"", "END", "BITPIX", "NAXIS", "NAXIS1", "EXTEND", "CRPIX1", "CRVAL1", "CDELT1", "SIMPLE"}));
-	
+	private static final Set<String> ignoredKeys = new HashSet<>(Arrays.asList(new String[] { "", "END", "BITPIX",
+			"NAXIS", "NAXIS1", "EXTEND", "CRPIX1", "CRVAL1", "CDELT1", "BZERO", "BSCALE", "SIMPLE" }));
+
 	@Override
 	public boolean exportToFits(String fileName) {
 		double[] data = getYSeries();
@@ -204,17 +205,17 @@ public class FitsSpectrum extends Spectrum {
 		try (Fits fits = new Fits(); BufferedFile bf = new BufferedFile(fileName, "rw")) {
 			LOGGER.log(Level.FINER, "Opened a file (" + fileName + ")");
 			hdu = FitsFactory.hduFactory(data);
-			
+
 			Cursor<String, HeaderCard> cursor = header.iterator();
 			while (cursor.hasNext()) {
 				HeaderCard card = (HeaderCard) cursor.next();
 				if (!ignoredKeys.contains(card.getKey())) {
 					try {
 						double value = Double.parseDouble(card.getValue());
-						
+
 						if (Double.isFinite(value) && value == Math.rint(value)) { // is integer
 							LOGGER.log(Level.FINEST, value + " is an integer");
-							hdu.addValue(card.getKey(), (int) value, card.getComment()); 
+							hdu.addValue(card.getKey(), (int) value, card.getComment());
 						} else {
 							LOGGER.log(Level.FINEST, value + " is a double");
 							hdu.addValue(card.getKey(), value, card.getComment());
@@ -227,19 +228,20 @@ public class FitsSpectrum extends Spectrum {
 					LOGGER.log(Level.FINEST, card.getKey() + " was ignored");
 				}
 			}
-			
+
 			hdu.addValue("CRPIX1", 1, "Reference pixel");
 			hdu.addValue("CRVAL1", getX(0), "Coordinate at reference pixel");
 			hdu.addValue("CDELT1", getX(1) - getX(0), "Coordinate increment");
 			fits.addHDU(hdu);
 			try {
-				fits.getHDU(0).addValue("SIMPLE", true, "Created by reSpefo v" + Version.toFullString() + " on " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+				fits.getHDU(0).addValue("SIMPLE", true, "Created by reSpefo v" + Version.toFullString() + " on "
+						+ LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 			} catch (IOException e) {
 				LOGGER.log(Level.FINEST, "Couldn't change the SIMPLE value", e);
 			}
 
 			fits.write(bf);
-			
+
 			LOGGER.log(Level.FINER, "Closing file");
 			return true;
 		} catch (FitsException | IOException e) {
@@ -251,11 +253,11 @@ public class FitsSpectrum extends Spectrum {
 	public Header getHeader() {
 		return header;
 	}
-	
+
 	public double getExpTime() {
 		return header.getBigDecimalValue("EXPTIME").doubleValue();
 	}
-	
+
 	public String getLstDate() {
 		if (date.equals(LocalDateTime.MIN)) {
 			return "0000 00 00 00 00 00";
@@ -263,54 +265,70 @@ public class FitsSpectrum extends Spectrum {
 			return date.format(DateTimeFormatter.ofPattern("yyyy MM dd HH mm ss"));
 		}
 	}
-	
+
 	public RvCorrection getRvCorrection() {
 		if (header.containsKey("HJD") || header.containsKey("BJD")) {
 			double rvCorr = header.getDoubleValue("VHELIO", Double.NaN);
 			if (!Double.isNaN(rvCorr)) {
-				return new RvCorrection(header.containsKey("HJD")
-						? RvCorrection.HELIOCENTRIC
-						: RvCorrection.BARYCENTRIC, rvCorr);
+				return new RvCorrection(
+						header.containsKey("HJD") ? RvCorrection.HELIOCENTRIC : RvCorrection.BARYCENTRIC, rvCorr);
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	public double getJulianDate() {
 		return header.getDoubleValue("JD", Double.NaN);
 	}
-	
+
 	private void parseDate() {
-		String dateValue = header.getStringValue("DATE-OBS");
+		String dateValue = header.getStringValue(Standard.DATE_OBS);
 		if (parseDateTime(dateValue)) {
 			return;
 		}
-		
+
 		String timeValue = header.getStringValue("UT");
 		if (parseDateAndTime(dateValue, timeValue)) {
 			return;
 		}
-		
+
+		long tmStart = (long) header.getDoubleValue("TM-START", 0);
+		if (parseDateAndTmStart(dateValue, tmStart)) {
+			return;
+		}
+
 		date = LocalDateTime.MIN;
 	}
-	
+
 	private boolean parseDateTime(String dateTimeValue) {
 		try {
 			date = LocalDateTime.parse(dateTimeValue);
 			return true;
-			
+
 		} catch (Exception exception) {
 			return false;
 		}
 	}
-	
+
 	private boolean parseDateAndTime(String dateValue, String timeValue) {
 		try {
 			LocalDate localDate = LocalDate.parse(dateValue);
 			LocalTime localTime = LocalTime.parse(timeValue);
 			date = localDate.atTime(localTime);
-			
+
+			return true;
+		} catch (Exception exception) {
+			return false;
+		}
+	}
+
+	private boolean parseDateAndTmStart(String dateValue, long tmStart) {
+		try {
+			LocalDate localDate = LocalDate.parse(dateValue);
+			LocalTime localTime = LocalTime.ofSecondOfDay(tmStart);
+			date = localDate.atTime(localTime);
+
 			return true;
 		} catch (Exception exception) {
 			return false;

@@ -43,6 +43,7 @@ public class OldSpefoSpectrum extends Spectrum {
 	private short rectNum;
 	private int[] rectX;
 	private short[] rectY;
+	private double rvCorr;
 
 	public OldSpefoSpectrum(String fileName) throws SpefoException {
 		super(fileName);
@@ -66,6 +67,8 @@ public class OldSpefoSpectrum extends Spectrum {
 				double[] continuum = MathUtils.intep(Arrays.stream(rectX).asDoubleStream().toArray(),
 						IntStream.range(0, rectY.length).mapToDouble(index -> rectY[index]).toArray(), xSeries);
 				ySeries = ArrayUtils.divideArrayValues(ySeries, continuum);
+			} else if (FileUtils.getFileExtension(fileName).equals("rui")) {
+				ySeries = Arrays.stream(ySeries).map(value -> value / maxInt).toArray();
 			}
 
 			// calculate x-values using Taylor polynomials
@@ -104,6 +107,7 @@ public class OldSpefoSpectrum extends Spectrum {
 				dispCoef[i] = 0;
 			}
 		}
+		rvCorr = (dispCoef[6] - 1) * MathUtils.SPEED_OF_LIGHT;
 
 		bytes = Arrays.copyOfRange(data, 110, 120);
 		minTransp = MathUtils.pascalExtendedToDouble(bytes);
@@ -299,4 +303,7 @@ public class OldSpefoSpectrum extends Spectrum {
 		return rectY;
 	}
 
+	public double getRvCorr() {
+		return rvCorr;
+	}
 }

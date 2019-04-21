@@ -119,4 +119,5 @@ public class MathUtilsTest {
 
 		assertEquals(mean, actual, 0.001);
 	}
+
 }

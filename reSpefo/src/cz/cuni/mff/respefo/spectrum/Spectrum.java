@@ -22,9 +22,6 @@ public abstract class Spectrum {
 	protected double[] xSeries;
 	protected double[] ySeries;
 	
-	protected String xLabel;
-	protected String yLabel;
-	
 	protected static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 	
 	protected Spectrum(String fileName) {
@@ -34,9 +31,6 @@ public abstract class Spectrum {
 		if (pos > 0 && pos < name.length() - 1) {
 			name = name.substring(0, pos);
 		}
-		
-		xLabel = "xAxis";
-		yLabel = "yAxis";
 	}
 	
 	protected Spectrum(String fileName, double[] xSeries, double[] ySeries) {
@@ -216,34 +210,6 @@ public abstract class Spectrum {
 	 */
 	public void setYSeries(double[] ySeries) {
 		this.ySeries = ySeries;
-	}
-	
-	/**
-	 * @return the xLabel
-	 */
-	public String getxLabel() {
-		return xLabel;
-	}
-
-	/**
-	 * @param xLabel the xLabel to set
-	 */
-	public void setxLabel(String xLabel) {
-		this.xLabel = xLabel;
-	}
-
-	/**
-	 * @return the yLabel
-	 */
-	public String getyLabel() {
-		return yLabel;
-	}
-
-	/**
-	 * @param yLabel the yLabel to set
-	 */
-	public void setyLabel(String yLabel) {
-		this.yLabel = yLabel;
 	}
 
 	/**

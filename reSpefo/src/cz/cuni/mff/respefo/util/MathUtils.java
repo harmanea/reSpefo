@@ -6,7 +6,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
-public class MathUtils {	
+public class MathUtils {
+	public static final double DOUBLE_PRECISION = 0.0000001;
+	public static final double SPEED_OF_LIGHT = 299792.458;
+	
 	/**
 	 * The INTEP interpolation algorithm
 	 * 
@@ -259,7 +262,7 @@ public class MathUtils {
 				mantissa /= 256;
 			}
 			
-			result = Math.pow(-1, sign) * mantissa * Math.pow(2, exponent);
+			result = Math.pow(-1, sign) * mantissa * Math.pow(2, exponent); // compute the value
 		} else {
 			result = 0;
 		}
@@ -363,6 +366,7 @@ public class MathUtils {
 	 * @return wavelength
 	 */
 	public static double indexToLambda(double index, double[] coefficients) {
+		// Horner's schema
 		double result = coefficients[5];
 		for (int i = 4; i >= 0; --i) {
 			result *= index;
@@ -376,6 +380,6 @@ public class MathUtils {
 	}
 	
 	public static boolean doublesEqual(double first, double second) {
-		return doublesEqual(first, second, 0.0000001);
+		return doublesEqual(first, second, DOUBLE_PRECISION);
 	}
 }

@@ -1,7 +1,12 @@
 package cz.cuni.mff.respefo.util;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -155,5 +160,10 @@ public class FileUtils {
 		}
 		
 		return file;
+	}
+	
+	public static void renameFile(String oldFileName, String newFileName) throws IOException {
+		Path source = Paths.get(oldFileName);
+		Files.move(source, source.resolveSibling(newFileName), StandardCopyOption.REPLACE_EXISTING);
 	}
 }

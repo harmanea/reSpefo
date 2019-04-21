@@ -52,7 +52,7 @@ public class LstFile {
 			records = new ArrayList<>();
 			
 			while ((line = br.readLine()) != null) {
-				tokens = line.trim().replaceAll(" +", " ").split(" ");
+				tokens = line.trim().replaceAll(" +", " ").split("\\s+");
 				
 				try {
 					index = Integer.parseInt(tokens[0]);

@@ -16,12 +16,27 @@ import cz.cuni.mff.respefo.util.FileUtils;
 
 public class PrepareDirectoryDialog extends Dialog {
 	private boolean status;
+
+	private String lstFile, projectPrefix;
+	private boolean applyCorrection;
 	
 	private Composite compOne, compTwo, compThree;
 	private Label labelOne, labelTwo;
 	private Text lstFileField, projectPrefixField;
 	private Button buttonBrowse, checkboxApplyCorr, buttonOk, buttonCancel;
 
+	public String getLstFile() {
+		return lstFile;
+	}
+
+	public String getProjectPrefix() {
+		return projectPrefix;
+	}
+
+	public boolean applyCorrection() {
+		return applyCorrection;
+	}
+	
 	public PrepareDirectoryDialog(Shell parent) {
 		super(parent, 0);
 		 
@@ -81,6 +96,7 @@ public class PrepareDirectoryDialog extends Dialog {
         checkboxApplyCorr = new Button(shell, SWT.CHECK);
         checkboxApplyCorr.setText("Apply RV correction");
         checkboxApplyCorr.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+        checkboxApplyCorr.setEnabled(false);
         
         // Part four
         
@@ -94,7 +110,7 @@ public class PrepareDirectoryDialog extends Dialog {
         buttonOk = new Button(compThree, SWT.PUSH | SWT.CENTER);
         buttonOk.setText("Ok");
         buttonOk.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-        buttonOk.setEnabled(false);
+        // buttonOk.setEnabled(false);
         
         buttonCancel = new Button(compThree, SWT.PUSH | SWT.CENTER);
         buttonCancel.setText("  Cancel  ");
@@ -104,9 +120,12 @@ public class PrepareDirectoryDialog extends Dialog {
         
         buttonBrowse.addListener(SWT.Selection, event -> browse());
         
+        projectPrefixField.addListener(SWT.Modify, event -> verify());
 		buttonOk.addListener(SWT.Selection, event -> setStatusAndCloseShell(true, shell));
 		buttonCancel.addListener(SWT.Selection, event -> setStatusAndCloseShell(false, shell));
         
+		verify();
+		
 		shell.pack();
 		shell.open();
 		shell.setSize(600, 260);
@@ -123,11 +142,24 @@ public class PrepareDirectoryDialog extends Dialog {
 		
 		if (s != null) {
 			lstFileField.setText(s);
+			verify();
+		}
+	}
+	
+	private void verify() {
+		if (lstFileField.getText().length() > 0 && projectPrefixField.getText().length() > 0) {
+			buttonOk.setEnabled(true);
+		} else {
+			buttonOk.setEnabled(false);
 		}
 	}
 	
 	private void setStatusAndCloseShell(boolean status, Shell shell) {
 		this.status = status;
+		
+		lstFile = lstFileField.getText();
+		projectPrefix = projectPrefixField.getText();
+		
 		shell.close();
 	}
 }

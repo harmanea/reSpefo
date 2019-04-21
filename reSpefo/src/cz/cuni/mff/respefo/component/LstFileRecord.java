@@ -67,10 +67,10 @@ public class LstFileRecord implements Comparable<LstFileRecord> {
 	
 	@Override
 	public int compareTo(LstFileRecord other) {
-		if (this.date == null) {
-			return (other.date == null) ? 0 : 1;
+		if (this.date == null || other.date == null) {
+			return Double.compare(this.julianDate, other.julianDate);
 		} else {
-			return (other.date == null) ? -1 : this.date.compareTo(other.date);
+			return this.date.compareTo(other.date);
 		}
 	}
 

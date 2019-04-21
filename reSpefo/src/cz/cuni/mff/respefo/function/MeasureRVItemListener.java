@@ -48,7 +48,6 @@ public class MeasureRVItemListener extends Function {
 	private static MeasureRVItemListener instance;
 	
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
-	private static final double SPEED_OF_LIGHT = 299792.458;
 	
 	private RVMeasurements rvMeasurements;
 	private RVResults results;
@@ -131,12 +130,12 @@ public class MeasureRVItemListener extends Function {
 			}
 		}
 		
-		deltaRV = ((xSeries[1] - xSeries[0]) * SPEED_OF_LIGHT) / (xSeries[0] * 3);
+		deltaRV = ((xSeries[1] - xSeries[0]) * MathUtils.SPEED_OF_LIGHT) / (xSeries[0] * 3);
 		
 		ArrayList<Double> xList = new ArrayList<>();
 		xList.add(xSeries[0]);
 		while (xList.get(xList.size() - 1) < xSeries[xSeries.length - 1]) {
-			xList.add(xList.get(xList.size() - 1) * (1 + deltaRV / SPEED_OF_LIGHT));
+			xList.add(xList.get(xList.size() - 1) * (1 + deltaRV / MathUtils.SPEED_OF_LIGHT));
 		}
 		double[] newXSeries = xList.stream().mapToDouble(Double::doubleValue).toArray();
 		double[] newYSeries = MathUtils.intep(xSeries, ySeries, newXSeries);
@@ -515,6 +514,6 @@ public class MeasureRVItemListener extends Function {
 	}
 	
 	private void applyCorrection(RvCorrection rvCorr) {
-		xSeries = Arrays.stream(xSeries).map(value -> value + rvCorr.getValue()*(value / SPEED_OF_LIGHT)).toArray();
+		xSeries = Arrays.stream(xSeries).map(value -> value + rvCorr.getValue()*(value / MathUtils.SPEED_OF_LIGHT)).toArray();
 	}
 }
