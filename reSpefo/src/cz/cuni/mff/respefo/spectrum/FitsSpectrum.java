@@ -15,8 +15,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.IntStream;
 
-import javax.xml.stream.events.StartDocument;
-
 import cz.cuni.mff.respefo.Version;
 import cz.cuni.mff.respefo.component.RvCorrection;
 import cz.cuni.mff.respefo.util.ArrayUtils;
@@ -267,12 +265,10 @@ public class FitsSpectrum extends Spectrum {
 	}
 
 	public RvCorrection getRvCorrection() {
-		if (header.containsKey("HJD") || header.containsKey("BJD")) {
-			double rvCorr = header.getDoubleValue("VHELIO", Double.NaN);
-			if (!Double.isNaN(rvCorr)) {
-				return new RvCorrection(
-						header.containsKey("HJD") ? RvCorrection.HELIOCENTRIC : RvCorrection.BARYCENTRIC, rvCorr);
-			}
+		double rvCorr = header.getDoubleValue("VHELIO", Double.NaN);
+		if (!Double.isNaN(rvCorr)) {
+			return new RvCorrection(header.containsKey("BJD") ? RvCorrection.BARYCENTRIC : RvCorrection.HELIOCENTRIC,
+					rvCorr);
 		}
 
 		return null;

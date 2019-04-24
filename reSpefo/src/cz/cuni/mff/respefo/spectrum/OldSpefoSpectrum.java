@@ -67,13 +67,30 @@ public class OldSpefoSpectrum extends Spectrum {
 				double[] continuum = MathUtils.intep(Arrays.stream(rectX).asDoubleStream().toArray(),
 						IntStream.range(0, rectY.length).mapToDouble(index -> rectY[index]).toArray(), xSeries);
 				ySeries = ArrayUtils.divideArrayValues(ySeries, continuum);
-			} else if (FileUtils.getFileExtension(fileName).equals("rui")) {
-				ySeries = Arrays.stream(ySeries).map(value -> value / maxInt).toArray();
 			}
 
 			// calculate x-values using Taylor polynomials
 			xSeries = Arrays.stream(xSeries).map(index -> MathUtils.indexToLambda(index, dispCoef)).toArray();
+			
+			if (rvCorr != 0) {
+				xSeries = Arrays.stream(xSeries).map(value -> value + rvCorr*(value / MathUtils.SPEED_OF_LIGHT)).toArray();
+			}
 
+			/*
+			double cont = 1 / maxInt; // bscale
+			// bzero = 0
+			double l1 = MathUtils.indexToLambda(0, dispCoef);
+			double l2 = MathUtils.indexToLambda(1, dispCoef);
+			int ndat = ySeries.length;
+			double lstep = (MathUtils.indexToLambda(ndat, dispCoef) - l1) / (ndat + 1);
+			double crval1 = dispCoef[0] * dispCoef[6];
+			double cdelt1 = lstep * dispCoef[6];
+			// crpix = 1
+			// object
+			double[] newXSeries = Arrays.stream(xSeries).map(value -> value + rvCorr*(value / MathUtils.SPEED_OF_LIGHT)).toArray();
+			LOGGER.log(Level.INFO, "break here");
+			*/
+			
 		} catch (IOException exception) {
 			LOGGER.log(Level.WARNING, "Error while reading file", exception);
 			throw new SpefoException("IOException occurred!");
@@ -241,6 +258,51 @@ public class OldSpefoSpectrum extends Spectrum {
 			} else {
 				hdu = FitsFactory.hduFactory(new double[][] { xSeries, ySeries });
 			}
+			
+			if (rvCorr != 0) {
+				hdu.addValue("VHELIO", rvCorr, "Heliocentric correction");
+			}
+			
+			hdu.addValue("FILENAME", this.fileName, "Original file name");
+			hdu.addValue("REMARK", remark, "Remark");
+			
+			if (!usedCal.trim().isEmpty()) {
+				hdu.addValue("USEDCAL", usedCal, "Used calibration");
+			}
+			
+			if (starStep != 0) {
+				hdu.addValue("STARSTEP", starStep, "Star step");
+			}
+			
+			hdu.addValue("DCOEF1", dispCoef[0], "First coefficient");
+			hdu.addValue("DCOEF2", dispCoef[1], "Second coefficient");
+			hdu.addValue("DCOEF3", dispCoef[2], "Third coefficient");
+			hdu.addValue("DCOEF4", dispCoef[3], "Fourth coefficient");
+			hdu.addValue("DCOEF5", dispCoef[4], "Fifth coefficient");
+			hdu.addValue("DCOEF6", dispCoef[5], "Sixth coefficient");
+			hdu.addValue("DCOEF7", dispCoef[6], "Seventh coefficient");
+			
+			hdu.addValue("MINTRANS", minTransp, "Minimum transposition");
+			
+			if (maxInt != 1) {
+				hdu.addValue("MAXINT", maxInt, "Maximum value"); // Maybe DATAMAX?
+			}
+			
+			if (filterWidth[0] != 0 || filterWidth[1] != 0 || filterWidth[2] != 0 || filterWidth[3] != 0) {
+				hdu.addValue("FILTERW1", filterWidth[0], "Filter width");
+				hdu.addValue("FILTERW2", filterWidth[1], "Filter width");
+				hdu.addValue("FILTERW3", filterWidth[2], "Filter width");
+				hdu.addValue("FILTERW4", filterWidth[3], "Filter width");
+			}
+
+			if (reserve != 0) {
+				hdu.addValue("RESERVE", reserve, "Reserve");
+			}
+			
+			if (rectNum > 0) {
+				hdu.addValue("HISTORY", "Rectified using Turbo Pascal Spefo", null);
+			}
+			hdu.addValue("HISTORY", "Converted from UUI/RUI to FITS using reSpefo " + Version.toFullString(), null);
 			
 			fits.addHDU(hdu);
 			try {
