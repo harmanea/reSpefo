@@ -65,8 +65,13 @@ public class FileImportItemListener extends Function {
 
 		ReSpefo.setSpectrum(spectrum);
 		
-		Chart chart = ChartBuilder.in(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux I(λ)")
-				.addLineSeries(LineStyle.SOLID, "series", ChartBuilder.GREEN, spectrum.getXSeries(), spectrum.getYSeries()).adjustRange().build();
+		Chart chart = ChartBuilder.in(ReSpefo.getScene())
+				.setTitle(spectrum.getName())
+				.setXAxisLabel("wavelength (Å)")
+				.setYAxisLabel("relative flux I(λ)")
+				.addLineSeries(LineStyle.SOLID, "series", ChartBuilder.GREEN, spectrum.getXSeries(), spectrum.getYSeries())
+				.adjustRange()
+				.build();
 		
 		ReSpefo.setChart(chart);
 

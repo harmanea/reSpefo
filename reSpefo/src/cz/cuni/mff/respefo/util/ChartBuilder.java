@@ -278,7 +278,7 @@ public class ChartBuilder {
 	}
 
 	/**
-	 * Adjusts the view so that one series is fully visible
+	 * Adjusts the view so that one of the series is fully visible
 	 * 
 	 * @param index
 	 *            of the series to be centered (as order of insertion)
