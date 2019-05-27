@@ -46,7 +46,7 @@ public class PrepareDirectoryDialog extends Dialog {
 	public boolean open() {
 		Display display = getParent().getDisplay();
 		Shell shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.TITLE | SWT.RESIZE);
-		shell.setText("Print RV Result");
+		shell.setText("Prepare directory");
 		
         GridLayout layout = new GridLayout(1, false);
         layout.marginBottom = 15;
@@ -96,7 +96,6 @@ public class PrepareDirectoryDialog extends Dialog {
         checkboxApplyCorr = new Button(shell, SWT.CHECK);
         checkboxApplyCorr.setText("Apply RV correction");
         checkboxApplyCorr.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-        checkboxApplyCorr.setEnabled(false);
         
         // Part four
         
@@ -110,7 +109,6 @@ public class PrepareDirectoryDialog extends Dialog {
         buttonOk = new Button(compThree, SWT.PUSH | SWT.CENTER);
         buttonOk.setText("Ok");
         buttonOk.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-        // buttonOk.setEnabled(false);
         
         buttonCancel = new Button(compThree, SWT.PUSH | SWT.CENTER);
         buttonCancel.setText("  Cancel  ");
@@ -119,7 +117,6 @@ public class PrepareDirectoryDialog extends Dialog {
         // listeners
         
         buttonBrowse.addListener(SWT.Selection, event -> browse());
-        
         projectPrefixField.addListener(SWT.Modify, event -> verify());
 		buttonOk.addListener(SWT.Selection, event -> setStatusAndCloseShell(true, shell));
 		buttonCancel.addListener(SWT.Selection, event -> setStatusAndCloseShell(false, shell));
@@ -159,6 +156,7 @@ public class PrepareDirectoryDialog extends Dialog {
 		
 		lstFile = lstFileField.getText();
 		projectPrefix = projectPrefixField.getText();
+		applyCorrection = checkboxApplyCorr.getSelection();
 		
 		shell.close();
 	}

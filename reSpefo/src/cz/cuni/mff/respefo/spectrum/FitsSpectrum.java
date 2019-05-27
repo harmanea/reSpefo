@@ -27,6 +27,7 @@ import nom.tam.fits.FitsException;
 import nom.tam.fits.FitsFactory;
 import nom.tam.fits.Header;
 import nom.tam.fits.HeaderCard;
+import nom.tam.fits.HeaderCardException;
 import nom.tam.fits.ImageHDU;
 import nom.tam.fits.header.Standard;
 import nom.tam.util.BufferedFile;
@@ -272,6 +273,16 @@ public class FitsSpectrum extends Spectrum {
 		}
 
 		return null;
+	}
+	
+	public void applyRvCorrection(double rvCorr) throws SpefoException {
+		xSeries = Arrays.stream(xSeries).map(value -> value + rvCorr*(value / MathUtils.SPEED_OF_LIGHT)).toArray();
+		
+		try {
+			header.addValue("VHELIO", rvCorr, "Heliocentric correction");
+		} catch (HeaderCardException exception) {
+			throw new SpefoException(exception.getMessage());
+		}
 	}
 
 	public double getJulianDate() {

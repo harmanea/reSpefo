@@ -1,6 +1,7 @@
 package cz.cuni.mff.respefo;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseWheelListener;
@@ -8,9 +9,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Listener;
 
 public class Scene extends Composite {
-	ArrayList<SavedListener> untypedListeners;
-	ArrayList<KeyListener> keyListeners;
-	ArrayList<MouseWheelListener> mouseWheelListeners;
+	List<SavedListener> untypedListeners;
+	List<KeyListener> keyListeners;
+	List<MouseWheelListener> mouseWheelListeners;
 	
 	private class SavedListener {
 		public SavedListener(int eventType, Listener listener) {

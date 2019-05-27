@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 import org.eclipse.swt.events.SelectionEvent;
@@ -28,8 +27,6 @@ import cz.cuni.mff.respefo.util.SpefoException;
 
 public class ClearCosmicsItemListener extends Function {
 	private static ClearCosmicsItemListener instance;
-	
-	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 	
 	private Spectrum spectrum;
 	

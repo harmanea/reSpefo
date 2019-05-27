@@ -1,7 +1,6 @@
 package cz.cuni.mff.respefo.function;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.eclipse.swt.events.SelectionEvent;
 import org.swtchart.Chart;
@@ -27,8 +26,6 @@ import cz.cuni.mff.respefo.util.SpefoException;
 
 public class RectifyItemListener extends Function {
 	private static RectifyItemListener instance;
-	
-	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 	
 	private Spectrum spectrum;
 	private RectifyPoints points;

@@ -2,7 +2,6 @@ package cz.cuni.mff.respefo.function;
 
 import java.io.File;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.eclipse.swt.events.SelectionEvent;
 
@@ -14,8 +13,6 @@ import cz.cuni.mff.respefo.util.Message;
 
 public class FileExportItemListener extends Function {
 	private static FileExportItemListener instance;
-	
-	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 	
 	private FileExportItemListener() {
 		LOGGER.log(Level.FINEST, "Creating a new FileExportItemListener");

@@ -3,7 +3,6 @@ package cz.cuni.mff.respefo.function;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -46,8 +45,6 @@ import cz.cuni.mff.respefo.util.SpefoException;
 
 public class MeasureRVItemListener extends Function {
 	private static MeasureRVItemListener instance;
-	
-	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 	
 	private RVMeasurements rvMeasurements;
 	private RVResults results;

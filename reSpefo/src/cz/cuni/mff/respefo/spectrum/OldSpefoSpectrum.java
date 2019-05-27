@@ -70,7 +70,7 @@ public class OldSpefoSpectrum extends Spectrum {
 			}
 
 			// calculate x-values using Taylor polynomials
-			xSeries = Arrays.stream(xSeries).map(index -> MathUtils.indexToLambda(index, dispCoef)).toArray();
+			xSeries = Arrays.stream(xSeries).map(index -> MathUtils.polynomial(index, dispCoef)).toArray();
 			
 			if (rvCorr != 0) {
 				xSeries = Arrays.stream(xSeries).map(value -> value + rvCorr*(value / MathUtils.SPEED_OF_LIGHT)).toArray();

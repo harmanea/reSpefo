@@ -20,6 +20,7 @@ import cz.cuni.mff.respefo.function.FileExportItemListener;
 import cz.cuni.mff.respefo.function.FileImportItemListener;
 import cz.cuni.mff.respefo.function.FileQuitItemListener;
 import cz.cuni.mff.respefo.function.FitsToLstItemListener;
+import cz.cuni.mff.respefo.function.HelCorListener;
 import cz.cuni.mff.respefo.function.MeasureRVItemListener;
 import cz.cuni.mff.respefo.function.PrepareDirectoryItemListener;
 import cz.cuni.mff.respefo.function.RVResultItemListener;
@@ -46,7 +47,7 @@ public class ReSpefo {
 	private static MenuItem fileMenuHeader, toolsMenuHeader, extraMenuHeader;
 	private static MenuItem fileQuitItem, fileExportItem, fileImportItem, rectifyItem,
 		measureRVItem, rVResultsItem, clearCosmicsItem, chironToAsciiItem, extractFitsHeaderItem,
-		prepareDirectoryItem, fitsToLstItem, UuiToFitsItem;
+		prepareDirectoryItem, helCorItem, fitsToLstItem, UuiToFitsItem;
 
 	private static Spectrum spectrum;
 
@@ -113,6 +114,10 @@ public class ReSpefo {
 		prepareDirectoryItem = new MenuItem(toolsMenu, SWT.PUSH);
 		prepareDirectoryItem.setText("Prepare Directory");
 		prepareDirectoryItem.addSelectionListener(PrepareDirectoryItemListener.getInstance());
+		
+		helCorItem = new MenuItem(toolsMenu, SWT.PUSH);
+		helCorItem.setText("HelCorr");
+		helCorItem.addSelectionListener(HelCorListener.getInstance());
 		
 		new MenuItem(toolsMenu, SWT.SEPARATOR);
 		
@@ -218,7 +223,7 @@ public class ReSpefo {
 	
 	public static void main(String[] args) {
 	
-		LOGGER.log(Level.INFO, "This is ReSpefo " + Version.toFullString());
+		LOGGER.log(Level.INFO, "This is ReSpefo " + Version.toFullString() + "\nDetected OS " + Version.OS);
 		new ReSpefo();
 		LOGGER.log(Level.INFO, "Program terminated");
 	}

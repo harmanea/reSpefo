@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
@@ -25,8 +24,6 @@ import cz.cuni.mff.respefo.util.SpefoException;
 import nom.tam.fits.FitsException;
 
 public class FitsToLstItemListener extends Function {
-	private static final Logger LOGGER = Logger.getLogger(FitsToLstItemListener.class.toString());
-	
 	private static FitsToLstItemListener instance;
 	private FitsToLstItemListener() {}
 	

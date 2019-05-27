@@ -361,15 +361,15 @@ public class MathUtils {
 	
 	/**
 	 * Transform an index to wavelength using Taylor polynomials
-	 * @param index
+	 * @param x
 	 * @param coefficients array of up to 5 polynomial coefficients
 	 * @return wavelength
 	 */
-	public static double indexToLambda(double index, double[] coefficients) {
+	public static double polynomial(double x, double[] coefficients) {
 		// Horner's schema
 		double result = coefficients[5];
 		for (int i = 4; i >= 0; --i) {
-			result *= index;
+			result *= x;
 			result += coefficients[i];
 		}
 		return result;

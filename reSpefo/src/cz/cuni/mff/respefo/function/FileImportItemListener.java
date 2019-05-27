@@ -1,7 +1,6 @@
 package cz.cuni.mff.respefo.function;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
@@ -28,8 +27,6 @@ import cz.cuni.mff.respefo.util.SpefoException;
 
 public class FileImportItemListener extends Function {
 	private static FileImportItemListener instance;
-	
-	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 	
 	private FileImportItemListener() {
 		LOGGER.log(Level.FINEST, "Creating a new FileImportItemListener");
