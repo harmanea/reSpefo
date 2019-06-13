@@ -204,12 +204,14 @@ public class ClearCosmicsItemListener extends Function {
 			if (deletedIndexes.contains(activeIndex)) {	
 				deletedIndexes.remove(activeIndex);
 			} else {
+				hopToNext();
 				return;
 			}
 		} else {
 			if (!deletedIndexes.contains(activeIndex)) {
 				deletedIndexes.add(activeIndex);
 			} else {
+				hopToNext();
 				return;
 			}
 		}
@@ -239,12 +241,20 @@ public class ClearCosmicsItemListener extends Function {
 		updateLineSeries("deleted", deletedXSeries.stream().mapToDouble(Double::doubleValue).toArray(),
 				deletedYSeries.stream().mapToDouble(Double::doubleValue).toArray());
 		
-		if (hopToNext && activeIndex < xSeries.length - 1) {
+		if (hopToNext) {
+			hopToNext();
+		} else {
+			updateSelectedSeries();
+		}
+		
+		ReSpefo.getChart().redraw();
+	}
+	
+	private void hopToNext() {
+		if (activeIndex < xSeries.length - 1) {
 			activeIndex++;
 		}
 		updateSelectedSeries();
-		
-		ReSpefo.getChart().redraw();
 	}
 	
 	public void enter() {

@@ -38,6 +38,7 @@ public class HelCorListener extends Function {
 			lstFile = new LstFile(lstFileName);
 		} catch (SpefoException e) {
 			Message.error("Couldn't open lst file.", e);
+			return;
 		}
 		
 		for (LstFileRecord record : lstFile.getRecords()) {

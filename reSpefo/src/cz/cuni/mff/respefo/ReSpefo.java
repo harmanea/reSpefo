@@ -166,8 +166,13 @@ public class ReSpefo {
 		shell.setSize(shell.computeSize(1000, 1000));
 		shell.open();
 		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch())
-				display.sleep();
+			try {
+				if (!display.readAndDispatch()) {
+					display.sleep();
+				}
+			} catch (Exception exception) {
+				Message.error("An error occured in one of the components.", exception);
+			}
 		}
 		display.dispose();
 	}

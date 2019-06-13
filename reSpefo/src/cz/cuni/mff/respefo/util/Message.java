@@ -1,9 +1,10 @@
 package cz.cuni.mff.respefo.util;
 
-import java.util.logging.Level;
+import static java.util.logging.Level.*;
+import static org.eclipse.swt.SWT.*;
+
 import java.util.logging.Logger;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
@@ -33,8 +34,8 @@ public class Message {
 	}
 	
 	public static void info(Shell shell, String message) {
-		logger.log(Level.INFO, message);
-		openMessageBox(shell, message, SWT.ICON_INFORMATION | SWT.OK);
+		logger.log(INFO, message);
+		openMessageBox(shell, message, ICON_INFORMATION | OK);
 	}
 	
 	public static void warning(String message) {
@@ -42,8 +43,8 @@ public class Message {
 	}
 	
 	public static void warning(Shell shell, String message) {
-		logger.log(Level.WARNING, message);
-		openMessageBox(shell, message, SWT.ICON_WARNING | SWT.OK);
+		logger.log(WARNING, message);
+		openMessageBox(shell, message, ICON_WARNING | OK);
 	}
 	
 	public static void error(String message, Throwable thrown) {
@@ -51,8 +52,8 @@ public class Message {
 	}
 	
 	public static void error(Shell shell, String message, Throwable thrown) {
-		logger.log(Level.SEVERE, message, thrown);
-		openMessageBox(shell, message + "\n\nError message:\n" + thrown.getMessage(), SWT.ICON_ERROR | SWT.OK);
+		logger.log(SEVERE, message, thrown);
+		openMessageBox(shell, message + "\n\nError message:\n" + thrown.getMessage(), ICON_ERROR | OK);
 	}
 	
 	public static boolean question(String message) {
@@ -60,7 +61,7 @@ public class Message {
 	}
 	
 	public static boolean question(Shell shell, String message) {
-		return openMessageBox(shell, message, SWT.ICON_QUESTION | SWT.YES | SWT.NO) == SWT.YES;
+		return openMessageBox(shell, message, ICON_QUESTION | YES | NO) == YES;
 	}
 	
 	private static int openMessageBox(Shell shell, String message, int style) {
