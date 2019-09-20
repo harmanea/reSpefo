@@ -32,10 +32,7 @@ public class LstFile {
 			
 			List<String> headerLines = new ArrayList<>();
 			for (int i = 0; i < 4; ++i) {
-				line = br.readLine();
-				if (!line.isEmpty()) {
-					headerLines.add(line);
-				}
+				headerLines.add(br.readLine());
 			}
 			header = String.join("\n", headerLines);
 			
@@ -137,11 +134,11 @@ public class LstFile {
 			wr.println(getTableHeader());
 			
 			for (LstFileRecord record : records) {
-				wr.println(String.join("\t", 
+				wr.println(String.join(" ", 
 								MathUtils.formatInteger(record.getIndex(), 5),
 								record.getDate(),
 								MathUtils.formatDouble(record.getExp(), 5, 3, false),
-								Paths.get(record.getFileName()).getFileName().toString(),
+								record.getFileName() != null ? Paths.get(record.getFileName()).getFileName().toString() : "        ",
 								MathUtils.formatDouble(record.getJulianDate(), 5, 3),
 								MathUtils.formatDouble(record.getRvCorr(), 3, 2)));
 			}

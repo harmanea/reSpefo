@@ -45,9 +45,7 @@ public enum FileType {
 			return "Rvr Files";
 		}
 	},
-	RVS
-
-	{
+	RVS {
 		@Override
 		public String filterExtensions() {
 			return "*.rvs";

@@ -1,6 +1,5 @@
 package cz.cuni.mff.respefo.function;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
 
@@ -28,6 +27,7 @@ import cz.cuni.mff.respefo.component.RVResult;
 import cz.cuni.mff.respefo.component.RVResults;
 import cz.cuni.mff.respefo.component.RVResultsPrinter;
 import cz.cuni.mff.respefo.component.RvCorrection;
+import cz.cuni.mff.respefo.component.SeriesSet;
 import cz.cuni.mff.respefo.dialog.MeasureRVDialog;
 import cz.cuni.mff.respefo.dialog.MeasurementInputDialog;
 import cz.cuni.mff.respefo.dialog.RVStepDialog;
@@ -41,6 +41,7 @@ import cz.cuni.mff.respefo.util.ArrayUtils;
 import cz.cuni.mff.respefo.util.ChartBuilder;
 import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.Message;
+import cz.cuni.mff.respefo.util.SpectrumUtils;
 import cz.cuni.mff.respefo.util.SpefoException;
 
 public class MeasureRVItemListener extends Function {
@@ -129,15 +130,10 @@ public class MeasureRVItemListener extends Function {
 		
 		deltaRV = ((xSeries[1] - xSeries[0]) * MathUtils.SPEED_OF_LIGHT) / (xSeries[0] * 3);
 		
-		ArrayList<Double> xList = new ArrayList<>();
-		xList.add(xSeries[0]);
-		while (xList.get(xList.size() - 1) < xSeries[xSeries.length - 1]) {
-			xList.add(xList.get(xList.size() - 1) * (1 + deltaRV / MathUtils.SPEED_OF_LIGHT));
-		}
-		double[] newXSeries = xList.stream().mapToDouble(Double::doubleValue).toArray();
-		double[] newYSeries = MathUtils.intep(xSeries, ySeries, newXSeries);
-		xSeries = newXSeries;
-		ySeries = newYSeries;
+		SeriesSet newSeries = SpectrumUtils.transformToEquidistant(xSeries, ySeries);
+		
+		xSeries = newSeries.getXSeries();
+		ySeries = newSeries.getYSeries();
 	
 		rvMeasurements.loadMeasurements(measurements, false);
 		rvMeasurements.loadMeasurements(corrections, true);
@@ -172,11 +168,11 @@ public class MeasureRVItemListener extends Function {
 		listOne.setItems(rvMeasurements.getNames());
 		listOne.setSelection(0);
 		listOne.addListener(SWT.Selection, selectionEvent -> selectMeasurement());
-		listOne.addListener(SWT.FocusIn, focusEvent -> ReSpefo.getScene().setFocus());
+		listOne.addListener(SWT.FocusIn, focusEvent -> ReSpefo.getScene().forceFocus());
 
 		listTwo.setItems(new String[0]);
 		listTwo.addListener(SWT.Selection, selectionEvent -> selectResult());
-		listTwo.addListener(SWT.FocusIn, focusEvent -> ReSpefo.getScene().setFocus());
+		listTwo.addListener(SWT.FocusIn, focusEvent -> ReSpefo.getScene().forceFocus());
 		
 		Group group = new Group(sideBar, SWT.RADIO);
 		group.setText("RV step (km/s)");
@@ -367,6 +363,7 @@ public class MeasureRVItemListener extends Function {
 					
 					createChart(rvMeasurements.getAt(index));
 				}
+				ReSpefo.getScene().forceFocus();
 			}
 		}
 	}

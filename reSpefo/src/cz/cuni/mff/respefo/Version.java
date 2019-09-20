@@ -1,9 +1,9 @@
 package cz.cuni.mff.respefo;
 
 public class Version {
-	public static final int MAJOR = 0;
-	public static final int MINOR = 9;
-	public static final int RELEASE = 7;
+	public static final int MAJOR = 1;
+	public static final int MINOR = 0;
+	public static final int RELEASE = 0;
 	public static final String BUILD = "unix64";
 	public static final String OS;
 	static {

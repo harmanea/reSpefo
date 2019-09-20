@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.Locale;
 
 public class MathUtils {
 	public static final double DOUBLE_PRECISION = 0.0000001;
@@ -350,7 +351,7 @@ public class MathUtils {
 	}
 	
 	private static String formatNumber(Object number, String format, int targetLength) {
-		String formattedNumber = String.format(format, number);
+		String formattedNumber = String.format(Locale.US, format, number);
 		
 		for (int i = formattedNumber.length(); i <  targetLength; i++) {
 			formattedNumber = ' ' + formattedNumber;

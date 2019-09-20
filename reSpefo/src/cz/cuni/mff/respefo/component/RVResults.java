@@ -58,7 +58,7 @@ public class RVResults {
 						break;
 					}
 					
-					tokens = line.split("\t", -1);
+					tokens = line.trim().split("\\s+", 5);
 					if (tokens.length != 5) {
 						continue;
 					}

@@ -27,6 +27,9 @@ public class ExtractFitsHeaderItemListener extends Function {
 	public void handle(SelectionEvent event) {
 		try {
 			String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM);
+			if (fileName == null) {
+				return;
+			}
 			
 			FitsSpectrum spectrum = (FitsSpectrum) Spectrum.createFromFile(fileName);
 			

@@ -71,6 +71,6 @@ public class RVResultItemListener extends Function {
 			return;
 		}
 		
-		Message.fileSavedSuccessfuly();
+		Message.filesSavedSuccessfuly();
 	}
 }

@@ -190,9 +190,9 @@ public class RVResultDialog extends Dialog {
 				for (LstFileRecord r : lstFile.getRecords()) {							
 					TableItem item = new TableItem(table, SWT.NONE);
 					if (r.hasFileName()) {
-						item.setText(new String[] {Integer.toString(r.getIndex()), r.getFormattedDate(), r.getFileName() + ".rvr"});
+						item.setText(new String[] {Integer.toString(r.getIndex()), r.getFormattedDate(), FileUtils.stripFileExtension(r.getFileName()) + ".rvr"});
 						
-						String fileName = FileUtils.getFilterPath() + File.separatorChar + r.getFileName().toLowerCase() + ".rvr";
+						String fileName = FileUtils.getFilterPath() + File.separatorChar + FileUtils.stripFileExtension(r.getFileName()).toLowerCase() + ".rvr";
 						if (!Files.exists(Paths.get(fileName))) {
 							item.setForeground(2, table.getDisplay().getSystemColor(SWT.COLOR_RED));
 							

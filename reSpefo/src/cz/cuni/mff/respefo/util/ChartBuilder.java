@@ -15,7 +15,6 @@ import org.swtchart.ILineSeries;
 import org.swtchart.ILineSeries.PlotSymbolType;
 import org.swtchart.ISeries.SeriesType;
 import org.swtchart.LineStyle;
-import org.swtchart.Range;
 
 /**
  * Class for easier creation of charts
@@ -273,7 +272,7 @@ public class ChartBuilder {
 	 * @return the adjusted ChartBuilder
 	 */
 	public ChartBuilder adjustRange() {
-		adjustRange(chart);
+		ChartUtils.adjustRange(chart);
 		return this;
 	}
 
@@ -287,7 +286,7 @@ public class ChartBuilder {
 	public ChartBuilder adjustRange(int index) {
 		int XAxisId = series.get(index).getXAxisId();
 		int YAxisId = series.get(index).getXAxisId();
-		adjustRange(chart, XAxisId, YAxisId);
+		ChartUtils.adjustRange(chart, XAxisId, YAxisId);
 		return this;
 	}
 
@@ -301,44 +300,6 @@ public class ChartBuilder {
 		chart.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		chart.getParent().layout();
 		return chart;
-	}
-
-	/**
-	 * Adjusts the chart range so that all series are fully visible
-	 * 
-	 * @param chart
-	 *            chart to be adjusted
-	 */
-	public static void adjustRange(Chart chart) {
-		adjustRange(chart, 0, 0);
-	}
-
-	/**
-	 * Adjusts the chart so that one of the series is fully visible
-	 * 
-	 * @param chart
-	 *            chart to be adjusted
-	 * @param XAxisId
-	 *            to be adjusted around
-	 * @param YAxisId
-	 *            to be adjusted around
-	 */
-	public static void adjustRange(Chart chart, int XAxisId, int YAxisId) {
-		chart.getAxisSet().adjustRange();
-		if (chart.getAxisSet().getAxes().length > 2) {
-			Range XRange = chart.getAxisSet().getXAxis(XAxisId).getRange();
-			Range YRange = chart.getAxisSet().getYAxis(YAxisId).getRange();
-			for (IAxis xAxis : chart.getAxisSet().getXAxes()) {
-				if (xAxis.getId() != XAxisId) {
-					xAxis.setRange(XRange);
-				}
-			}
-			for (IAxis yAxis : chart.getAxisSet().getYAxes()) {
-				if (yAxis.getId() != YAxisId) {
-					yAxis.setRange(YRange);
-				}
-			}
-		}
 	}
 
 }

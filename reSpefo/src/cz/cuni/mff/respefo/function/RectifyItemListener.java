@@ -65,6 +65,8 @@ public class RectifyItemListener extends Function {
 		
 		if (points.getCount() == 0) {
 			points.reset(spectrum.getX(0), spectrum.getY(0), spectrum.getX(spectrum.getSize() - 1), spectrum.getY(spectrum.getSize() - 1));
+		} else {
+			points.adjustToNewData(spectrum.getXSeries(), spectrum.getYSeries());
 		}
 		
 		createChart();

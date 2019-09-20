@@ -13,8 +13,11 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.swtchart.Chart;
 
+import cz.cuni.mff.respefo.function.AddToLstItemListener;
 import cz.cuni.mff.respefo.function.ChironToAsciiItemListener;
 import cz.cuni.mff.respefo.function.ClearCosmicsItemListener;
+import cz.cuni.mff.respefo.function.CompareItemListener;
+import cz.cuni.mff.respefo.function.ConvertToListener;
 import cz.cuni.mff.respefo.function.ExtractFitsHeaderItemListener;
 import cz.cuni.mff.respefo.function.FileExportItemListener;
 import cz.cuni.mff.respefo.function.FileImportItemListener;
@@ -25,7 +28,6 @@ import cz.cuni.mff.respefo.function.MeasureRVItemListener;
 import cz.cuni.mff.respefo.function.PrepareDirectoryItemListener;
 import cz.cuni.mff.respefo.function.RVResultItemListener;
 import cz.cuni.mff.respefo.function.RectifyItemListener;
-import cz.cuni.mff.respefo.function.UuiToFitsItemListener;
 import cz.cuni.mff.respefo.spectrum.Spectrum;
 import cz.cuni.mff.respefo.util.Message;
 
@@ -43,11 +45,12 @@ public class ReSpefo {
 	
 	private static Scene scene;
 
-	private static Menu menuBar, fileMenu, toolsMenu, extraMenu;
-	private static MenuItem fileMenuHeader, toolsMenuHeader, extraMenuHeader;
+	private static Menu menuBar, fileMenu, projectMenu, toolsMenu, extraMenu, convertSubMenu;
+	private static MenuItem fileMenuHeader, projectMenuHeader, toolsMenuHeader, extraMenuHeader;
 	private static MenuItem fileQuitItem, fileExportItem, fileImportItem, rectifyItem,
 		measureRVItem, rVResultsItem, clearCosmicsItem, chironToAsciiItem, extractFitsHeaderItem,
-		prepareDirectoryItem, helCorItem, fitsToLstItem, UuiToFitsItem;
+		prepareDirectoryItem, helCorItem, fitsToLstItem, compareItem, addToLstItem,
+		convertItem, convertToFitsItem, convertToAsciiItem;
 
 	private static Spectrum spectrum;
 
@@ -72,7 +75,8 @@ public class ReSpefo {
 
 		menuBar = new Menu(shell, SWT.BAR);
 
-		// File menu
+		/* File menu */
+		
 		fileMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
 		fileMenuHeader.setText("&File");
 
@@ -80,13 +84,13 @@ public class ReSpefo {
 		fileMenuHeader.setMenu(fileMenu);
 
 		fileImportItem = new MenuItem(fileMenu, SWT.PUSH);
-		fileImportItem.setText("&Import\tCtrl+I");
-		fileImportItem.setAccelerator('I' | SWT.CTRL);
+		fileImportItem.setText("&Open\tCtrl+O");
+		fileImportItem.setAccelerator('O' | SWT.CTRL);
 		fileImportItem.addSelectionListener(FileImportItemListener.getInstance());
 
 		fileExportItem = new MenuItem(fileMenu, SWT.PUSH);
-		fileExportItem.setText("&Export\tCtrl+E");
-		fileExportItem.setAccelerator('E' | SWT.CTRL);
+		fileExportItem.setText("&Save\tCtrl+S");
+		fileExportItem.setAccelerator('S' | SWT.CTRL);
 		fileExportItem.addSelectionListener(FileExportItemListener.getInstance());
 		
 		new MenuItem(fileMenu, SWT.SEPARATOR);
@@ -96,31 +100,53 @@ public class ReSpefo {
 		fileQuitItem.setAccelerator('Q' | SWT.CTRL);
 		fileQuitItem.addSelectionListener(FileQuitItemListener.getInstance());
 
-		// Tools menu
+		
+		/* Project Menu */
+		
+		projectMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
+		projectMenuHeader.setText("&Project");
+		
+		projectMenu = new Menu(shell, SWT.DROP_DOWN);
+		projectMenuHeader.setMenu(projectMenu);
+		
+		fitsToLstItem = new MenuItem(projectMenu, SWT.PUSH);
+		fitsToLstItem.setText("FITS to Lst");
+		fitsToLstItem.addSelectionListener(FitsToLstItemListener.getInstance());
+		
+		prepareDirectoryItem = new MenuItem(projectMenu, SWT.PUSH);
+		prepareDirectoryItem.setText("Prepare Directory");
+		prepareDirectoryItem.addSelectionListener(PrepareDirectoryItemListener.getInstance());
+		
+		helCorItem = new MenuItem(projectMenu, SWT.PUSH);
+		helCorItem.setText("Apply HelCorr");
+		helCorItem.addSelectionListener(HelCorListener.getInstance());
+		
+		addToLstItem = new MenuItem(projectMenu, SWT.PUSH);
+		addToLstItem.setText("Add to Lst");
+		addToLstItem.addSelectionListener(AddToLstItemListener.getInstance());
+		
+		new MenuItem(projectMenu, SWT.SEPARATOR);
+		
+		rVResultsItem = new MenuItem(projectMenu, SWT.PUSH);
+		rVResultsItem.setText("RV Resul&ts\tCtrl+T");
+		rVResultsItem.setAccelerator('T' | SWT.CTRL);
+		rVResultsItem.addSelectionListener(RVResultItemListener.getInstance());
+		
+		new MenuItem(projectMenu, SWT.SEPARATOR);
+		
+		compareItem = new MenuItem(projectMenu, SWT.PUSH);
+		compareItem.setText("Compare");
+		compareItem.addSelectionListener(CompareItemListener.getInstance());
+		
+		
+		/* Tools menu */
+		
 		toolsMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
 		toolsMenuHeader.setText("&Tools");
 
 		toolsMenu = new Menu(shell, SWT.DROP_DOWN);
 		toolsMenuHeader.setMenu(toolsMenu);
 
-		UuiToFitsItem = new MenuItem(toolsMenu, SWT.PUSH);
-		UuiToFitsItem.setText("UUI to FITS");
-		UuiToFitsItem.addSelectionListener(UuiToFitsItemListener.getInstance());
-		
-		fitsToLstItem = new MenuItem(toolsMenu, SWT.PUSH);
-		fitsToLstItem.setText("FITS to Lst");
-		fitsToLstItem.addSelectionListener(FitsToLstItemListener.getInstance());
-		
-		prepareDirectoryItem = new MenuItem(toolsMenu, SWT.PUSH);
-		prepareDirectoryItem.setText("Prepare Directory");
-		prepareDirectoryItem.addSelectionListener(PrepareDirectoryItemListener.getInstance());
-		
-		helCorItem = new MenuItem(toolsMenu, SWT.PUSH);
-		helCorItem.setText("HelCorr");
-		helCorItem.addSelectionListener(HelCorListener.getInstance());
-		
-		new MenuItem(toolsMenu, SWT.SEPARATOR);
-		
 		rectifyItem = new MenuItem(toolsMenu, SWT.PUSH);
 		rectifyItem.setText("&Rectify\tCtrl+R");
 		rectifyItem.setAccelerator('R' | SWT.CTRL);
@@ -138,10 +164,19 @@ public class ReSpefo {
 		
 		new MenuItem(toolsMenu, SWT.SEPARATOR);
 		
-		rVResultsItem = new MenuItem(toolsMenu, SWT.PUSH);
-		rVResultsItem.setText("RV Resul&ts\tCtrl+T");
-		rVResultsItem.setAccelerator('T' | SWT.CTRL);
-		rVResultsItem.addSelectionListener(RVResultItemListener.getInstance());
+		convertItem = new MenuItem(toolsMenu, SWT.CASCADE);
+		convertItem.setText("Convert");
+		
+		convertSubMenu = new Menu(shell, SWT.DROP_DOWN);
+		convertItem.setMenu(convertSubMenu);
+		
+		convertToAsciiItem = new MenuItem(convertSubMenu, SWT.PUSH);
+		convertToAsciiItem.setText("to Ascii");
+		convertToAsciiItem.addListener(SWT.Selection, event -> ConvertToListener.getInstance().convertToAscii());
+		
+		convertToFitsItem = new MenuItem(convertSubMenu, SWT.PUSH);
+		convertToFitsItem.setText("to FITS");
+		convertToFitsItem.addListener(SWT.Selection, event -> ConvertToListener.getInstance().convertToFits());
 		
 		// Extra menu
 		extraMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
@@ -228,7 +263,7 @@ public class ReSpefo {
 	
 	public static void main(String[] args) {
 	
-		LOGGER.log(Level.INFO, "This is ReSpefo " + Version.toFullString() + "\nDetected OS " + Version.OS);
+		LOGGER.log(Level.INFO, "This is ReSpefo " + Version.toFullString() + "\nDetected OS: " + Version.OS);
 		new ReSpefo();
 		LOGGER.log(Level.INFO, "Program terminated");
 	}

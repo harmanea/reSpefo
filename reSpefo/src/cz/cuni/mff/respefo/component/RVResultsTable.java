@@ -73,7 +73,7 @@ public class RVResultsTable {
 			}
 			header = String.join("\n", headerLines);
 			
-			tokens = br.readLine().split("\t");
+			tokens = br.readLine().split("\\s+");
 			if (tokens.length < 4) {
 				throw new SpefoException("rvs file is invalid.");
 			}
@@ -149,17 +149,17 @@ public class RVResultsTable {
 	}
 	
 	private void printRow(PrintWriter writer, RVResultsTableRow row, boolean correct) throws SpefoException {
-		writer.print(MathUtils.formatDouble(row.getLstFileRecord().getIndex(), 3, 0, false) + "\t");
+		writer.print(MathUtils.formatDouble(row.getLstFileRecord().getIndex(), 3, 0, false) + " ");
 		writer.print(MathUtils.formatDouble(row.getLstFileRecord().getJulianDate(), 5, 4, false));
 		
 		double rvCorr = 0;
 		if (!correct) {
-			writer.print("\t" + MathUtils.formatDouble(row.getLstFileRecord().getRvCorr(), 2, 2, true));
+			writer.print(" " + MathUtils.formatDouble(row.getLstFileRecord().getRvCorr(), 2, 2, true));
 		} else {
 			rvCorr = row.getResult("corr").orElseThrow(() -> new SpefoException("Not all rvr files contain measured corrections.")) - row.getLstFileRecord().getRvCorr();
 		}
 		
-		String nextLine = correct ? "\n\t\t" : "\n\t\t\t      ";
+		String nextLine = correct ? "\n" : "\n      ";
 		for (String category : categories) {
 			if (correct && category.equals("corr")) {
 				continue;
@@ -175,9 +175,9 @@ public class RVResultsTable {
 				rv = 9999.99;
 			}
 			
-			nextLine += "\t" + MathUtils.formatDouble(row.getRmse(category).orElse(0.0), 5, 2, false);
+			nextLine += " " + MathUtils.formatDouble(row.getRmse(category).orElse(0.0), 5, 2, false);
 			
-			writer.print("\t" + MathUtils.formatDouble(rv, 4, 2, true));
+			writer.print(" " + MathUtils.formatDouble(rv, 4, 2, true));
 		}
 		
 		writer.println(nextLine);

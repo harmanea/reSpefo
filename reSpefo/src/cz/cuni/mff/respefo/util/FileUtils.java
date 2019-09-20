@@ -6,10 +6,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.DirectoryDialog;
@@ -94,6 +97,25 @@ public class FileUtils {
 		return directoryName;
 	}
 	
+	public static List<String> multipleFilesDialog(FileType fileType) {
+		return multipleFilesDialog(fileType, "Select files");
+	}
+	
+	public static List<String> multipleFilesDialog(FileType fileType, String text) {
+		FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN | SWT.MULTI);
+		
+		dialog.setText("Choose files");
+		dialog.setFilterNames(new String[] {fileType.filterNames(), "All Files"});
+		dialog.setFilterExtensions(new String[] {fileType.filterExtensions(), "*"});
+		dialog.setFilterPath(getFilterPath());
+		
+		dialog.open();
+		
+		return Arrays.stream(dialog.getFileNames())
+			.map(fileName -> dialog.getFilterPath() + File.separator + fileName)
+			.collect(Collectors.toList());
+	}
+	
 	public static String getFileExtension(String fileName) {
 		int index = fileName.lastIndexOf('.');
 		if (index >= 0) {
@@ -154,7 +176,7 @@ public class FileUtils {
 	
 	public static File firstUniqueFileName(String fileName, String extension) {
 		File file = new File(fileName + "." + extension); 
-		for (int num = 1; file.exists(); num++) {
+		for (int num = 1; file.exists() && num < Integer.MAX_VALUE; num++) {
 		    file = new File(fileName + " (" + num + ")." + extension);
 		}
 		

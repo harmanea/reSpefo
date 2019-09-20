@@ -69,6 +69,8 @@ public class LstFileRecord implements Comparable<LstFileRecord> {
 	public int compareTo(LstFileRecord other) {
 		if (this.date == null || other.date == null) {
 			return Double.compare(this.julianDate, other.julianDate);
+		} else if (this.date.equals(other.date) && this.fileName != null && other.fileName != null) {
+			return this.fileName.compareToIgnoreCase(other.fileName);
 		} else {
 			return this.date.compareTo(other.date);
 		}

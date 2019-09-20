@@ -7,7 +7,7 @@ import org.swtchart.Chart;
 import org.swtchart.IAxis;
 
 import cz.cuni.mff.respefo.ReSpefo;
-import cz.cuni.mff.respefo.util.ChartBuilder;
+import cz.cuni.mff.respefo.util.ChartUtils;
 
 /**
  * Adds the default movement capabilities
@@ -61,7 +61,7 @@ public class DefaultMovementListener implements KeyListener {
 			}
 			break;
 		case SWT.SPACE:
-			ChartBuilder.adjustRange(chart);
+			ChartUtils.adjustRange(chart);
 			break;
 		case '+':
 		case 16777259:

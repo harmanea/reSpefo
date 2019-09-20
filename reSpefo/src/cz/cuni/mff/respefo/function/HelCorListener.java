@@ -32,6 +32,9 @@ public class HelCorListener extends Function {
 	@Override
 	public void handle(SelectionEvent event) {
 		String lstFileName = FileUtils.fileOpenDialog(FileType.LST);
+		if (lstFileName == null) {
+			return;
+		}
 		
 		LstFile lstFile = null;
 		try {
@@ -40,6 +43,7 @@ public class HelCorListener extends Function {
 			Message.error("Couldn't open lst file.", e);
 			return;
 		}
+
 		
 		for (LstFileRecord record : lstFile.getRecords()) {
 			String fileNameWithoutExtension = FileUtils.stripFileExtension(lstFile.getFileName()) + String.format("%05d", record.getIndex());

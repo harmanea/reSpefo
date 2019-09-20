@@ -60,7 +60,7 @@ public class PrepareDirectoryItemListener extends Function {
 			
 			String extension = FileUtils.getFileExtension(oldFileName);
 			String newFileName = FileUtils.getFilterPath() + File.separator + projectPrefix
-					+ String.format("%05d", record.getIndex()) + (extension != null ? "." + extension : "");
+					+ String.format("%05d", record.getIndex()) + (!extension.isEmpty() ? "." + extension : "");
 			try {
 				FileUtils.renameFile(oldFileName, newFileName);
 			} catch (IOException exception) {

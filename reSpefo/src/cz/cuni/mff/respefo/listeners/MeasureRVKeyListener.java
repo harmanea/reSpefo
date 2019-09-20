@@ -5,7 +5,7 @@ import org.eclipse.swt.events.KeyEvent;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.function.MeasureRVItemListener;
-import cz.cuni.mff.respefo.util.ChartBuilder;
+import cz.cuni.mff.respefo.util.ChartUtils;
 
 public class MeasureRVKeyListener extends DefaultKeyListener {
 	
@@ -42,7 +42,7 @@ public class MeasureRVKeyListener extends DefaultKeyListener {
 	}
 	
 	public static void adjustView(KeyEvent event) {
-		ChartBuilder.adjustRange(ReSpefo.getChart(), 1, 1);
+		ChartUtils.adjustRange(ReSpefo.getChart(), 1, 1);
 		ReSpefo.getChart().getAxisSet().zoomOut();
 		MeasureRVItemListener.getInstance().adjustRVStepLabel();
 	}

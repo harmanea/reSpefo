@@ -18,6 +18,7 @@ import java.util.stream.IntStream;
 import cz.cuni.mff.respefo.Version;
 import cz.cuni.mff.respefo.component.RvCorrection;
 import cz.cuni.mff.respefo.util.ArrayUtils;
+import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.SpefoException;
@@ -41,7 +42,7 @@ public class FitsSpectrum extends Spectrum {
 
 	public FitsSpectrum(String fileName) throws SpefoException, FitsException {
 		super(fileName);
-
+		
 		try (Fits f = new Fits(fileName)) {
 			BasicHDU<?>[] HDUs = f.read();
 
@@ -157,7 +158,7 @@ public class FitsSpectrum extends Spectrum {
 	public boolean exportToAscii(String fileName) {
 		if (Message.question(
 				"By saving a FITS file to an ASCII file you lose the header information. Do you want to dump the header into a separate file?")) {
-			String headerFile = fileName.substring(0, fileName.lastIndexOf('.')) + ".header";
+			String headerFile = FileUtils.stripFileExtension(fileName) + ".header";
 			try (PrintStream ps = new PrintStream(headerFile)) {
 				header.dumpHeader(ps);
 

@@ -277,6 +277,15 @@ public abstract class Spectrum {
 			throw new SpefoException("Not a valid file extension");
 		}
 		
+		result.clearNaNs();
 		return result;
+	}
+	
+	protected void clearNaNs() {
+		for (int i = 0; i < xSeries.length; i++) {
+			if (Double.isNaN(xSeries[i])) {
+				xSeries[i] = 0.0;
+			}
+		}
 	}
 }

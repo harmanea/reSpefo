@@ -44,15 +44,15 @@ public class RVResultsPrinter {
 		
 			for (String category : results.getCategories()) {
 				writer.println("## Results for category " + category + ":");
-				writer.println("    rv    \t radius \t   lambda    \tname\tcomment");
+				writer.println("    rv      radius     lambda     name comment");
 
 				ArrayList<Double> values = new ArrayList<>();
 				
 				for (RVResult result : results.getResultsOfCategory(category)) {
-					writer.println(MathUtils.formatDouble(result.rV, 4, 4) + '\t' +
-							MathUtils.formatDouble(result.radius, 4, 4, false) + '\t' +
-							MathUtils.formatDouble(result.l0, 8, 4, false) + '\t' +
-							result.name + '\t' +
+					writer.println(MathUtils.formatDouble(result.rV, 4, 4) + ' ' +
+							MathUtils.formatDouble(result.radius, 4, 4, false) + ' ' +
+							MathUtils.formatDouble(result.l0, 8, 4, false) + ' ' +
+							result.name.replace(" ", "_") + ' ' +
 							result.comment);
 					
 					values.add(result.rV);
@@ -63,7 +63,7 @@ public class RVResultsPrinter {
 					if (values.size() < 5) {
 						writer.println(String.format("mean RV: %f", + MathUtils.round(mean, 4)));
 					} else {
-						writer.println(String.format("robust mean RV: %f\t (%d values)", MathUtils.round(mean, 4), values.size()));
+						writer.println(String.format("robust mean RV: %f (%d values)", MathUtils.round(mean, 4), values.size()));
 					}
 					
 					writer.println("rmse: " + MathUtils.round(MathUtils.rmse(values.stream().mapToDouble(Double::doubleValue).toArray(), mean),4));

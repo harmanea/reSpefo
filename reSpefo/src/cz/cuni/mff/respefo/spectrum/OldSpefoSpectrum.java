@@ -1,11 +1,13 @@
 package cz.cuni.mff.respefo.spectrum;
 
+import static cz.cuni.mff.respefo.util.MathUtils.SPEED_OF_LIGHT;
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -73,7 +75,7 @@ public class OldSpefoSpectrum extends Spectrum {
 			xSeries = Arrays.stream(xSeries).map(index -> MathUtils.polynomial(index, dispCoef)).toArray();
 			
 			if (rvCorr != 0) {
-				xSeries = Arrays.stream(xSeries).map(value -> value + rvCorr*(value / MathUtils.SPEED_OF_LIGHT)).toArray();
+				xSeries = Arrays.stream(xSeries).map(value -> value + rvCorr*(value / SPEED_OF_LIGHT)).toArray();
 			}
 
 			/*
@@ -114,7 +116,7 @@ public class OldSpefoSpectrum extends Spectrum {
 		usedCal = usedCal.replaceAll("\00", "");
 
 		bytes = Arrays.copyOfRange(data, 38, 40);
-		starStep = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
+		starStep = ByteBuffer.wrap(bytes).order(LITTLE_ENDIAN).getShort();
 
 		dispCoef = new double[7];
 		for (int i = 0; i < 7; i++) {
@@ -124,7 +126,7 @@ public class OldSpefoSpectrum extends Spectrum {
 				dispCoef[i] = 0;
 			}
 		}
-		rvCorr = (dispCoef[6] - 1) * MathUtils.SPEED_OF_LIGHT;
+		rvCorr = (dispCoef[6] - 1) * SPEED_OF_LIGHT;
 
 		bytes = Arrays.copyOfRange(data, 110, 120);
 		minTransp = MathUtils.pascalExtendedToDouble(bytes);
@@ -139,10 +141,10 @@ public class OldSpefoSpectrum extends Spectrum {
 		}
 
 		bytes = Arrays.copyOfRange(data, 154, 158);
-		reserve = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
+		reserve = ByteBuffer.wrap(bytes).order(LITTLE_ENDIAN).getInt();
 
 		bytes = Arrays.copyOfRange(data, 158, 160);
-		rectNum = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
+		rectNum = ByteBuffer.wrap(bytes).order(LITTLE_ENDIAN).getShort();
 		if (rectNum < 0) {
 			rectNum = (short) -rectNum;
 		}
@@ -150,13 +152,13 @@ public class OldSpefoSpectrum extends Spectrum {
 		rectX = new int[rectNum];
 		for (int i = 0; i < rectNum; i++) {
 			bytes = Arrays.copyOfRange(data, 160 + 4 * i, 164 + 4 * i);
-			rectX[i] = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
+			rectX[i] = ByteBuffer.wrap(bytes).order(LITTLE_ENDIAN).getInt();
 		}
 
 		rectY = new short[rectNum];
 		for (int i = 0; i < rectNum; i++) {
 			bytes = Arrays.copyOfRange(data, 320 + 2 * i, 322 + 2 * i);
-			rectY[i] = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
+			rectY[i] = ByteBuffer.wrap(bytes).order(LITTLE_ENDIAN).getShort();
 		}
 	}
 
@@ -164,7 +166,7 @@ public class OldSpefoSpectrum extends Spectrum {
 		ArrayList<Double> yList = new ArrayList<>();
 		for (int i = HEADER_SIZE_IN_BYTES; i < data.length; i += 2) {
 			byte[] bytes = Arrays.copyOfRange(data, i, i + 2);
-			short num = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
+			short num = ByteBuffer.wrap(bytes).order(LITTLE_ENDIAN).getShort();
 
 			yList.add((double) num);
 		}
@@ -186,7 +188,7 @@ public class OldSpefoSpectrum extends Spectrum {
 		int maxPoints, offset;
 		if (extended) {
 			bytes = Arrays.copyOfRange(conData, 2, 4);
-			maxPoints = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
+			maxPoints = ByteBuffer.wrap(bytes).order(LITTLE_ENDIAN).getShort();
 			offset = 16;
 		} else {
 			maxPoints = 100;
@@ -198,18 +200,18 @@ public class OldSpefoSpectrum extends Spectrum {
 		remark = conRemark.replaceAll("\00", "");
 
 		bytes = Arrays.copyOfRange(conData, 30 + offset, 32 + offset);
-		rectNum = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
+		rectNum = ByteBuffer.wrap(bytes).order(LITTLE_ENDIAN).getShort();
 
 		rectX = new int[rectNum];
 		rectY = new short[rectNum];
 
 		for (int i = 0; i < rectNum; ++i) {
 			bytes = Arrays.copyOfRange(conData, 32 + offset + 4 * i, 36 + offset + 4 * i);
-			rectX[i] = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
+			rectX[i] = ByteBuffer.wrap(bytes).order(LITTLE_ENDIAN).getInt();
 
 			bytes = Arrays.copyOfRange(conData, (extended ? maxPoints * 4 + 48 : 432) + 2 * i,
 					(extended ? maxPoints * 4 + 52 : 434) + 2 * i);
-			rectY[i] = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
+			rectY[i] = ByteBuffer.wrap(bytes).order(LITTLE_ENDIAN).getShort();
 		}
 	}
 

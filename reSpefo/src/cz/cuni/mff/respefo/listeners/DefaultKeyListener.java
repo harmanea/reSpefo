@@ -10,7 +10,7 @@ import org.eclipse.swt.events.KeyEvent;
 import org.swtchart.IAxis;
 
 import cz.cuni.mff.respefo.ReSpefo;
-import cz.cuni.mff.respefo.util.ChartBuilder;
+import cz.cuni.mff.respefo.util.ChartUtils;
 
 /**
  * Adds the default movement capabilities
@@ -141,6 +141,6 @@ public class DefaultKeyListener extends KeyAdapter {
 	}
 	
 	private static void adjustView(KeyEvent event) {
-		ChartBuilder.adjustRange(ReSpefo.getChart());
+		ChartUtils.adjustRange(ReSpefo.getChart());
 	}
 }

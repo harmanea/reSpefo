@@ -1,13 +1,17 @@
 package cz.cuni.mff.respefo.component;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.PriorityQueue;
 
 import cz.cuni.mff.respefo.util.ArrayUtils;
 import cz.cuni.mff.respefo.util.MathUtils;
 
 public class RectifyPoints {
-	private ArrayList<Double> xCoordinates;
-	private ArrayList<Double> yCoordinates;
+	private List<Double> xCoordinates;
+	private List<Double> yCoordinates;
 	
 	private int activeIndex;
 	
@@ -109,7 +113,7 @@ public class RectifyPoints {
 		int index = -1;
 		double closest = Double.MAX_VALUE;
 		for (int i = 0; i < xCoordinates.size(); i++) {
-			double distance = Math.sqrt(Math.pow(x - xCoordinates.get(i), 2) + Math.pow(y - yCoordinates.get(i), 2));
+			double distance = Math.pow(x - xCoordinates.get(i), 2) + Math.pow(y - yCoordinates.get(i), 2);
 			if (distance < closest) {
 				index = i;
 				closest = distance;
@@ -130,5 +134,49 @@ public class RectifyPoints {
 		
 		yCoordinates.add(y1);
 		yCoordinates.add(y2);
+	}
+	
+	public void adjustToNewData(double[] xSeries, double[] ySeries) {
+		yCoordinates.clear();
+		
+		for (int i = 0; i < xCoordinates.size(); i++) {
+			double xCoordinate = xCoordinates.get(i);
+			double newYCoordinate = findClosest(xSeries, xCoordinate)
+					.stream()
+					.mapToDouble(index -> ySeries[index])
+					.average()
+					.getAsDouble();
+			yCoordinates.add(newYCoordinate);
+		}
+	}
+	
+	private List<Integer> findClosest(double[] series, double value) {
+		Comparator<Integer> distanceToValueComparator = new Comparator<Integer>() {
+			
+			@Override
+			public int compare(Integer a, Integer b) {
+				double aDistance = Math.abs(series[a] - value);
+				double bDistance = Math.abs(series[b] - value);
+				
+				return (int) (aDistance - bDistance);
+			}
+		};
+		
+		PriorityQueue<Integer> distanceToValueQueue = new PriorityQueue<>(distanceToValueComparator);
+		for (int i = 0; i < series.length; i++) {
+			distanceToValueQueue.add(i);
+		}
+		
+		if (distanceToValueQueue.isEmpty()) {
+			return Collections.singletonList(0);
+		}
+		
+		List<Integer> result = new ArrayList<>(5);
+		for (int i = 0; i < 5 && !distanceToValueQueue.isEmpty(); i++) {
+		
+			result.add(distanceToValueQueue.remove());
+		}
+		
+		return result;
 	}
 }
