@@ -3,7 +3,7 @@ package cz.cuni.mff.respefo;
 public class Version {
 	public static final int MAJOR = 1;
 	public static final int MINOR = 0;
-	public static final int RELEASE = 0;
+	public static final int RELEASE = 1;
 	public static final String BUILD = "unix64";
 	public static final String OS;
 	static {
@@ -14,7 +14,7 @@ public class Version {
 		} else if (osName.contains("nix") || osName.contains("nux") || osName.contains("aix")) {
 			OS = "unix" + bitness;
 		} else if (osName.contains("mac")) {
-			OS = "max" + bitness;
+			OS = "mac" + bitness;
 		} else {
 			OS = "unknown";
 		}

@@ -16,4 +16,17 @@ public class FileUtilsTest {
 		fileName = "more.than.one.extension";
 		assertEquals("more.than.one", FileUtils.stripFileExtension(fileName));
 	}
+	
+	@Test
+	public void testParentDirectoryUtils() {
+		String path = "/adam/home/bla.txt";
+		
+		assertEquals("/adam/home", FileUtils.getParentDirectory(path));
+		assertEquals("bla.txt", FileUtils.stripParent(path));
+		
+		path = "bla.txt";
+		
+		assertEquals("", FileUtils.getParentDirectory(path));
+		assertEquals("bla.txt", FileUtils.stripParent(path));
+	}
 }

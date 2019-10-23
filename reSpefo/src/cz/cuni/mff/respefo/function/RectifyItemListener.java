@@ -47,7 +47,6 @@ public class RectifyItemListener extends Function {
 	}
 
 	public void handle(SelectionEvent event) {
-		ReSpefo.reset();
 		
 		String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM);
 		
@@ -62,6 +61,8 @@ public class RectifyItemListener extends Function {
 			Message.error("Couldn't import file.", exception);
 			return;
 		}
+		
+		ReSpefo.reset();
 		
 		if (points.getCount() == 0) {
 			points.reset(spectrum.getX(0), spectrum.getY(0), spectrum.getX(spectrum.getSize() - 1), spectrum.getY(spectrum.getSize() - 1));
@@ -82,7 +83,7 @@ public class RectifyItemListener extends Function {
 		if (chart != null && !chart.isDisposed()) {
 			chart.dispose();
 		}
-		chart = ChartBuilder.in(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)")
+		chart = ChartBuilder.chart(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)")
 				.setYAxisLabel("relative flux")
 				.addLineSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN,
 						spectrum.getXSeries(), spectrum.getYSeries())
@@ -117,7 +118,7 @@ public class RectifyItemListener extends Function {
 		if (chart != null && !chart.isDisposed()) {
 			chart.dispose();
 		}
-		chart = ChartBuilder.in(ReSpefo.getScene()).setTitle("press ESC to edit, press ENTER to save")
+		chart = ChartBuilder.chart(ReSpefo.getScene()).setTitle("press ESC to edit, press ENTER to save")
 				.setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux I(λ)")
 				.addLineSeries(LineStyle.SOLID, "series", ChartBuilder.GREEN, spectrum.getXSeries(), ySeries)
 				.adjustRange().build();

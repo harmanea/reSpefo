@@ -41,6 +41,7 @@ public class FileImportItemListener extends Function {
 	}
 	
 	public void handle(SelectionEvent event) {	
+		
 		String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM);
 
 		if (fileName == null) {
@@ -57,12 +58,11 @@ public class FileImportItemListener extends Function {
 			Message.error("Couldn't import file", exception);
 			return;
 		}
-		
 		ReSpefo.reset();
 
 		ReSpefo.setSpectrum(spectrum);
 		
-		Chart chart = ChartBuilder.in(ReSpefo.getScene())
+		Chart chart = ChartBuilder.chart(ReSpefo.getScene())
 				.setTitle(spectrum.getName())
 				.setXAxisLabel("wavelength (Å)")
 				.setYAxisLabel("relative flux I(λ)")

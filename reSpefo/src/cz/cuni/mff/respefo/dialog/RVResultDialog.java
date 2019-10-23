@@ -185,25 +185,21 @@ public class RVResultDialog extends Dialog {
 			
 			try {
 				lstFile = new LstFile(s);
+				String filePrefix = FileUtils.stripFileExtension(Paths.get(s).getFileName().toString());
 				
 				List<String> rvrFileNamesList = new ArrayList<>();
 				for (LstFileRecord r : lstFile.getRecords()) {							
 					TableItem item = new TableItem(table, SWT.NONE);
-					if (r.hasFileName()) {
-						item.setText(new String[] {Integer.toString(r.getIndex()), r.getFormattedDate(), FileUtils.stripFileExtension(r.getFileName()) + ".rvr"});
+					String fileName = filePrefix + String.format("%05d", r.getIndex()) + ".rvr";
+					String fileNameWithParent = FileUtils.getFilterPath() + File.separatorChar + fileName;
+					
+					item.setText(new String[] {Integer.toString(r.getIndex()), r.getFormattedDate(), fileName});
+					if (!Files.exists(Paths.get(fileNameWithParent))) {
+						item.setForeground(2, table.getDisplay().getSystemColor(SWT.COLOR_RED));
 						
-						String fileName = FileUtils.getFilterPath() + File.separatorChar + FileUtils.stripFileExtension(r.getFileName()).toLowerCase() + ".rvr";
-						if (!Files.exists(Paths.get(fileName))) {
-							item.setForeground(2, table.getDisplay().getSystemColor(SWT.COLOR_RED));
-							
-							rvrFileNamesList.add(null);
-						} else {
-							rvrFileNamesList.add(fileName);
-						}
-					} else {
 						rvrFileNamesList.add(null);
-						
-						item.setText(new String[] { Integer.toString(r.getIndex()), r.getFormattedDate(), "-" });
+					} else {
+						rvrFileNamesList.add(fileNameWithParent);
 					}							
 				}
 				rvrFileNames = (String[]) rvrFileNamesList.stream().toArray(String[]::new);

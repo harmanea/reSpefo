@@ -17,8 +17,10 @@ import org.swtchart.LineStyle;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.component.SeriesSet;
+import cz.cuni.mff.respefo.dialog.CompareDialog;
 import cz.cuni.mff.respefo.dialog.SelectValuesDialog;
 import cz.cuni.mff.respefo.listeners.CompareKeyListener;
+import cz.cuni.mff.respefo.listeners.CompareMouseDragListener;
 import cz.cuni.mff.respefo.listeners.MouseDragListener;
 import cz.cuni.mff.respefo.listeners.MouseWheelZoomListener;
 import cz.cuni.mff.respefo.spectrum.Spectrum;
@@ -52,22 +54,21 @@ public class CompareItemListener extends Function {
 	
 	@Override
 	public void handle(SelectionEvent event) {
-		String fileA = FileUtils.fileOpenDialog(FileType.SPECTRUM);
-		if (fileA == null) {
+
+		CompareDialog dialog = new CompareDialog(ReSpefo.getShell());
+		if (!dialog.open()) {
 			return;
 		}
+		
+		String fileA = dialog.getFileA();
+		String fileB = dialog.getFileB();
 		
 		Spectrum spectrumA = null;
 		try {
 			 spectrumA = Spectrum.createFromFile(fileA);
 			
 		} catch (SpefoException e) {
-			Message.error("Couldn't open file.", e);
-			return;
-		}
-		
-		String fileB = FileUtils.fileOpenDialog(FileType.SPECTRUM);
-		if (fileB == null) {
+			Message.error("Couldn't open file [" + fileA + "].", e);
 			return;
 		}
 		
@@ -76,7 +77,7 @@ public class CompareItemListener extends Function {
 			 spectrumB = Spectrum.createFromFile(fileB);
 			
 		} catch (SpefoException e) {
-			Message.error("Couldn't open file.", e);
+			Message.error("Couldn't open file [" + fileB + "].", e);
 			return;
 		}
 		
@@ -137,7 +138,7 @@ public class CompareItemListener extends Function {
 	}
 	
 	private void createChartAndAddListeners(Spectrum spectrumA, Spectrum spectrumB) {
-		Chart chart = ChartBuilder.in(ReSpefo.getScene())
+		Chart chart = ChartBuilder.chart(ReSpefo.getScene())
 				.setTitle(spectrumA.getName() + " x " + spectrumB.getName())
 				.setXAxisLabel("index")
 				.setYAxisLabel("relative flux I(λ)")
@@ -151,7 +152,7 @@ public class CompareItemListener extends Function {
 		ReSpefo.getScene().addSavedKeyListener(new CompareKeyListener());
 		ReSpefo.getScene().addSavedMouseWheelListener(new MouseWheelZoomListener());
 		
-		MouseDragListener dragListener = new MouseDragListener(true);
+		MouseDragListener dragListener = new CompareMouseDragListener(true);
 		chart.getPlotArea().addMouseListener(dragListener);
 		chart.getPlotArea().addMouseMoveListener(dragListener);
 	}

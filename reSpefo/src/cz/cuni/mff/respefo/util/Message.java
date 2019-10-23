@@ -1,7 +1,15 @@
 package cz.cuni.mff.respefo.util;
 
-import static java.util.logging.Level.*;
-import static org.eclipse.swt.SWT.*;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.SEVERE;
+import static java.util.logging.Level.WARNING;
+import static org.eclipse.swt.SWT.ICON_ERROR;
+import static org.eclipse.swt.SWT.ICON_INFORMATION;
+import static org.eclipse.swt.SWT.ICON_QUESTION;
+import static org.eclipse.swt.SWT.ICON_WARNING;
+import static org.eclipse.swt.SWT.NO;
+import static org.eclipse.swt.SWT.OK;
+import static org.eclipse.swt.SWT.YES;
 
 import java.util.logging.Logger;
 

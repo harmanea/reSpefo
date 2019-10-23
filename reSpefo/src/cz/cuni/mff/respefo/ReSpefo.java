@@ -263,7 +263,10 @@ public class ReSpefo {
 	
 	public static void main(String[] args) {
 	
-		LOGGER.log(Level.INFO, "This is ReSpefo " + Version.toFullString() + "\nDetected OS: " + Version.OS);
+		LOGGER.log(Level.INFO, "This is ReSpefo " + Version.toFullString());
+		if (!Version.BUILD.equalsIgnoreCase(Version.OS)) {
+			LOGGER.warning("Detected OS does not match this build!\nExpected: " + Version.BUILD + "\nDetected: " + Version.OS);
+		}
 		new ReSpefo();
 		LOGGER.log(Level.INFO, "Program terminated");
 	}

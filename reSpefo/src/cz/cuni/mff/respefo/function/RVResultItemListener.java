@@ -59,7 +59,7 @@ public class RVResultItemListener extends Function {
 			table.printToRvsFile(rvsFile);
 			
 		} catch (SpefoException exception) {
-			Message.error("Couldn't save rvs file.", exception);
+			Message.error("Couldn't create rvs file.", exception);
 			return;
 		}
 		
@@ -67,7 +67,7 @@ public class RVResultItemListener extends Function {
 			table.printToCorFile(corFile);
 			
 		} catch (SpefoException exception) {
-			Message.error("Couldn't save cor file.", exception);
+			Message.error("Couldn't create cor file.", exception);
 			return;
 		}
 		

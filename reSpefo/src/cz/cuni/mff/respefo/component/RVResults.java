@@ -59,7 +59,7 @@ public class RVResults {
 					}
 					
 					tokens = line.trim().split("\\s+", 5);
-					if (tokens.length != 5) {
+					if (tokens.length < 4 || tokens.length > 5) {
 						continue;
 					}
 					
@@ -67,7 +67,7 @@ public class RVResults {
 					double radius = Double.parseDouble(tokens[1]);
 					double lambda = Double.parseDouble(tokens[2]);
 					String name = tokens[3];
-					String comment = tokens[4];
+					String comment = tokens.length == 5 ? tokens[4] : "";
 					
 					RVResult result = new RVResult(rv, Double.NaN, radius, category, lambda, name, comment, 0);
 					results.add(result);

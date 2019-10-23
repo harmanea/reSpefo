@@ -22,7 +22,7 @@ public class MeasureRVDialog extends Dialog {
 	private Shell parent;
 	private boolean status;
 	
-	private String fileName;
+	private static String fileName;
 	private static String[] itemsOne = {}, itemsTwo = {};
 	
 	private double rvStep; // negative means relative is selected
@@ -82,8 +82,8 @@ public class MeasureRVDialog extends Dialog {
         labelOne.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
         
         spectrumField = new Text(compOne, SWT.BORDER);
-        spectrumField.setText("");
         spectrumField.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        setSpectrumFieldText();
   
         buttonBrowse = new Button(compOne, SWT.PUSH | SWT.CENTER);
         buttonBrowse.setText("   Browse...   ");
@@ -257,6 +257,19 @@ public class MeasureRVDialog extends Dialog {
 		return status;
 	}
 	
+	private void setSpectrumFieldText() {
+		if (fileName == null) {
+			spectrumField.setText("");
+		} else {
+			String newFileName = FileUtils.incrementFileName(fileName);
+			if (newFileName == null) {
+				spectrumField.setText("");
+			} else {
+				spectrumField.setText(newFileName);
+			}
+		}
+	}
+
 	private void validate() {
 		String message = null;
 		

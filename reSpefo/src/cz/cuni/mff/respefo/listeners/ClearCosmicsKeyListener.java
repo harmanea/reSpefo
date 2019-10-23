@@ -14,9 +14,9 @@ public class ClearCosmicsKeyListener extends DefaultKeyListener {
 		
 		handlers.put(SWT.INSERT, ClearCosmicsKeyListener::insert);
 		
-		handlers.put((int) 'm', ClearCosmicsKeyListener::next);
+		handlers.put((int) 'l', ClearCosmicsKeyListener::next);
 		
-		handlers.put((int) 'n', ClearCosmicsKeyListener::previous);
+		handlers.put((int) 'j', ClearCosmicsKeyListener::previous);
 		
 		handlers.put((int) 'i', ClearCosmicsKeyListener::up);
 		

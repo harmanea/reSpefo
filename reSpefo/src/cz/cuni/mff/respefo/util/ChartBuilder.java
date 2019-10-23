@@ -90,7 +90,7 @@ public class ChartBuilder {
 	 * @param parent
 	 *            to be set as chart's parent
 	 */
-	public static ChartBuilder in(Composite parent) {
+	public static ChartBuilder chart(Composite parent) {
 		return new ChartBuilder(parent);
 	}
 	

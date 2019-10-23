@@ -51,7 +51,6 @@ public class ClearCosmicsItemListener extends Function {
 	}
 	
 	public void handle(SelectionEvent event) {
-		ReSpefo.reset();
 		
 		String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM);
 		if (fileName == null) {
@@ -65,6 +64,8 @@ public class ClearCosmicsItemListener extends Function {
 			Message.error("Couldn't import file", exception);
 			return;
 		}
+		
+		ReSpefo.reset();
 		
 		xSeries = spectrum.getXSeries();
 		ySeries = spectrum.getYSeries();
@@ -85,7 +86,7 @@ public class ClearCosmicsItemListener extends Function {
 		if (chart != null && !chart.isDisposed()) {
 			chart.dispose();
 		}
-		chart = ChartBuilder.in(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)")
+		chart = ChartBuilder.chart(ReSpefo.getScene()).setTitle(spectrum.getName()).setXAxisLabel("wavelength (Å)")
 				.setYAxisLabel("relative flux I(λ)")
 				.addScatterSeries(PlotSymbolType.CIRCLE, 2, "points", ChartBuilder.GREEN, xSeries, ySeries)
 				.addScatterSeries(PlotSymbolType.CIRCLE, 2, "deleted", ChartBuilder.PINK, new double[] {}, new double[] {})
@@ -111,7 +112,7 @@ public class ClearCosmicsItemListener extends Function {
 		if (chart != null && !chart.isDisposed()) {
 			chart.dispose();
 		}
-		chart = ChartBuilder.in(ReSpefo.getScene()).setTitle("press ESC to edit, press ENTER to save")
+		chart = ChartBuilder.chart(ReSpefo.getScene()).setTitle("press ESC to edit, press ENTER to save")
 				.setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux I(λ)")
 				.addScatterSeries(PlotSymbolType.CIRCLE, 1, "series", ChartBuilder.GREEN, xSeries, ySeries)
 				.adjustRange().build();

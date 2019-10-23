@@ -80,7 +80,6 @@ public class MeasureRVItemListener extends Function {
 	}
 
 	public void handle(SelectionEvent event) {
-		ReSpefo.reset();
 		
 		MeasureRVDialog dialog = new MeasureRVDialog(ReSpefo.getShell());
 		if (!dialog.open()) {
@@ -104,6 +103,7 @@ public class MeasureRVItemListener extends Function {
 			Message.error("Couldn't import file.", exception);
 			return;
 		}
+		ReSpefo.reset();
 		
 		ySeries = spectrum.getYSeries();
 		xSeries = spectrum.getXSeries();
@@ -243,7 +243,7 @@ public class MeasureRVItemListener extends Function {
 		if (chart != null && !chart.isDisposed()) {
 			chart.dispose();
 		}
-		chart = ChartBuilder.in(container).setTitle(rvMeasurement.getName() + " #" + (index + 1) + " (" + rvMeasurement.getL0() + ")")
+		chart = ChartBuilder.chart(container).setTitle(rvMeasurement.getName() + " #" + (index + 1) + " (" + rvMeasurement.getL0() + ")")
 				.setXAxisLabel("index").setYAxisLabel("relative flux I(λ)")
 				.addLineSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN, tempXSeries, ySeries)
 				.addLineSeries(LineStyle.SOLID, "mirrored", ChartBuilder.BLUE, mirroredXSeries, mirroredYSeries)
@@ -275,7 +275,7 @@ public class MeasureRVItemListener extends Function {
 		}
 		double newYSeries[] = MathUtils.intep(xSeries, ySeries, newXSeries);
 		
-		chart = ChartBuilder.in(container).setTitle("Press ENTER to finish").setXAxisLabel("index")
+		chart = ChartBuilder.chart(container).setTitle("Press ENTER to finish").setXAxisLabel("index")
 				.setYAxisLabel("relative flux I(λ)")
 				.addLineSeries(LineStyle.SOLID, "original", ChartBuilder.GREEN, xSeries, ySeries)
 				.addScatterSeries(PlotSymbolType.CIRCLE, "measurements", ChartBuilder.PINK, newXSeries, newYSeries).adjustRange()
