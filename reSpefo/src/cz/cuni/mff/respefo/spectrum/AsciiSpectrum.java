@@ -19,7 +19,7 @@ import nom.tam.fits.FitsFactory;
 import nom.tam.util.BufferedFile;
 
 public class AsciiSpectrum extends Spectrum {
-	private static final String[] FILE_EXTENSIONS = {"txt", "ascii", ""};
+	private static final String[] FILE_EXTENSIONS = {"asc", "txt", "ascii", ""};
 
 	public AsciiSpectrum(String fileName) throws SpefoException {
 		super(fileName);

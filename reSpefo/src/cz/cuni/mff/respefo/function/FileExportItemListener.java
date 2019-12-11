@@ -55,6 +55,7 @@ public class FileExportItemListener extends Function {
 		String extension = FileUtils.getFileExtension(fileName);
 		switch (extension) {
 		case "":
+		case "asc":
 		case "txt":
 		case "ascii":
 			if (spectrum.exportToAscii(fileName)) {

@@ -26,8 +26,6 @@ import cz.cuni.mff.respefo.listeners.MouseWheelZoomListener;
 import cz.cuni.mff.respefo.spectrum.Spectrum;
 import cz.cuni.mff.respefo.util.ArrayUtils;
 import cz.cuni.mff.respefo.util.ChartBuilder;
-import cz.cuni.mff.respefo.util.FileType;
-import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.SpectrumUtils;

@@ -39,7 +39,7 @@ public class ConvertToListener {
 		List<String> fileNames = FileUtils.multipleFilesDialog(SPECTRUM);
 		
 		loadSpectra(fileNames).forEach(spectrum ->
-			spectrum.exportToAscii(FileUtils.stripFileExtension(spectrum.getFileName()) + ".ascii"));
+			spectrum.exportToAscii(FileUtils.stripFileExtension(spectrum.getFileName()) + ".asc"));
 	}
 	
 	private List<Spectrum> loadSpectra(List<String> fileNames) {
