@@ -2,7 +2,6 @@ package cz.cuni.mff.respefo.spectrum;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.time.LocalDate;
@@ -18,9 +17,7 @@ import java.util.stream.IntStream;
 import cz.cuni.mff.respefo.Version;
 import cz.cuni.mff.respefo.component.RvCorrection;
 import cz.cuni.mff.respefo.util.ArrayUtils;
-import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.MathUtils;
-import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.SpefoException;
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.Fits;

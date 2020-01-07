@@ -3,6 +3,7 @@ package cz.cuni.mff.respefo.function;
 import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.dialog.ConvertToDialog;
 import cz.cuni.mff.respefo.spectrum.Spectrum;

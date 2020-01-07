@@ -4,6 +4,7 @@ import static cz.cuni.mff.respefo.util.FileType.SPECTRUM;
 import static cz.cuni.mff.respefo.util.GridLayoutBuilder.gridLayout;
 
 import java.util.Arrays;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
