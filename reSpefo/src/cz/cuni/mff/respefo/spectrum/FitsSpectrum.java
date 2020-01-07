@@ -156,20 +156,6 @@ public class FitsSpectrum extends Spectrum {
 
 	@Override
 	public boolean exportToAscii(String fileName) {
-		if (Message.question(
-				"By saving a FITS file to an ASCII file you lose the header information. Do you want to dump the header into a separate file?")) {
-			String headerFile = FileUtils.stripFileExtension(fileName) + ".header";
-			try (PrintStream ps = new PrintStream(headerFile)) {
-				header.dumpHeader(ps);
-
-				if (ps.checkError()) {
-					throw new IOException();
-				}
-			} catch (IOException exception) {
-				LOGGER.log(Level.WARNING, "Error while dumping the header", exception);
-			}
-		}
-
 		try (PrintWriter writer = new PrintWriter(fileName)) {
 			LOGGER.log(Level.FINER, "Opened a file (" + fileName + ")");
 			writer.println(getName());
@@ -194,17 +180,24 @@ public class FitsSpectrum extends Spectrum {
 		}
 	}
 
-	private static final Set<String> ignoredKeys = new HashSet<>(Arrays.asList(new String[] { "", "END", "BITPIX",
-			"NAXIS", "NAXIS1", "EXTEND", "CRPIX1", "CRVAL1", "CDELT1", "BZERO", "BSCALE", "SIMPLE" }));
+	private static final Set<String> ignoredKeys = new HashSet<>(Arrays.asList("", "END", "BITPIX", "NAXIS", "NAXIS1",
+			"EXTEND", "CRPIX1", "CRVAL1", "CDELT1", "BZERO", "BSCALE", "SIMPLE"));
 
 	@Override
 	public boolean exportToFits(String fileName) {
-		double[] data = getYSeries();
-
-		BasicHDU<?> hdu;
 		try (Fits fits = new Fits(); BufferedFile bf = new BufferedFile(fileName, "rw")) {
 			LOGGER.log(Level.FINER, "Opened a file (" + fileName + ")");
-			hdu = FitsFactory.hduFactory(data);
+			
+			BasicHDU<?> hdu;
+			if (ArrayUtils.valuesHaveSameDifference(xSeries)) {
+				hdu = FitsFactory.hduFactory(ySeries);
+				
+				hdu.addValue("CRPIX1", 1, "Reference pixel");
+				hdu.addValue("CRVAL1", getX(0), "Coordinate at reference pixel");
+				hdu.addValue("CDELT1", getX(1) - getX(0), "Coordinate increment");
+			} else {
+				hdu = FitsFactory.hduFactory(new double[][] { xSeries, ySeries });
+			}
 
 			Cursor<String, HeaderCard> cursor = header.iterator();
 			while (cursor.hasNext()) {
@@ -229,9 +222,6 @@ public class FitsSpectrum extends Spectrum {
 				}
 			}
 
-			hdu.addValue("CRPIX1", 1, "Reference pixel");
-			hdu.addValue("CRVAL1", getX(0), "Coordinate at reference pixel");
-			hdu.addValue("CDELT1", getX(1) - getX(0), "Coordinate increment");
 			fits.addHDU(hdu);
 			try {
 				fits.getHDU(0).addValue("SIMPLE", true, "Created by reSpefo v" + Version.toFullString() + " on "

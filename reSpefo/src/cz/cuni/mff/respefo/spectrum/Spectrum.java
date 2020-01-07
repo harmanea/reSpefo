@@ -243,6 +243,7 @@ public abstract class Spectrum {
 		switch (extension) {
 		case "":
 		case "txt":
+		case "asc":
 		case "ascii":
 			result = new AsciiSpectrum(fileName);
 			break;

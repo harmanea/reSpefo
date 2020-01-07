@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 import cz.cuni.mff.respefo.Version;
+import cz.cuni.mff.respefo.util.ArrayUtils;
 import cz.cuni.mff.respefo.util.SpefoException;
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.Fits;
@@ -96,14 +97,20 @@ public class AsciiSpectrum extends Spectrum {
 	public boolean exportToFits(String fileName) {
 		double[] data = getYSeries();
 
-		BasicHDU<?> hdu;
 		try (Fits fits = new Fits(); BufferedFile bf = new BufferedFile(fileName, "rw")) {
 			LOGGER.log(Level.FINER, "Opened a file (" + fileName + ")");
-			hdu = FitsFactory.hduFactory(data);
-			
-			hdu.addValue("CRPIX1", 1, "Reference pixel");
-			hdu.addValue("CRVAL1", getX(0), "Coordinate at reference pixel");
-			hdu.addValue("CDELT1", getX(1) - getX(0), "Coordinate increment");
+
+			BasicHDU<?> hdu;
+			if (ArrayUtils.valuesHaveSameDifference(xSeries)) {
+				hdu = FitsFactory.hduFactory(getYSeries());
+				
+				hdu.addValue("CRPIX1", 1, "Reference pixel");
+				hdu.addValue("CRVAL1", getX(0), "Coordinate at reference pixel");
+				hdu.addValue("CDELT1", getX(1) - getX(0), "Coordinate increment");
+			} else {
+				hdu = FitsFactory.hduFactory(new double[][] { xSeries, ySeries });
+			}
+
 			fits.addHDU(hdu);
 			try {
 				fits.getHDU(0).addValue("SIMPLE", true, "Created by reSpefo " + Version.toFullString() + " on " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));

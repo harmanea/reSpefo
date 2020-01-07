@@ -252,7 +252,7 @@ public class OldSpefoSpectrum extends Spectrum {
 			
 			BasicHDU<?> hdu;
 			if (ArrayUtils.valuesHaveSameDifference(xSeries)) {
-				hdu = FitsFactory.hduFactory(getYSeries());
+				hdu = FitsFactory.hduFactory(ySeries);
 				
 				hdu.addValue("CRPIX1", 1, "Reference pixel");
 				hdu.addValue("CRVAL1", getX(0), "Coordinate at reference pixel");
