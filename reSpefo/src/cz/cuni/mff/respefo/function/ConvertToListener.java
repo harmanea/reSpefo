@@ -1,16 +1,13 @@
 package cz.cuni.mff.respefo.function;
 
-import static cz.cuni.mff.respefo.util.FileType.SPECTRUM;
-
-import java.util.List;
-import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
 import cz.cuni.mff.respefo.ReSpefo;
+import cz.cuni.mff.respefo.dialog.ConvertToDialog;
 import cz.cuni.mff.respefo.spectrum.Spectrum;
 import cz.cuni.mff.respefo.util.FileUtils;
+import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.SpefoException;
 
 public class ConvertToListener {
@@ -29,33 +26,40 @@ public class ConvertToListener {
 	}
 
 	public void convertToFits() {
-		List<String> fileNames = FileUtils.multipleFilesDialog(SPECTRUM);
-		
-		loadSpectra(fileNames).forEach(spectrum ->
-			spectrum.exportToFits(FileUtils.stripFileExtension(spectrum.getFileName()) + ".fits"));
+		convert("fits", (spectrum, fileName) -> spectrum.exportToFits(fileName));
 	}
 	
 	public void convertToAscii() {
-		List<String> fileNames = FileUtils.multipleFilesDialog(SPECTRUM);
-		
-		loadSpectra(fileNames).forEach(spectrum ->
-			spectrum.exportToAscii(FileUtils.stripFileExtension(spectrum.getFileName()) + ".asc"));
+		convert("asc", (spectrum, fileName) -> spectrum.exportToAscii(fileName));
 	}
 	
-	private List<Spectrum> loadSpectra(List<String> fileNames) {
-		return fileNames.stream()
-			.map(this::convertToSpectrum)
-			.filter(object -> !Objects.isNull(object))
-			.collect(Collectors.toList());
-	}
-	
-	private Spectrum convertToSpectrum(String fileName) {
-		try {
-			return Spectrum.createFromFile(fileName);
-		} catch (SpefoException exception) {
-			LOGGER.log(Level.WARNING, "Couldn't convert file [" + fileName + "]", exception);
-			
-			return null;
+	private void convert(String defaultFileExtension, BiFunction<Spectrum, String, Boolean> exportFunction) {
+		ConvertToDialog dialog = new ConvertToDialog(ReSpefo.getShell());
+		if (!dialog.open(defaultFileExtension)){
+			return;
 		}
+		
+		String fileExtension = dialog.getFileExtension();
+		String[] fileNames = dialog.getFileNames();
+		
+		int skipped = 0;
+		
+		for (String fileName : fileNames) {
+			Spectrum spectrum;
+			try {
+				spectrum = Spectrum.createFromFile(fileName);
+			} catch (SpefoException exception) {
+				skipped++;
+				LOGGER.log(Level.WARNING, "Couldn't import file [" + fileName + "]", exception);
+				continue;
+			}
+			
+			if (!exportFunction.apply(spectrum, FileUtils.stripFileExtension(fileName) + "." + fileExtension)) {
+				skipped++;
+				LOGGER.log(Level.WARNING, "Couldn't export file [" + fileName + "]");
+			}
+		}
+		
+		Message.info("Conversion completed:\n\n" + (fileNames.length - skipped) + " files converted\n" + skipped + " files skipped");
 	}
 }
