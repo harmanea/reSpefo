@@ -95,8 +95,6 @@ public class AsciiSpectrum extends Spectrum {
 
 	@Override
 	public boolean exportToFits(String fileName) {
-		double[] data = getYSeries();
-
 		try (Fits fits = new Fits(); BufferedFile bf = new BufferedFile(fileName, "rw")) {
 			LOGGER.log(Level.FINER, "Opened a file (" + fileName + ")");
 
