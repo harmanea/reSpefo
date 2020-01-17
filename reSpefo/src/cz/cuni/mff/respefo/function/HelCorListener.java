@@ -63,6 +63,7 @@ public class HelCorListener extends Function {
 				double rvDelta = record.getRvCorr() - rvCorr;
 				if (rvDelta != 0) {
 					spectrum.applyRvCorrection(rvDelta);
+					spectrum.setRvCorrection(record.getRvCorr());
 					
 					if (!spectrum.exportToFits(fileName)) {
 						throw new SpefoException("Couldn't save file.");
