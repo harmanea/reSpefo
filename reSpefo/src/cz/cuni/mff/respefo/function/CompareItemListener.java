@@ -47,8 +47,10 @@ public class CompareItemListener extends Function {
 	}
 	
 	private SeriesSet spectrumASeries, spectrumBSeries;
-	private double xShift, yShift;
-	private Text xShiftText, yShiftText;
+	private double deltaRV;
+	private double diff;
+	private double xShift, yScale;
+	private Text xShiftText, yScaleText;
 	
 	@Override
 	public void handle(SelectionEvent event) {
@@ -81,11 +83,21 @@ public class CompareItemListener extends Function {
 		
 		ReSpefo.reset();
 		
-		spectrumASeries = SpectrumUtils.transformToEquidistant(spectrumA.getXSeries(), spectrumA.getYSeries());
-		spectrumBSeries = SpectrumUtils.transformToEquidistant(spectrumB.getXSeries(), spectrumB.getYSeries());
+		double spectrumAStep = spectrumA.getXSeries()[1] - spectrumA.getXSeries()[0];
+		double spectrumBStep = spectrumB.getXSeries()[1] - spectrumB.getXSeries()[0];
+		double step = (spectrumAStep + spectrumBStep) / 2;
+		double zero = (spectrumA.getXSeries()[0] + spectrumB.getXSeries()[0]) / 2;
+		
+		deltaRV = (step * MathUtils.SPEED_OF_LIGHT) / (zero * 3);
+		
+		spectrumASeries = SpectrumUtils.transformToEquidistant(spectrumA.getXSeries(), spectrumA.getYSeries(), deltaRV);
+		spectrumBSeries = SpectrumUtils.transformToEquidistant(spectrumB.getXSeries(), spectrumB.getYSeries(), deltaRV);
+		
+		double diffRV = (spectrumASeries.getXSeries()[0] - spectrumBSeries.getXSeries()[0]) * MathUtils.SPEED_OF_LIGHT / spectrumBSeries.getXSeries()[0];
+		diff = 2 * diffRV / deltaRV;
 		
 		xShift = 0;
-		yShift = 0;
+		yScale = 1;
 		
 		createChartAndAddListeners(spectrumA, spectrumB);
 		createBottomBar();
@@ -94,15 +106,15 @@ public class CompareItemListener extends Function {
 	}
 	
 	public void up() {
-		yShift += getRelativeYStep();
+		yScale += 0.1;
 		
-		adjustYShift(true);
+		adjustYScale(true);
 	}
 	
 	public void down() {
-		yShift -= getRelativeYStep();
+		yScale -= 0.1;
 		
-		adjustYShift(true);
+		adjustYScale(true);
 	}
 	
 	public void left() {
@@ -119,7 +131,7 @@ public class CompareItemListener extends Function {
 	
 	public void reset() {
 		xShift = 0;
-		yShift = 0;
+		yScale = 0;
 		
 		adjustShift();
 	}
@@ -127,9 +139,9 @@ public class CompareItemListener extends Function {
 	private void selectValues() {
 		SelectValuesDialog dialog = new SelectValuesDialog(ReSpefo.getShell());
 		
-		if (dialog.open(xShiftText.getText(), yShiftText.getText())) {
-			xShift = dialog.getXShift();
-			yShift = dialog.getYShift();
+		if (dialog.open(xShiftText.getText(), yScaleText.getText())) {
+			xShift = 2 * dialog.getXShift() / deltaRV;
+			yScale = dialog.getYScale();
 			
 			adjustShift();
 		}
@@ -140,8 +152,8 @@ public class CompareItemListener extends Function {
 				.setTitle(spectrumA.getName() + " x " + spectrumB.getName())
 				.setXAxisLabel("index")
 				.setYAxisLabel("relative flux I(λ)")
-				.addLineSeries(LineStyle.SOLID, "seriesA", ChartBuilder.GREEN, spectrumASeries.getXSeries(), spectrumASeries.getYSeries())
-				.addLineSeries(LineStyle.SOLID, "seriesB", ChartBuilder.BLUE, spectrumBSeries.getXSeries(), spectrumBSeries.getYSeries())
+				.addLineSeries(LineStyle.SOLID, "seriesA", ChartBuilder.GREEN, ArrayUtils.fillArray(spectrumASeries.getXSeries().length, 0, 1), spectrumASeries.getYSeries())
+				.addLineSeries(LineStyle.SOLID, "seriesB", ChartBuilder.BLUE, ArrayUtils.fillArray(spectrumBSeries.getXSeries().length, diff, 1), spectrumBSeries.getYSeries())
 				.adjustRange()
 				.build();
 		
@@ -190,8 +202,8 @@ public class CompareItemListener extends Function {
 		decrementYShiftButton.setText("-");
 		decrementYShiftButton.addListener(SWT.Selection, e -> down());
 		
-		yShiftText = new Text(yShiftComposite, SWT.CENTER | SWT.READ_ONLY);
-		yShiftText.setText("0.0");
+		yScaleText = new Text(yShiftComposite, SWT.CENTER | SWT.READ_ONLY);
+		yScaleText.setText("1.0");
 		
 		final Button incrementYShiftButton = new Button(yShiftComposite, SWT.PUSH);
 		incrementYShiftButton.setText("+");
@@ -211,7 +223,7 @@ public class CompareItemListener extends Function {
 	
 	private void adjustShift() {
 		adjustXShift(false);
-		adjustYShift(false);
+		adjustYScale(false);
 		
 		ReSpefo.getChart().redraw();
 		ReSpefo.getScene().forceFocus();
@@ -220,9 +232,9 @@ public class CompareItemListener extends Function {
 	private void adjustXShift(boolean redraw) {
 				
 		ReSpefo.getChart().getSeriesSet().getSeries("seriesB")
-			.setXSeries(ArrayUtils.addValueToArrayElements(spectrumBSeries.getXSeries(), xShift));
+			.setXSeries(ArrayUtils.addValueToArrayElements(ArrayUtils.fillArray(spectrumBSeries.getXSeries().length, diff, 1), xShift));
 		
-		xShiftText.setText(Double.toString(MathUtils.round(xShift, 3)));
+		xShiftText.setText(Double.toString(MathUtils.round(deltaRV * (xShift / 2), 3)));
 		
 		if (redraw) {
 			ReSpefo.getChart().redraw();
@@ -230,12 +242,12 @@ public class CompareItemListener extends Function {
 		}
 	}
 	
-	private void adjustYShift(boolean redraw) {
+	private void adjustYScale(boolean redraw) {
 
 		ReSpefo.getChart().getSeriesSet().getSeries("seriesB")
-			.setYSeries(ArrayUtils.addValueToArrayElements(spectrumBSeries.getYSeries(), yShift));
+			.setYSeries(ArrayUtils.multiplyArrayElements(spectrumBSeries.getYSeries(), yScale));
 
-		yShiftText.setText(Double.toString(MathUtils.round(yShift, 3)));
+		yScaleText.setText(Double.toString(MathUtils.round(yScale, 3)));
 		
 		if (redraw) {
 			ReSpefo.getChart().redraw();
@@ -249,13 +261,5 @@ public class CompareItemListener extends Function {
 		IAxis XAxis = chart.getAxisSet().getXAxis(series.getXAxisId());
 	
 		return (XAxis.getRange().upper - XAxis.getRange().lower) / 1000;
-	}
-	
-	private double getRelativeYStep() {
-		Chart chart = ReSpefo.getChart();
-		ILineSeries series = (ILineSeries) chart.getSeriesSet().getSeries("seriesB");
-		IAxis YAxis = chart.getAxisSet().getYAxis(series.getYAxisId());
-	
-		return (YAxis.getRange().upper - YAxis.getRange().lower) / 1000;
 	}
 }

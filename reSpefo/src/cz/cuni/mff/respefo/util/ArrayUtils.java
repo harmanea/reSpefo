@@ -46,6 +46,16 @@ public class ArrayUtils {
 	}
 	
 	/**
+	 * Multiply all array entries with a value
+	 * @param array 
+	 * @param value to add
+	 * @return adjusted array
+	 */
+	public static double[] multiplyArrayElements(double[] array, double value) {
+		return Arrays.stream(array).map(num -> num * value).toArray();
+	}
+	
+	/**
 	 * Divide all array entries by values in another array
 	 * @param numerators array to be divided
 	 * @param denominators array to divide with

@@ -14,7 +14,7 @@ public class SelectValuesDialog extends Dialog {
 	private boolean status;
 	private Text textOne, textTwo;
 	private Button buttonConfirm;
-	private double xShift, yShift;
+	private double xShift, yScale;
 	
 	public SelectValuesDialog(Shell parent) {
 		super(parent);
@@ -26,11 +26,11 @@ public class SelectValuesDialog extends Dialog {
 		return xShift;
 	}
 	
-	public double getYShift() {
-		return yShift;
+	public double getYScale() {
+		return yScale;
 	}
 	
-	public boolean open(String xShift, String yShift) {
+	public boolean open(String xShift, String yScale) {
 		Shell shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.TITLE | SWT.RESIZE);
 		shell.setText("Select values");
 		shell.setLayout(new GridLayout(2, false));
@@ -45,12 +45,12 @@ public class SelectValuesDialog extends Dialog {
 		textOne.addListener(SWT.Modify, e -> verify());
 		
 		Label labelTwo = new Label(shell, SWT.LEFT);
-		labelTwo.setText("Y shift:");
+		labelTwo.setText("Y scale:");
 		labelTwo.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 
 		textTwo = new Text(shell, SWT.SINGLE | SWT.BORDER);
 		textTwo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		textTwo.setText(yShift);
+		textTwo.setText(yScale);
 		textTwo.addListener(SWT.Modify, e -> verify());
 		
 		buttonConfirm = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -80,7 +80,7 @@ public class SelectValuesDialog extends Dialog {
 	private void verify() {
 		try {
 			xShift = Double.parseDouble(textOne.getText());
-			yShift = Double.parseDouble(textTwo.getText());
+			yScale = Double.parseDouble(textTwo.getText());
 			
 			buttonConfirm.setEnabled(true);
 		} catch (NumberFormatException e) {

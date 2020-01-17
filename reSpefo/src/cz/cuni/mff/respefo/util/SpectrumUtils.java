@@ -8,6 +8,10 @@ public class SpectrumUtils {
 	public static SeriesSet transformToEquidistant(double[] xSeries, double[] ySeries) {
 		double deltaRV = ((xSeries[1] - xSeries[0]) * MathUtils.SPEED_OF_LIGHT) / (xSeries[0] * 3);
 		
+		return transformToEquidistant(xSeries, ySeries, deltaRV);
+	}
+	
+	public static SeriesSet transformToEquidistant(double[] xSeries, double[] ySeries, double deltaRV) {
 		ArrayList<Double> xList = new ArrayList<>();
 		xList.add(xSeries[0]);
 		while (xList.get(xList.size() - 1) < xSeries[xSeries.length - 1]) {
