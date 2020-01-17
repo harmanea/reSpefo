@@ -103,7 +103,7 @@ public class AddToLstItemListener extends Function {
 		} else if (spectrum instanceof OldSpefoSpectrum) {
 			OldSpefoSpectrum oldSpefoSpectrum = (OldSpefoSpectrum) spectrum;
 			
-			rvCorr = oldSpefoSpectrum.getRvCorr();
+			rvCorr = oldSpefoSpectrum.getRvCorrection().getValue();
 		}
 		
 		return new LstFileRecord(index, expTime, julianDate, rvCorr, date, includeFileName ? spectrum.getFileName() : null);

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 import cz.cuni.mff.respefo.Version;
+import cz.cuni.mff.respefo.component.RvCorrection;
 import cz.cuni.mff.respefo.util.ArrayUtils;
 import cz.cuni.mff.respefo.util.SpefoException;
 import nom.tam.fits.BasicHDU;
@@ -125,6 +126,11 @@ public class AsciiSpectrum extends Spectrum {
 			return false;
 		}
 
+	}
+
+	@Override
+	public RvCorrection getRvCorrection() {
+		return new RvCorrection(RvCorrection.UNDEFINED, 0);
 	}
 
 

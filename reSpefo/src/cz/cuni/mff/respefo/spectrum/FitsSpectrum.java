@@ -253,6 +253,7 @@ public class FitsSpectrum extends Spectrum {
 		}
 	}
 
+	@Override
 	public RvCorrection getRvCorrection() {
 		double rvCorr = header.getDoubleValue("VHELIO", Double.NaN);
 		if (!Double.isNaN(rvCorr)) {
@@ -266,6 +267,14 @@ public class FitsSpectrum extends Spectrum {
 	public void applyRvCorrection(double rvCorr) throws SpefoException {
 		xSeries = Arrays.stream(xSeries).map(value -> value + rvCorr*(value / MathUtils.SPEED_OF_LIGHT)).toArray();
 		
+		try {
+			header.addValue("VHELIO", rvCorr, "Heliocentric correction");
+		} catch (HeaderCardException exception) {
+			throw new SpefoException(exception.getMessage());
+		}
+	}
+	
+	public void setRvCorrection(double rvCorr) throws SpefoException {
 		try {
 			header.addValue("VHELIO", rvCorr, "Heliocentric correction");
 		} catch (HeaderCardException exception) {

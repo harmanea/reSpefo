@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cz.cuni.mff.respefo.ReSpefo;
+import cz.cuni.mff.respefo.component.RvCorrection;
 import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.SpefoException;
@@ -212,6 +213,8 @@ public abstract class Spectrum {
 		this.ySeries = ySeries;
 	}
 
+	public abstract RvCorrection getRvCorrection();
+	
 	/**
 	 * Exports and saves the spectrum to a ASCII file.
 	 * @param fileName the name of the new file

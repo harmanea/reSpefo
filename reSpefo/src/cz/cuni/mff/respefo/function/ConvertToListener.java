@@ -5,9 +5,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cz.cuni.mff.respefo.ReSpefo;
+import cz.cuni.mff.respefo.component.RVResults;
 import cz.cuni.mff.respefo.dialog.ConvertToDialog;
 import cz.cuni.mff.respefo.spectrum.Spectrum;
 import cz.cuni.mff.respefo.util.FileUtils;
+import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.SpefoException;
 
@@ -42,25 +44,62 @@ public class ConvertToListener {
 		
 		String fileExtension = dialog.getFileExtension();
 		String[] fileNames = dialog.getFileNames();
+		boolean adjustValues = dialog.adjustValues();
 		
 		int skipped = 0;
 		
 		for (String fileName : fileNames) {
 			Spectrum spectrum;
 			try {
-				spectrum = Spectrum.createFromFile(fileName);
+				spectrum = Spectrum.createFromFile(fileName);			
 			} catch (SpefoException exception) {
 				skipped++;
 				LOGGER.log(Level.WARNING, "Couldn't import file [" + fileName + "]", exception);
 				continue;
 			}
 			
-			if (!exportFunction.apply(spectrum, FileUtils.stripFileExtension(fileName) + "." + fileExtension)) {
+			String deltaCorrText = "";
+			if (adjustValues) {
+				try {
+					double deltaCorr = adjustValues(spectrum, fileName);
+					deltaCorrText = "_[" + Double.toString(MathUtils.round(deltaCorr, 2)) + "]";
+				} catch (SpefoException exception) {
+					skipped++;
+					LOGGER.log(Level.WARNING, "Invalid .rvr file [" + fileName + "]", exception);
+					continue;
+				}
+			}
+			
+			if (!exportFunction.apply(spectrum, FileUtils.stripFileExtension(fileName) + deltaCorrText + "." + fileExtension)) {
 				skipped++;
 				LOGGER.log(Level.WARNING, "Couldn't export file [" + fileName + "]");
 			}
 		}
 		
-		Message.info("Conversion completed:\n\n" + (fileNames.length - skipped) + " files converted\n" + skipped + " files skipped");
+		int converted = fileNames.length - skipped;
+		Message.info("Conversion completed:\n\n" 
+		+ converted + " file" + (converted != 1 ? "s" : "") + " converted\n"
+		+ skipped + " file" + (skipped != 1 ? "s" : "") + " skipped");
+	}
+	
+	private double adjustValues(Spectrum spectrum, String fileName) throws SpefoException {
+		String rvrFileName = FileUtils.stripFileExtension(fileName) + ".rvr";
+		RVResults rvResults = new RVResults(rvrFileName);
+		
+		double headerCorr = spectrum.getRvCorrection().getValue();
+		double measuredCorr = rvResults.getRvOfCategory("corr");
+		if (Double.isNaN(measuredCorr)) {
+			throw new SpefoException("rvr file does not contain corr measurements");
+		}
+		
+		double deltaCorr = headerCorr - measuredCorr;
+		
+		double[] xSeries = spectrum.getXSeries();
+		for (int i = 0; i < xSeries.length; i++) {
+			xSeries[i] = xSeries[i] + deltaCorr * xSeries[i] / MathUtils.SPEED_OF_LIGHT;
+		}
+		spectrum.setXSeries(xSeries);
+		
+		return deltaCorr;
 	}
 }

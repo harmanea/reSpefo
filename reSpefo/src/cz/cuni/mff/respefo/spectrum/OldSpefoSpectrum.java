@@ -18,6 +18,7 @@ import java.util.logging.Level;
 import java.util.stream.IntStream;
 
 import cz.cuni.mff.respefo.Version;
+import cz.cuni.mff.respefo.component.RvCorrection;
 import cz.cuni.mff.respefo.util.ArrayUtils;
 import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.MathUtils;
@@ -367,7 +368,8 @@ public class OldSpefoSpectrum extends Spectrum {
 		return rectY;
 	}
 
-	public double getRvCorr() {
-		return rvCorr;
+	@Override
+	public RvCorrection getRvCorrection() {
+		return new RvCorrection(RvCorrection.HELIOCENTRIC, rvCorr);
 	}
 }

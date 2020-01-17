@@ -23,9 +23,11 @@ public class ConvertToDialog extends Dialog {
 	private boolean status;
 	private String[] fileNames;
 	private String fileExtension;
+	private boolean adjustValues;
 	
 	private List filesList;
 	private Text fileExtensionField;
+	private Button adjustCheckboxButton;
 
 	public ConvertToDialog(Shell parent) {
 		super(parent);
@@ -39,6 +41,10 @@ public class ConvertToDialog extends Dialog {
 	
 	public String getFileExtension() {
 		return fileExtension;
+	}
+	
+	public boolean adjustValues() {
+		return adjustValues;
 	}
 	
 	public boolean open(String defaultFileExtension) {
@@ -99,6 +105,12 @@ public class ConvertToDialog extends Dialog {
         fileExtensionField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
 		
 		// Part three
+        
+        adjustCheckboxButton = new Button(shell, SWT.CHECK);
+        adjustCheckboxButton.setText("Adjust for RV correction differences");
+        adjustCheckboxButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+        
+        // Part four
 		
 		final Composite okCancelButtonsComposite = new Composite(shell, SWT.NONE);
 		layout = gridLayout(2, true)
@@ -147,6 +159,7 @@ public class ConvertToDialog extends Dialog {
 	private void confirmAndCloseDialog(Shell shell) {
 		fileNames = filesList.getItems();
 		fileExtension = fileExtensionField.getText();
+		adjustValues = adjustCheckboxButton.getSelection();
 		
 		setStatusAndCloseShell(true, shell);
 	}
