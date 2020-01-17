@@ -59,7 +59,7 @@ public class RVResults {
 					}
 					
 					tokens = line.trim().split("\\s+", 5);
-					if (tokens.length < 4 || tokens.length > 5) {
+					if (tokens.length < 4 || line.startsWith("robust mean RV")) {
 						continue;
 					}
 					
@@ -77,7 +77,7 @@ public class RVResults {
 		} catch (SpefoException spefoException) {
 			throw spefoException;
 		} catch (Exception exception) {
-			throw new SpefoException(exception.getMessage());
+			throw new SpefoException(exception);
 		}
 	}
 	
