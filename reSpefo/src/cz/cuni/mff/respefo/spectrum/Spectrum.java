@@ -50,6 +50,15 @@ public abstract class Spectrum {
 		return name;
 	}
 	
+	/**
+	 * Sets the name of the spectrum
+	 * 
+	 * @param name to be set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+	
 	
 	/**
 	 * Returns the file name with which the object was created.
