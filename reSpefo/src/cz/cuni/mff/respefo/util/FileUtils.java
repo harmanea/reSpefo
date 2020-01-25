@@ -46,7 +46,11 @@ public class FileUtils {
 	}
 	
 	public static String fileOpenDialog(FileType fileType, boolean saveFilterPath) {
-		return fileDialog(fileType, saveFilterPath, SWT.OPEN, "Open file");
+		return fileDialog(fileType, saveFilterPath, SWT.OPEN, "Open file", null);
+	}
+	
+	public static String fileOpenDialog(FileType fileType, String defaultFileName) {
+		return fileDialog(fileType, true, SWT.OPEN, "Open file", defaultFileName);
 	}
 	
 	public static String fileSaveDialog(FileType fileType) {
@@ -54,10 +58,10 @@ public class FileUtils {
 	}
 	
 	public static String fileSaveDialog(FileType fileType, boolean saveFilterPath) {
-		return fileDialog(fileType, saveFilterPath, SWT.SAVE, "Save file");
+		return fileDialog(fileType, saveFilterPath, SWT.SAVE, "Save file", null);
 	}
 	
-	private static String fileDialog(FileType fileType, boolean saveFilterPath, int style, String text) {
+	private static String fileDialog(FileType fileType, boolean saveFilterPath, int style, String text, String defaultFileName) {
 		FileDialog dialog = new FileDialog(ReSpefo.getShell(), style);
 		
 		dialog.setText(text);
@@ -65,7 +69,9 @@ public class FileUtils {
 		dialog.setFilterExtensions(new String[] {fileType.filterExtensions(), "*"});
 		dialog.setFilterPath(getFilterPath());
 		
-		if (style == SWT.SAVE && ReSpefo.getSpectrum() != null) {
+		if (defaultFileName != null) {
+			dialog.setFileName(defaultFileName);
+		} else if (style == SWT.SAVE && ReSpefo.getSpectrum() != null) {
 			dialog.setFileName(ReSpefo.getSpectrum().getName());
 		}
 		
@@ -98,13 +104,13 @@ public class FileUtils {
 	}
 	
 	public static List<String> multipleFilesDialog(FileType fileType) {
-		return multipleFilesDialog(fileType, "Select files");
+		return multipleFilesDialog(fileType, "Choose files");
 	}
 	
 	public static List<String> multipleFilesDialog(FileType fileType, String text) {
 		FileDialog dialog = new FileDialog(ReSpefo.getShell(), SWT.OPEN | SWT.MULTI);
 		
-		dialog.setText("Choose files");
+		dialog.setText(text);
 		dialog.setFilterNames(new String[] {fileType.filterNames(), "All Files"});
 		dialog.setFilterExtensions(new String[] {fileType.filterExtensions(), "*"});
 		dialog.setFilterPath(getFilterPath());
