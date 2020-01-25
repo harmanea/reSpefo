@@ -16,7 +16,6 @@ import org.swtchart.ILineSeries;
 import org.swtchart.LineStyle;
 
 import cz.cuni.mff.respefo.ReSpefo;
-import cz.cuni.mff.respefo.component.SeriesSet;
 import cz.cuni.mff.respefo.dialog.CompareDialog;
 import cz.cuni.mff.respefo.dialog.SelectValuesDialog;
 import cz.cuni.mff.respefo.listeners.CompareKeyListener;
@@ -28,7 +27,6 @@ import cz.cuni.mff.respefo.util.ArrayUtils;
 import cz.cuni.mff.respefo.util.ChartBuilder;
 import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.Message;
-import cz.cuni.mff.respefo.util.SpectrumUtils;
 import cz.cuni.mff.respefo.util.SpefoException;
 
 public class CompareItemListener extends Function {
@@ -46,9 +44,7 @@ public class CompareItemListener extends Function {
 		return instance;
 	}
 	
-	private SeriesSet spectrumASeries, spectrumBSeries;
-	private double deltaRV;
-	private double diff;
+	private Spectrum spectrumA, spectrumB;
 	private double xShift, yScale;
 	private Text xShiftText, yScaleText;
 	
@@ -63,7 +59,6 @@ public class CompareItemListener extends Function {
 		String fileA = dialog.getFileA();
 		String fileB = dialog.getFileB();
 		
-		Spectrum spectrumA = null;
 		try {
 			 spectrumA = Spectrum.createFromFile(fileA);
 			
@@ -72,7 +67,6 @@ public class CompareItemListener extends Function {
 			return;
 		}
 		
-		Spectrum spectrumB = null;
 		try {
 			 spectrumB = Spectrum.createFromFile(fileB);
 			
@@ -82,19 +76,6 @@ public class CompareItemListener extends Function {
 		}
 		
 		ReSpefo.reset();
-		
-		double spectrumAStep = spectrumA.getXSeries()[1] - spectrumA.getXSeries()[0];
-		double spectrumBStep = spectrumB.getXSeries()[1] - spectrumB.getXSeries()[0];
-		double step = (spectrumAStep + spectrumBStep) / 2;
-		double zero = (spectrumA.getXSeries()[0] + spectrumB.getXSeries()[0]) / 2;
-		
-		deltaRV = (step * MathUtils.SPEED_OF_LIGHT) / (zero * 3);
-		
-		spectrumASeries = SpectrumUtils.transformToEquidistant(spectrumA.getXSeries(), spectrumA.getYSeries(), deltaRV);
-		spectrumBSeries = SpectrumUtils.transformToEquidistant(spectrumB.getXSeries(), spectrumB.getYSeries(), deltaRV);
-		
-		double diffRV = (spectrumASeries.getXSeries()[0] - spectrumBSeries.getXSeries()[0]) * MathUtils.SPEED_OF_LIGHT / spectrumBSeries.getXSeries()[0];
-		diff = 2 * diffRV / deltaRV;
 		
 		xShift = 0;
 		yScale = 1;
@@ -131,7 +112,7 @@ public class CompareItemListener extends Function {
 	
 	public void reset() {
 		xShift = 0;
-		yScale = 0;
+		yScale = 1;
 		
 		adjustShift();
 	}
@@ -140,7 +121,7 @@ public class CompareItemListener extends Function {
 		SelectValuesDialog dialog = new SelectValuesDialog(ReSpefo.getShell());
 		
 		if (dialog.open(xShiftText.getText(), yScaleText.getText())) {
-			xShift = 2 * dialog.getXShift() / deltaRV;
+			xShift = dialog.getXShift();
 			yScale = dialog.getYScale();
 			
 			adjustShift();
@@ -152,8 +133,8 @@ public class CompareItemListener extends Function {
 				.setTitle(spectrumA.getName() + " x " + spectrumB.getName())
 				.setXAxisLabel("index")
 				.setYAxisLabel("relative flux I(λ)")
-				.addLineSeries(LineStyle.SOLID, "seriesA", ChartBuilder.GREEN, ArrayUtils.fillArray(spectrumASeries.getXSeries().length, 0, 1), spectrumASeries.getYSeries())
-				.addLineSeries(LineStyle.SOLID, "seriesB", ChartBuilder.BLUE, ArrayUtils.fillArray(spectrumBSeries.getXSeries().length, diff, 1), spectrumBSeries.getYSeries())
+				.addLineSeries(LineStyle.SOLID, "seriesA", ChartBuilder.GREEN, spectrumA.getXSeries(), spectrumA.getYSeries())
+				.addLineSeries(LineStyle.SOLID, "seriesB", ChartBuilder.BLUE, spectrumB.getXSeries(), spectrumB.getYSeries())
 				.adjustRange()
 				.build();
 		
@@ -232,9 +213,9 @@ public class CompareItemListener extends Function {
 	private void adjustXShift(boolean redraw) {
 				
 		ReSpefo.getChart().getSeriesSet().getSeries("seriesB")
-			.setXSeries(ArrayUtils.addValueToArrayElements(ArrayUtils.fillArray(spectrumBSeries.getXSeries().length, diff, 1), xShift));
+			.setXSeries(adjustedXValues());
 		
-		xShiftText.setText(Double.toString(MathUtils.round(deltaRV * (xShift / 2), 3)));
+		xShiftText.setText(Double.toString(MathUtils.round(xShift, 3)));
 		
 		if (redraw) {
 			ReSpefo.getChart().redraw();
@@ -245,7 +226,7 @@ public class CompareItemListener extends Function {
 	private void adjustYScale(boolean redraw) {
 
 		ReSpefo.getChart().getSeriesSet().getSeries("seriesB")
-			.setYSeries(ArrayUtils.multiplyArrayElements(spectrumBSeries.getYSeries(), yScale));
+			.setYSeries(ArrayUtils.multiplyArrayElements(spectrumB.getYSeries(), yScale));
 
 		yScaleText.setText(Double.toString(MathUtils.round(yScale, 3)));
 		
@@ -254,12 +235,20 @@ public class CompareItemListener extends Function {
 			ReSpefo.getScene().forceFocus();
 		}
 	}
+	
+	private double[] adjustedXValues() {
+		double[] xSeries = spectrumB.getXSeries();
+		for (int i = 0; i < xSeries.length; i++) {
+			xSeries[i] = xSeries[i] + xShift * xSeries[i] / MathUtils.SPEED_OF_LIGHT;
+		}
+		return xSeries;
+	}
 
 	private double getRelativeXStep() {
 		Chart chart = ReSpefo.getChart();
 		ILineSeries series = (ILineSeries) chart.getSeriesSet().getSeries("seriesB");
 		IAxis XAxis = chart.getAxisSet().getXAxis(series.getXAxisId());
 	
-		return (XAxis.getRange().upper - XAxis.getRange().lower) / 1000;
+		return (XAxis.getRange().upper - XAxis.getRange().lower) / 100;
 	}
 }

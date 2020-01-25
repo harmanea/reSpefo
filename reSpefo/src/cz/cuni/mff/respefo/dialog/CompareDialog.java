@@ -114,7 +114,7 @@ public class CompareDialog extends Dialog {
 		
 		shell.pack();
 		shell.open();
-		shell.setSize(500, 280);
+		shell.setSize(500, 250);
 		Display display = parent.getDisplay();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())
