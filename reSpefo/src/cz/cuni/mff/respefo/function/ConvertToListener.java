@@ -58,11 +58,10 @@ public class ConvertToListener {
 				continue;
 			}
 			
-			String deltaCorrText = "";
 			if (adjustValues) {
 				try {
 					double deltaCorr = adjustValues(spectrum, fileName);
-					deltaCorrText = "_[" + Double.toString(MathUtils.round(deltaCorr, 2)) + "]";
+					spectrum.setName(spectrum.getName() + " with rv corr of " + Double.toString(deltaCorr));
 				} catch (SpefoException exception) {
 					skipped++;
 					LOGGER.log(Level.WARNING, "Invalid .rvr file [" + fileName + "]", exception);
@@ -70,7 +69,7 @@ public class ConvertToListener {
 				}
 			}
 			
-			if (!exportFunction.apply(spectrum, FileUtils.stripFileExtension(fileName) + deltaCorrText + "." + fileExtension)) {
+			if (!exportFunction.apply(spectrum, FileUtils.stripFileExtension(fileName) + "." + fileExtension)) {
 				skipped++;
 				LOGGER.log(Level.WARNING, "Couldn't export file [" + fileName + "]");
 			}
