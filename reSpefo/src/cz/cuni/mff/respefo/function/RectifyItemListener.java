@@ -26,6 +26,7 @@ import cz.cuni.mff.respefo.util.SpefoException;
 
 public class RectifyItemListener extends Function {
 	private static RectifyItemListener instance;
+	private static String previousFileName;
 	
 	private Spectrum spectrum;
 	private RectifyPoints points;
@@ -47,12 +48,14 @@ public class RectifyItemListener extends Function {
 	}
 
 	public void handle(SelectionEvent event) {
-		
-		String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM);
+		String defaultFileName = previousFileName != null ? FileUtils.incrementFileName(previousFileName) : null;
+		String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM, defaultFileName);
 		
 		if (fileName == null) {
 			LOGGER.log(Level.FINER, "File dialog returned null");
 			return;
+		} else {
+			previousFileName = FileUtils.stripParent(fileName);
 		}
 		
 		try {

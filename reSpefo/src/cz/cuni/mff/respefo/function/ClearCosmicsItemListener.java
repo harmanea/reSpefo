@@ -27,6 +27,7 @@ import cz.cuni.mff.respefo.util.SpefoException;
 
 public class ClearCosmicsItemListener extends Function {
 	private static ClearCosmicsItemListener instance;
+	private static String previousFileName;
 	
 	private Spectrum spectrum;
 	
@@ -51,11 +52,14 @@ public class ClearCosmicsItemListener extends Function {
 	}
 	
 	public void handle(SelectionEvent event) {
+		String defaultFileName = previousFileName != null ? FileUtils.incrementFileName(previousFileName) : null;
+		String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM, defaultFileName);
 		
-		String fileName = FileUtils.fileOpenDialog(FileType.SPECTRUM);
 		if (fileName == null) {
 			LOGGER.log(Level.FINER, "File dialog returned null");
 			return;
+		} else {
+			previousFileName = FileUtils.stripParent(fileName);
 		}
 		
 		try {
