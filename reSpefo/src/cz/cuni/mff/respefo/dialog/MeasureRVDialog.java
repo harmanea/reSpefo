@@ -25,7 +25,7 @@ public class MeasureRVDialog extends Dialog {
 	private static String fileName;
 	private static String[] itemsOne = {}, itemsTwo = {};
 	
-	private double rvStep; // negative means relative is selected
+	private static double rvStep = -1; // negative means relative is selected
 	
 	private Composite compOne, compTwo, compThree, compFive;
 	private Group group;
@@ -189,8 +189,14 @@ public class MeasureRVDialog extends Dialog {
 
         buttonRadioTwo = new Button(compGroup, SWT.RADIO);
         buttonRadioTwo.setText("relative to scale");
-        buttonRadioTwo.setSelection(true);
         buttonRadioTwo.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true));
+        
+        if (rvStep < 0) {
+        	buttonRadioTwo.setSelection(true);
+        } else {
+        	buttonRadioOne.setSelection(true);
+        	rvStepField.setText(Double.toString(rvStep));
+        }
         
         // Part five
         
@@ -342,7 +348,7 @@ public class MeasureRVDialog extends Dialog {
 	}
 	
 	private void deselectButtonAndValidate(Button button) {
-		button.setEnabled(false);
+		button.setSelection(false);
 		validate();
 	}
 	
