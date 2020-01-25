@@ -139,7 +139,7 @@ public class LstFile {
 								record.getDate(),
 								MathUtils.formatDouble(record.getExp(), 5, 3, false),
 								record.getFileName() != null ? Paths.get(record.getFileName()).getFileName().toString() : "        ",
-								MathUtils.formatDouble(record.getJulianDate(), 5, 3),
+								MathUtils.formatDouble(record.getJulianDate(), 5, 4),
 								MathUtils.formatDouble(record.getRvCorr(), 3, 2)));
 			}
 			
