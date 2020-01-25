@@ -156,7 +156,7 @@ public class RVResultsTable {
 		if (!correct) {
 			writer.print(" " + MathUtils.formatDouble(row.getLstFileRecord().getRvCorr(), 2, 2, true));
 		} else {
-			rvCorr = row.getResult("corr").orElseThrow(() -> new SpefoException("Not all rvr files contain measured corrections.")) - row.getLstFileRecord().getRvCorr();
+			rvCorr = row.getLstFileRecord().getRvCorr() - row.getResult("corr").orElseThrow(() -> new SpefoException("Not all rvr files contain measured corrections."));
 		}
 		
 		String nextLine = correct ? "\n" : "\n      ";
