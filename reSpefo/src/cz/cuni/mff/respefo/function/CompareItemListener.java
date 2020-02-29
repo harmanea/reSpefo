@@ -5,6 +5,7 @@ import static cz.cuni.mff.respefo.util.FillLayoutBuilder.fillLayout;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
@@ -13,6 +14,7 @@ import org.eclipse.swt.widgets.Text;
 import org.swtchart.Chart;
 import org.swtchart.IAxis;
 import org.swtchart.ILineSeries;
+import org.swtchart.ITitle;
 import org.swtchart.LineStyle;
 
 import cz.cuni.mff.respefo.ReSpefo;
@@ -130,14 +132,15 @@ public class CompareItemListener extends Function {
 	
 	private void createChartAndAddListeners(Spectrum spectrumA, Spectrum spectrumB) {
 		Chart chart = ChartBuilder.chart(ReSpefo.getScene())
-				.setTitle(spectrumA.getName() + " x " + spectrumB.getName())
 				.setXAxisLabel("index")
 				.setYAxisLabel("relative flux I(λ)")
 				.addLineSeries(LineStyle.SOLID, "seriesA", ChartBuilder.GREEN, spectrumA.getXSeries(), spectrumA.getYSeries())
 				.addLineSeries(LineStyle.SOLID, "seriesB", ChartBuilder.BLUE, spectrumB.getXSeries(), spectrumB.getYSeries())
 				.adjustRange()
 				.build();
-		
+				
+		setTitle(chart, spectrumA.getName(), spectrumB.getName());
+
 		ReSpefo.setChart(chart);
 		
 		ReSpefo.getScene().addSavedKeyListener(new CompareKeyListener());
@@ -146,6 +149,15 @@ public class CompareItemListener extends Function {
 		MouseDragListener dragListener = new CompareMouseDragListener(true);
 		chart.getPlotArea().addMouseListener(dragListener);
 		chart.getPlotArea().addMouseMoveListener(dragListener);
+	}
+	
+	private void setTitle(Chart chart, String titleA, String titleB) {
+		ITitle title = chart.getTitle();
+		title.setText(titleA + " x " + titleB); 
+		title.setStyleRanges(new StyleRange[] {
+				new StyleRange(0, titleA.length(), ChartBuilder.GREEN, null),
+				new StyleRange(titleA.length() + 3, titleA.length() + 3 + titleB.length(), ChartBuilder.BLUE, null)});
+		
 	}
 	
 	private void createBottomBar() {
