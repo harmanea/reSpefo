@@ -9,9 +9,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cz.cuni.mff.respefo.ReSpefo;
+import cz.cuni.mff.respefo.dialog.OverwriteDialog;
 import cz.cuni.mff.respefo.spectrum.Spectrum;
 import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.MathUtils;
+import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.SpefoException;
 
 public class RVResultsPrinter {
@@ -32,8 +34,38 @@ public class RVResultsPrinter {
 	 * @param spectrum
 	 * @return True if successful, False otherwise
 	 */
-	public boolean printResults(Spectrum spectrum) {	
-		File file = FileUtils.firstUniqueFileName(FileUtils.getFilterPath() + File.separator + spectrum.getName(), "rvr");
+	public boolean printResults(Spectrum spectrum) {
+		String fileNamePart = FileUtils.getFilterPath() + File.separator + spectrum.getName();
+		File file = new File(fileNamePart + ".rvr");
+		if (file.exists()) {
+			int choice = new OverwriteDialog(ReSpefo.getShell()).open();
+			if (choice == 0) {
+				return false;
+			}
+			
+			boolean append = choice == 2;
+			boolean newFile = choice == 3;
+			
+			if (append) {
+				try {
+					RVResults oldResults = new RVResults(file.getPath());
+					if (Double.compare(results.getRvCorr().getValue(), oldResults.getRvCorr().getValue()) != 0) {
+						Message.warning("The original file has a different RV correction. This might lead to incorrect results!");
+					}
+					for (RVResult result : results) {
+						oldResults.addResult(result);
+					}
+					results = oldResults;
+					
+				} catch (SpefoException e) {
+					Message.warning("Original file couldn't be loaded. Creating a new file instead.");
+					newFile = true;
+				}
+			}
+			if (newFile) {
+				file = FileUtils.firstUniqueFileName(fileNamePart, "rvr");
+			}
+		}
 		
 		try (PrintWriter writer = new PrintWriter(new FileOutputStream(file))) {
 			writer.println("# Summary of radial velocities measured on " + spectrum.getName());

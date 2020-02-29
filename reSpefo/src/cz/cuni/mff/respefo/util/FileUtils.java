@@ -2,6 +2,7 @@ package cz.cuni.mff.respefo.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -205,5 +206,16 @@ public class FileUtils {
 	public static void renameFile(String oldFileName, String newFileName) throws IOException {
 		Path source = Paths.get(oldFileName);
 		Files.move(source, source.resolveSibling(newFileName), StandardCopyOption.REPLACE_EXISTING);
+	}
+	
+	public static void clearFileIfExists(File file) {
+		if (file.exists()) {
+			try (RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw")) {
+				randomAccessFile.setLength(0);
+				
+			} catch (Exception e) {
+				// ignore exception
+			}
+		}
 	}
 }

@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,7 +14,7 @@ import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.SpefoException;
 
-public class RVResults {
+public class RVResults implements Iterable<RVResult> {
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 	private ArrayList<RVResult> results;
@@ -59,7 +60,7 @@ public class RVResults {
 					}
 					
 					tokens = line.trim().split("\\s+", 5);
-					if (tokens.length < 4 || line.startsWith("robust mean RV")) {
+					if (tokens.length < 4 || line.contains("mean RV")) {
 						continue;
 					}
 					
@@ -141,5 +142,22 @@ public class RVResults {
 				.mapToDouble(result -> result.rV).toArray();
 		
 		return MathUtils.rmse(rvs, rv);
+	}
+
+	@Override
+	public Iterator<RVResult> iterator() {
+		return new Iterator<RVResult>() {
+			private int i = 0;
+			
+			@Override
+			public RVResult next() {
+				return results.get(i++);
+			}
+			
+			@Override
+			public boolean hasNext() {
+				return i < results.size();
+			}
+		};
 	}
 }

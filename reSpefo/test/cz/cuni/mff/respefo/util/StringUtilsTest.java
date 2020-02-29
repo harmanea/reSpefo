@@ -9,8 +9,8 @@ public class StringUtilsTest {
 	public void testPaddedString() {
 		String str = "abc";
 		
-		assertEquals("   abc", StringUtils.paddedString(str, 6));
-		assertEquals("abc", StringUtils.paddedString(str, 3));
-		assertEquals("abc", StringUtils.paddedString(str, 0));
+		assertEquals("   abc", StringUtils.trimmedOrPaddedString(str, 6));
+		assertEquals("abc", StringUtils.trimmedOrPaddedString(str, 3));
+		assertEquals("ab", StringUtils.trimmedOrPaddedString(str, 2));
 	}
 }

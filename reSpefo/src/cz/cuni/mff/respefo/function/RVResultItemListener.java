@@ -10,6 +10,7 @@ import cz.cuni.mff.respefo.component.LstFile;
 import cz.cuni.mff.respefo.component.RVResults;
 import cz.cuni.mff.respefo.component.RVResultsTable;
 import cz.cuni.mff.respefo.dialog.RVResultDialog;
+import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.SpefoException;
 
@@ -59,6 +60,7 @@ public class RVResultItemListener extends Function {
 			table.printToRvsFile(rvsFile);
 			
 		} catch (SpefoException exception) {
+			FileUtils.clearFileIfExists(rvsFile);
 			Message.error("Couldn't create rvs file.", exception);
 			return;
 		}
@@ -67,6 +69,7 @@ public class RVResultItemListener extends Function {
 			table.printToCorFile(corFile);
 			
 		} catch (SpefoException exception) {
+			FileUtils.clearFileIfExists(corFile);
 			Message.error("Couldn't create cor file.", exception);
 			return;
 		}

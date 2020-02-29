@@ -134,14 +134,14 @@ public class RVResultsTable {
 	}
 	
 	private void printTableHeader(PrintWriter writer, boolean correct) {
-		writer.print("  N.\tJul. date ");
+		writer.print("  N. Jul. date ");
 		if (!correct) {
-			writer.print("\t corr ");
+			writer.print("RVCorr ");
 		}
 		
 		for (String category : categories) {
 			if (!correct || !category.equals("corr")) {
-				writer.print("\t" + StringUtils.paddedString(category, 8));
+				writer.print(" " + StringUtils.trimmedOrPaddedString(category, 8) + "         ");
 			}
 		}
 		
@@ -159,7 +159,6 @@ public class RVResultsTable {
 			rvCorr = row.getLstFileRecord().getRvCorr() - row.getResult("corr").orElseThrow(() -> new SpefoException("Not all rvr files contain measured corrections."));
 		}
 		
-		String nextLine = correct ? "\n" : "\n      ";
 		for (String category : categories) {
 			if (correct && category.equals("corr")) {
 				continue;
@@ -175,12 +174,9 @@ public class RVResultsTable {
 				rv = 9999.99;
 			}
 			
-			nextLine += " " + MathUtils.formatDouble(row.getRmse(category).orElse(0.0), 5, 2, false);
-			
-			writer.print(" " + MathUtils.formatDouble(rv, 4, 2, true));
+			writer.print(" " + MathUtils.formatDouble(rv, 4, 2, true) + " " + MathUtils.formatDouble(row.getRmse(category).orElse(0.0), 5, 2, false));
 		}
-		
-		writer.println(nextLine);
+		writer.println();
 	}
 
 	public boolean addTableRow(RVResultsTableRow row) {
