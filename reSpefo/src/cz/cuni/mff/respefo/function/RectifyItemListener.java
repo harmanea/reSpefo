@@ -7,6 +7,7 @@ import org.swtchart.Chart;
 import org.swtchart.IAxis;
 import org.swtchart.ILineSeries;
 import org.swtchart.ILineSeries.PlotSymbolType;
+import org.swtchart.ISeries;
 import org.swtchart.LineStyle;
 import org.swtchart.Range;
 
@@ -124,6 +125,8 @@ public class RectifyItemListener extends Function {
 		chart = ChartBuilder.chart(ReSpefo.getScene()).setTitle("press ESC to edit, press ENTER to save")
 				.setXAxisLabel("wavelength (Å)").setYAxisLabel("relative flux I(λ)")
 				.addLineSeries(LineStyle.SOLID, "series", ChartBuilder.GREEN, spectrum.getXSeries(), ySeries)
+				.addLineSeries(LineStyle.SOLID, "line", ChartBuilder.GRAY,
+						new double[] { spectrum.getX(0), spectrum.getX(ySeries.length - 1) }, new double[] { 1, 1 })
 				.adjustRange().build();
 
 		ReSpefo.setChart(chart);
@@ -313,6 +316,14 @@ public class RectifyItemListener extends Function {
 				updateLineSeries("points", points.getXCoordinates(), points.getYCoordinates());
 				updateLineSeries("selected", new double[] { points.getActiveX() }, new double[] { points.getActiveY() });
 			}
+		}
+	}
+	
+	public void tab() {
+		if (summary) {
+			Chart chart = ReSpefo.getChart();
+			ISeries line = chart.getSeriesSet().getSeries("line");
+			line.setVisible(!line.isVisible());
 		}
 	}
 }

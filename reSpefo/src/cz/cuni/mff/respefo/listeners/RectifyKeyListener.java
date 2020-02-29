@@ -29,6 +29,8 @@ public class RectifyKeyListener extends DefaultKeyListener {
 		handlers.put((int) SWT.DEL, RectifyKeyListener::delete);
 		
 		handlers.put((int) 'x', RectifyKeyListener::clearPoints);
+		
+		handlers.put((int) SWT.TAB, RectifyKeyListener::tab);
 	}
 	
 	public static void previousPoint(KeyEvent event) {
@@ -79,5 +81,9 @@ public class RectifyKeyListener extends DefaultKeyListener {
 		if ((event.stateMask & SWT.CTRL) == SWT.CTRL) {
 			RectifyItemListener.getInstance().clearPoints();
 		}
+	}
+	
+	public static void tab(KeyEvent event) {
+		RectifyItemListener.getInstance().tab();
 	}
 }
