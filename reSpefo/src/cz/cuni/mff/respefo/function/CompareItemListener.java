@@ -132,7 +132,7 @@ public class CompareItemListener extends Function {
 	
 	private void createChartAndAddListeners(Spectrum spectrumA, Spectrum spectrumB) {
 		Chart chart = ChartBuilder.chart(ReSpefo.getScene())
-				.setXAxisLabel("index")
+				.setXAxisLabel("wavelength (Å)")
 				.setYAxisLabel("relative flux I(λ)")
 				.addLineSeries(LineStyle.SOLID, "seriesA", ChartBuilder.GREEN, spectrumA.getXSeries(), spectrumA.getYSeries())
 				.addLineSeries(LineStyle.SOLID, "seriesB", ChartBuilder.BLUE, spectrumB.getXSeries(), spectrumB.getYSeries())
