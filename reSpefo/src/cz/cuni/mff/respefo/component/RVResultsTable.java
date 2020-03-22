@@ -13,13 +13,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.SpefoException;
 import cz.cuni.mff.respefo.util.StringUtils;
 
 public class RVResultsTable {
+	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
+	
 	private String header;
 	private String[] categories;
 	private List<RVResultsTableRow> rows;
@@ -149,14 +153,21 @@ public class RVResultsTable {
 	}
 	
 	private void printRow(PrintWriter writer, RVResultsTableRow row, boolean correct) throws SpefoException {
-		writer.print(MathUtils.formatDouble(row.getLstFileRecord().getIndex(), 3, 0, false) + " ");
-		writer.print(MathUtils.formatDouble(row.getLstFileRecord().getJulianDate(), 5, 4, false));
+		StringBuilder rowBuilder = new StringBuilder();
+		
+		rowBuilder.append(MathUtils.formatDouble(row.getLstFileRecord().getIndex(), 3, 0, false) + " ");
+		rowBuilder.append(MathUtils.formatDouble(row.getLstFileRecord().getJulianDate(), 5, 4, false));
 		
 		double rvCorr = 0;
 		if (!correct) {
-			writer.print(" " + MathUtils.formatDouble(row.getLstFileRecord().getRvCorr(), 2, 2, true));
+			rowBuilder.append(" " + MathUtils.formatDouble(row.getLstFileRecord().getRvCorr(), 2, 2, true));
 		} else {
-			rvCorr = row.getLstFileRecord().getRvCorr() - row.getResult("corr").orElseThrow(() -> new SpefoException("Not all rvr files contain measured corrections."));
+			if (row.getResult("corr").isPresent()) {
+				rvCorr = row.getLstFileRecord().getRvCorr() - row.getResult("corr").get();
+			} else {
+				LOGGER.warning("Row " + row.getLstFileRecord().getIndex() + " skipped in .cor file.\nIt doesn't have measured corrections.");
+				return;
+			}
 		}
 		
 		for (String category : categories) {
@@ -174,9 +185,9 @@ public class RVResultsTable {
 				rv = 9999.99;
 			}
 			
-			writer.print(" " + MathUtils.formatDouble(rv, 4, 2, true) + " " + MathUtils.formatDouble(row.getRmse(category).orElse(0.0), 5, 2, false));
+			rowBuilder.append(" " + MathUtils.formatDouble(rv, 4, 2, true) + " " + MathUtils.formatDouble(row.getRmse(category).orElse(0.0), 5, 2, false));
 		}
-		writer.println();
+		writer.println(rowBuilder.toString());
 	}
 
 	public boolean addTableRow(RVResultsTableRow row) {
