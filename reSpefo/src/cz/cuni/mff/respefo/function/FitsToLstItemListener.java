@@ -109,7 +109,7 @@ public class FitsToLstItemListener extends Function {
 				Optional.ofNullable(spectrum.getRvCorrection())
 					.orElse(new RvCorrection(RvCorrection.UNDEFINED, 0))
 						.getValue());
-		result.setJulianDate(Double.isNaN(spectrum.getJulianDate()) ? 0 : spectrum.getJulianDate());
+		result.setJulianDate(spectrum.getJulianDate());
 		
 		return result;
 	}

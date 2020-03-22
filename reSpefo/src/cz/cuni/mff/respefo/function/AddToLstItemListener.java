@@ -95,7 +95,7 @@ public class AddToLstItemListener extends Function {
 			FitsSpectrum fitsSpectrum = (FitsSpectrum) spectrum;
 			
 			expTime = fitsSpectrum.getExpTime();
-			julianDate = Double.isNaN(fitsSpectrum.getJulianDate()) ? 0.0 : fitsSpectrum.getJulianDate();
+			julianDate = fitsSpectrum.getJulianDate();
 			date = fitsSpectrum.getLstDate();
 			if (fitsSpectrum.getRvCorrection() != null) {
 				rvCorr = fitsSpectrum.getRvCorrection().getValue();

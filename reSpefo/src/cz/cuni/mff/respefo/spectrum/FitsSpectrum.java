@@ -241,8 +241,16 @@ public class FitsSpectrum extends Spectrum {
 		return header;
 	}
 
+	private static final String[] EXP_TIME_ALIASES = {"EXPTIME", "CTIME", "ITIME", "DARKTIME"};
+	
 	public double getExpTime() {
-		return header.getBigDecimalValue("EXPTIME").doubleValue();
+		for (String alias : EXP_TIME_ALIASES) {
+			if (header.containsKey(alias)) {
+				return header.getBigDecimalValue(alias).doubleValue();
+			}
+		}
+				
+		return 0;
 	}
 
 	public String getLstDate() {
@@ -253,11 +261,23 @@ public class FitsSpectrum extends Spectrum {
 		}
 	}
 
+	private static final String[] RV_CORR_ALIASES = {"VHELIO", "HCRV", "SUN_COR"};
+	
 	@Override
 	public RvCorrection getRvCorrection() {
-		double rvCorr = header.getDoubleValue("VHELIO", Double.NaN);
+		double rvCorr = Double.NaN;
+		for (String alias : RV_CORR_ALIASES) {
+			if (header.containsKey(alias)) {
+				rvCorr = header.getDoubleValue(alias);
+				break;
+			}
+		}
+		
 		if (!Double.isNaN(rvCorr)) {
-			return new RvCorrection(header.containsKey("BJD") ? RvCorrection.BARYCENTRIC : RvCorrection.HELIOCENTRIC,
+			return new RvCorrection(
+					header.containsKey("BJD") 
+						? RvCorrection.BARYCENTRIC 
+						: RvCorrection.HELIOCENTRIC,
 					rvCorr);
 		}
 
@@ -282,8 +302,16 @@ public class FitsSpectrum extends Spectrum {
 		}
 	}
 
+	private static final String[] JULIAN_DATE_ALIASES = {"HJD", "HCJD", "MID-HJD"};
+	
 	public double getJulianDate() {
-		return header.getDoubleValue("JD", Double.NaN);
+		for (String alias : JULIAN_DATE_ALIASES) {
+			if (header.containsKey(alias)) {
+				return header.getDoubleValue(alias);
+			}
+		}
+				
+		return 0;
 	}
 
 	private void parseDate() {
@@ -293,6 +321,10 @@ public class FitsSpectrum extends Spectrum {
 		}
 
 		String timeValue = header.getStringValue("UT");
+		if (parseDateAndTime(dateValue, timeValue)) {
+			return;
+		}
+		timeValue = header.getStringValue("UT-OBS");
 		if (parseDateAndTime(dateValue, timeValue)) {
 			return;
 		}
