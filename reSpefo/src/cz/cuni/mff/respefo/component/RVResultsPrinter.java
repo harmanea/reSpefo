@@ -49,7 +49,7 @@ public class RVResultsPrinter {
 			if (append) {
 				try {
 					RVResults oldResults = new RVResults(file.getPath());
-					if (Double.compare(results.getRvCorr().getValue(), oldResults.getRvCorr().getValue()) != 0) {
+					if (!MathUtils.doublesEqual(results.getRvCorr().getValue(), oldResults.getRvCorr().getValue())) {
 						Message.warning("The original file has a different RV correction. This might lead to incorrect results!");
 					}
 					for (RVResult result : results) {

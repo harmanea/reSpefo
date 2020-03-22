@@ -12,6 +12,7 @@ import cz.cuni.mff.respefo.component.RvCorrection;
 import cz.cuni.mff.respefo.spectrum.FitsSpectrum;
 import cz.cuni.mff.respefo.util.FileType;
 import cz.cuni.mff.respefo.util.FileUtils;
+import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.SpefoException;
 
@@ -60,9 +61,8 @@ public class HelCorListener extends Function {
 				double rvCorr = Optional.ofNullable(spectrum.getRvCorrection())
 						.orElse(new RvCorrection(RvCorrection.UNDEFINED, 0)).getValue();
 				
-				double rvDelta = record.getRvCorr() - rvCorr;
-				if (rvDelta != 0) {
-					spectrum.applyRvCorrection(rvDelta);
+				if (!MathUtils.doublesEqual(record.getRvCorr(), rvCorr)) {
+					spectrum.applyRvCorrection(record.getRvCorr() - rvCorr);
 					spectrum.setRvCorrection(record.getRvCorr());
 					
 					if (!spectrum.exportToFits(fileName)) {
