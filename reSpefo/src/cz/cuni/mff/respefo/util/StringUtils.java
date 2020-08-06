@@ -10,4 +10,13 @@ public class StringUtils {
 		return result;
 	}
 	
+	public static boolean stringContainsWhitespace(String s) {
+		for (char c : s.toCharArray()) {
+		    if (Character.isWhitespace(c)) {
+		       return true;
+		    }
+		}
+		
+		return false;
+	}
 }

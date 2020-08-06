@@ -19,6 +19,26 @@ public class ArrayUtils {
         }
 	}
 	
+	public static int findClosest(double[] array, double target) {
+		int index = Arrays.binarySearch(array, target);
+		if (index >= 0) {
+			return index;
+			
+		} else {
+			int insertionPoint = -1 * (index + 1);
+			if (insertionPoint == 0) {
+				return insertionPoint;
+			} else if (insertionPoint == array.length) {
+				return insertionPoint - 1;
+			} else {
+				double lowDiff = target - array[insertionPoint - 1];
+				double topDiff = array[insertionPoint] - target;
+				
+				return lowDiff > topDiff ? insertionPoint : insertionPoint - 1;
+			}
+		}
+	}
+	
 	/**
 	 * Flips the array values
 	 * @param array
@@ -68,6 +88,16 @@ public class ArrayUtils {
 		
 		return IntStream.range(0, numerators.length).mapToDouble(i -> numerators[i] / denominators[i]).toArray();
 	}
+	
+    /**
+     * Divide all array entries by a given value
+     * @param numerators array to be divided
+     * @param denominator value to divide with
+     * @return adjusted array
+     */
+    public static double[] divideArrayValues(double[] numerators, double denominator) {
+        return IntStream.range(0, numerators.length).mapToDouble(i -> numerators[i] / denominator).toArray();
+    }
 	
 	/**
 	 * Applies BScale to all array values
