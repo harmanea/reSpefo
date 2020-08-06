@@ -21,8 +21,8 @@ import org.swtchart.ILineSeries.PlotSymbolType;
 import org.swtchart.LineStyle;
 
 import cz.cuni.mff.respefo.ReSpefo;
-import cz.cuni.mff.respefo.component.RVMeasurement;
-import cz.cuni.mff.respefo.component.RVMeasurements;
+import cz.cuni.mff.respefo.component.Measurement;
+import cz.cuni.mff.respefo.component.Measurements;
 import cz.cuni.mff.respefo.component.RVResult;
 import cz.cuni.mff.respefo.component.RVResults;
 import cz.cuni.mff.respefo.component.RVResultsPrinter;
@@ -47,7 +47,7 @@ import cz.cuni.mff.respefo.util.SpefoException;
 public class MeasureRVItemListener extends Function {
 	private static MeasureRVItemListener instance;
 	
-	private RVMeasurements rvMeasurements;
+	private Measurements rvMeasurements;
 	private RVResults results;
 	private int index;
 	private boolean summary;
@@ -87,7 +87,7 @@ public class MeasureRVItemListener extends Function {
 			return;
 		}
 		
-		rvMeasurements = new RVMeasurements();
+		rvMeasurements = new Measurements();
 		results = new RVResults();
 		index = 0;
 		summary = false;
@@ -121,12 +121,6 @@ public class MeasureRVItemListener extends Function {
 			}
 		}
 		results.setRvCorr(rvCorr);
-		
-		for (int i = 0; i < ySeries.length; i++) {
-			if (Double.isNaN(ySeries[i])) {
-				ySeries[i] = 1;
-			}
-		}
 		
 		deltaRV = ((xSeries[1] - xSeries[0]) * MathUtils.SPEED_OF_LIGHT) / (xSeries[0] * 3);
 		
@@ -208,7 +202,7 @@ public class MeasureRVItemListener extends Function {
 		ReSpefo.getScene().layout();
 	}
 
-	private void createChart(RVMeasurement rvMeasurement) {
+	private void createChart(Measurement rvMeasurement) {
 		double[] origXSeries = xSeries;
 		double[] tempXSeries = ArrayUtils.fillArray(ySeries.length, 0, 1);
 
@@ -375,7 +369,7 @@ public class MeasureRVItemListener extends Function {
 	}
 	
 	private void save() {
-		RVMeasurement rvMeasurement = rvMeasurements.getAt(index);
+		Measurement rvMeasurement = rvMeasurements.getAt(index);
 		MeasurementInputDialog dialog;
 		if (rvMeasurement.isCorrection()) {
 			dialog = new MeasurementInputDialog(ReSpefo.getShell(), "corr", false);

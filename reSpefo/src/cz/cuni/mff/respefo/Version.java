@@ -3,7 +3,7 @@ package cz.cuni.mff.respefo;
 public class Version {
 	public static final int MAJOR = 1;
 	public static final int MINOR = 0;
-	public static final int RELEASE = 6;
+	public static final int RELEASE = 9;
 	public static final String BUILD = "unix64";
 	public static final String OS;
 	static {
@@ -19,12 +19,13 @@ public class Version {
 			OS = "unknown";
 		}
 	}
+	public static final String PUBLISHED = "2020-08";
 	
 	/**
 	 * @return version in the format vMAJOR.MINOR.RELEASE BUILD
 	 */
 	public static String toFullString() {
-		return String.format("v%d.%d.%d %s", MAJOR, MINOR, RELEASE, BUILD);
+		return String.format("v%d.%d.%d %s %s", MAJOR, MINOR, RELEASE, PUBLISHED, BUILD);
 	}
 	
 	/**

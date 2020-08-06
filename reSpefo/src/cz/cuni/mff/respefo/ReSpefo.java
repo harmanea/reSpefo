@@ -18,12 +18,14 @@ import cz.cuni.mff.respefo.function.ChironToAsciiItemListener;
 import cz.cuni.mff.respefo.function.ClearCosmicsItemListener;
 import cz.cuni.mff.respefo.function.CompareItemListener;
 import cz.cuni.mff.respefo.function.ConvertToListener;
+import cz.cuni.mff.respefo.function.EWResultItemListener;
 import cz.cuni.mff.respefo.function.ExtractFitsHeaderItemListener;
 import cz.cuni.mff.respefo.function.FileExportItemListener;
 import cz.cuni.mff.respefo.function.FileImportItemListener;
 import cz.cuni.mff.respefo.function.FileQuitItemListener;
 import cz.cuni.mff.respefo.function.FitsToLstItemListener;
-import cz.cuni.mff.respefo.function.HelCorListener;
+import cz.cuni.mff.respefo.function.HelCorItemListener;
+import cz.cuni.mff.respefo.function.MeasureEWItemListener;
 import cz.cuni.mff.respefo.function.MeasureRVItemListener;
 import cz.cuni.mff.respefo.function.PrepareDirectoryItemListener;
 import cz.cuni.mff.respefo.function.RVResultItemListener;
@@ -50,7 +52,7 @@ public class ReSpefo {
 	private static MenuItem fileQuitItem, fileExportItem, fileImportItem, rectifyItem,
 		measureRVItem, rVResultsItem, clearCosmicsItem, chironToAsciiItem, extractFitsHeaderItem,
 		prepareDirectoryItem, helCorItem, fitsToLstItem, compareItem, addToLstItem,
-		convertItem, convertToFitsItem, convertToAsciiItem;
+		convertItem, convertToFitsItem, convertToAsciiItem, measureEWItem, ewResultsItem;
 
 	private static Spectrum spectrum;
 
@@ -119,7 +121,7 @@ public class ReSpefo {
 		
 		helCorItem = new MenuItem(projectMenu, SWT.PUSH);
 		helCorItem.setText("Apply HelCorr");
-		helCorItem.addSelectionListener(HelCorListener.getInstance());
+		helCorItem.addSelectionListener(HelCorItemListener.getInstance());
 		
 		addToLstItem = new MenuItem(projectMenu, SWT.PUSH);
 		addToLstItem.setText("Add to Lst");
@@ -131,6 +133,11 @@ public class ReSpefo {
 		rVResultsItem.setText("RV Resul&ts\tCtrl+T");
 		rVResultsItem.setAccelerator('T' | SWT.CTRL);
 		rVResultsItem.addSelectionListener(RVResultItemListener.getInstance());
+		
+		ewResultsItem = new MenuItem(projectMenu, SWT.PUSH);
+		ewResultsItem.setText("EW Resul&ts\tCtrl+Shift+T");
+		ewResultsItem.setAccelerator('T' | SWT.CTRL | SWT.SHIFT);
+		ewResultsItem.addSelectionListener(EWResultItemListener.getInstance());
 		
 		new MenuItem(projectMenu, SWT.SEPARATOR);
 		
@@ -159,8 +166,13 @@ public class ReSpefo {
 		
 		measureRVItem = new MenuItem(toolsMenu, SWT.PUSH);
 		measureRVItem.setText("&Measure RV\tCtrl+M");
-		measureRVItem.setAccelerator('M' | SWT.CTRL);	
+		measureRVItem.setAccelerator('M' | SWT.CTRL);
 		measureRVItem.addSelectionListener(MeasureRVItemListener.getInstance());
+		
+		measureEWItem = new MenuItem(toolsMenu, SWT.PUSH);
+		measureEWItem.setText("&Measure EW\tCtrl+E");
+		measureEWItem.setAccelerator('E' | SWT.CTRL);
+		measureEWItem.addSelectionListener(MeasureEWItemListener.getInstance());
 		
 		new MenuItem(toolsMenu, SWT.SEPARATOR);
 		

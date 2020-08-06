@@ -16,13 +16,13 @@ import cz.cuni.mff.respefo.util.MathUtils;
 import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.SpefoException;
 
-public class HelCorListener extends Function {	
-	private static HelCorListener instance;
-	private HelCorListener() {}
+public class HelCorItemListener extends Function {	
+	private static HelCorItemListener instance;
+	private HelCorItemListener() {}
 
-	public static HelCorListener getInstance() {
+	public static HelCorItemListener getInstance() {
 		if (instance == null) {
-			instance = new HelCorListener();
+			instance = new HelCorItemListener();
 		}
 		
 		return instance;

@@ -5,17 +5,18 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cz.cuni.mff.respefo.ReSpefo;
 import cz.cuni.mff.respefo.util.Message;
 
-public class RVMeasurements {
+public class Measurements implements Iterable<Measurement> {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
-	private ArrayList<RVMeasurement> measurements;
+	private ArrayList<Measurement> measurements;
 	
-	public RVMeasurements() {
+	public Measurements() {
 		measurements = new ArrayList<>();
 	}
 	
@@ -37,7 +38,7 @@ public class RVMeasurements {
 								double radius = Double.valueOf(tokens[1]);
 								String name = tokens[2];
 
-								measurements.add(new RVMeasurement(l0, radius, name, areCorrections));
+								measurements.add(new Measurement(l0, radius, name, areCorrections));
 							} catch (Exception exception) {
 								continue;
 							}
@@ -68,7 +69,7 @@ public class RVMeasurements {
 	
 	public int getNonCorrectionsCount() {
 		int count = 0;
-		for (RVMeasurement rvMeasurement : measurements) {
+		for (Measurement rvMeasurement : measurements) {
 			if (!rvMeasurement.isCorrection) {
 				count++;
 			}
@@ -77,7 +78,7 @@ public class RVMeasurements {
 		return count;
 	}
 	
-	public RVMeasurement getAt(int index) {
+	public Measurement getAt(int index) {
 		if (index >= 0 && index < measurements.size()) {
 			return measurements.get(index);
 		} else {
@@ -95,5 +96,22 @@ public class RVMeasurements {
 		return measurements.stream()
 				.map(measurement -> measurement.isCorrection ? "* " + measurement.name : measurement.name)
 				.toArray(String[]::new);
+	}
+
+	@Override
+	public Iterator<Measurement> iterator() {
+		return new Iterator<Measurement>() {
+			private int i = 0;
+			
+			@Override
+			public Measurement next() {
+				return measurements.get(i++);
+			}
+			
+			@Override
+			public boolean hasNext() {
+				return i < measurements.size();
+			}
+		};
 	}
 }
