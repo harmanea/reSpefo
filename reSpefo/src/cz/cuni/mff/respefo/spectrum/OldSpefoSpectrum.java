@@ -30,7 +30,7 @@ import nom.tam.fits.FitsFactory;
 import nom.tam.util.BufferedFile;
 
 public class OldSpefoSpectrum extends Spectrum {
-	private static final String[] FILE_EXTENSIONS = { "uui", "rui", "rci", "rfi" };
+	private static final String[] FILE_EXTENSIONS = { "uui", "rui", "rci" };
 
 	private static final int HEADER_SIZE_IN_BYTES = 400;
 	private static final char SQUARECHAR = 254;
@@ -63,6 +63,8 @@ public class OldSpefoSpectrum extends Spectrum {
 				if (conFile.exists()) {
 					readConFile(conFile);
 				}
+			} else {
+				ySeries = ArrayUtils.divideArrayValues(ySeries, maxInt);
 			}
 
 			// apply rectification
@@ -78,21 +80,6 @@ public class OldSpefoSpectrum extends Spectrum {
 			if (rvCorr != 0) {
 				xSeries = Arrays.stream(xSeries).map(value -> value + rvCorr*(value / SPEED_OF_LIGHT)).toArray();
 			}
-
-			/*
-			double cont = 1 / maxInt; // bscale
-			// bzero = 0
-			double l1 = MathUtils.indexToLambda(0, dispCoef);
-			double l2 = MathUtils.indexToLambda(1, dispCoef);
-			int ndat = ySeries.length;
-			double lstep = (MathUtils.indexToLambda(ndat, dispCoef) - l1) / (ndat + 1);
-			double crval1 = dispCoef[0] * dispCoef[6];
-			double cdelt1 = lstep * dispCoef[6];
-			// crpix = 1
-			// object
-			double[] newXSeries = Arrays.stream(xSeries).map(value -> value + rvCorr*(value / MathUtils.SPEED_OF_LIGHT)).toArray();
-			LOGGER.log(Level.INFO, "break here");
-			*/
 			
 		} catch (IOException exception) {
 			LOGGER.log(Level.WARNING, "Error while reading file", exception);

@@ -4,7 +4,7 @@ public enum FileType {
 	SPECTRUM {
 		@Override
 		public String filterExtensions() {
-			return "*.fits;*.fit;*.fts;*.asc;*.txt;*.ascii;*.rui;*.uui;*.rci;*.rfi";
+			return "*.fits;*.fit;*.fts;*.asc;*.txt;*.ascii;*.rui;*.uui;*.rci";
 		}
 
 		@Override
@@ -54,6 +54,17 @@ public enum FileType {
 		@Override
 		public String filterNames() {
 			return "Rvs Files";
+		}
+	},
+	EQW {
+		@Override
+		public String filterNames() {
+			return "EQW Files";
+		}
+
+		@Override
+		public String filterExtensions() {
+			return "*.eqw";
 		}
 	};
 	

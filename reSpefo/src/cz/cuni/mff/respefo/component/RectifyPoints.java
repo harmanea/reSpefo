@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.stream.Collectors;
 
 import cz.cuni.mff.respefo.util.ArrayUtils;
 import cz.cuni.mff.respefo.util.MathUtils;
@@ -137,17 +138,16 @@ public class RectifyPoints {
 	}
 	
 	public void adjustToNewData(double[] xSeries, double[] ySeries) {
-		yCoordinates.clear();
+		xCoordinates = xCoordinates.stream().filter(x -> x >= xSeries[0] && x <= xSeries[xSeries.length - 1]).collect(Collectors.toList());
 		
-		for (int i = 0; i < xCoordinates.size(); i++) {
-			double xCoordinate = xCoordinates.get(i);
-			double newYCoordinate = findClosest(xSeries, xCoordinate)
-					.stream()
-					.mapToDouble(index -> ySeries[index])
-					.average()
-					.getAsDouble();
-			yCoordinates.add(newYCoordinate);
-		}
+		yCoordinates.clear();
+		xCoordinates.forEach(x -> {
+			yCoordinates.add(
+					findClosest(xSeries, x).stream()
+						.mapToDouble(index -> ySeries[index])
+						.average()
+						.getAsDouble());
+		});
 	}
 	
 	private List<Integer> findClosest(double[] series, double value) {

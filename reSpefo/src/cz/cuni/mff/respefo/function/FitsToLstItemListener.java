@@ -21,6 +21,7 @@ import cz.cuni.mff.respefo.dialog.FitsToLstDialog;
 import cz.cuni.mff.respefo.spectrum.FitsSpectrum;
 import cz.cuni.mff.respefo.util.Message;
 import cz.cuni.mff.respefo.util.SpefoException;
+import cz.cuni.mff.respefo.util.StringUtils;
 import nom.tam.fits.FitsException;
 
 public class FitsToLstItemListener extends Function {
@@ -55,8 +56,8 @@ public class FitsToLstItemListener extends Function {
 			LstFile file = paths.parallel()
 					.filter(this::isFitsFile)
 					.map(this::spectrumFromPath)
-					.filter(Objects::nonNull)
 					.map(this::lstFileRecordFromSpectrum)
+					.filter(Objects::nonNull)
 					.sorted()
 					.collect(Collector.of(() -> new LstFile(),
 							(lstFile, lstFileRecord) -> ((LstFile) lstFile).addRecord(lstFileRecord),
@@ -100,7 +101,15 @@ public class FitsToLstItemListener extends Function {
 	}
 	
 	private LstFileRecord lstFileRecordFromSpectrum(FitsSpectrum spectrum) {
-		LstFileRecord result = new LstFileRecord();
+		if (spectrum == null) {
+			return null;
+		}
+		if (StringUtils.stringContainsWhitespace(spectrum.getFileName().trim())) {
+			LOGGER.log(Level.WARNING, "Filename [" + spectrum.getFileName() + "] contains whitespace and will be skipped.");
+			return null;
+		}
+		
+		LstFileRecord result = new LstFileRecord();		
 		
 		result.setExp(spectrum.getExpTime());
 		result.setDate(spectrum.getLstDate());

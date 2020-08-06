@@ -221,7 +221,7 @@ public class FitsSpectrum extends Spectrum {
 
 			fits.addHDU(hdu);
 			try {
-				fits.getHDU(0).addValue("SIMPLE", true, "Created by reSpefo v" + Version.toFullString() + " on "
+				fits.getHDU(0).addValue("SIMPLE", true, "Created by reSpefo " + Version.toFullString() + " on "
 						+ LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 			} catch (IOException e) {
 				LOGGER.log(Level.FINEST, "Couldn't change the SIMPLE value", e);
@@ -271,6 +271,10 @@ public class FitsSpectrum extends Spectrum {
 				rvCorr = header.getDoubleValue(alias);
 				break;
 			}
+		}
+		
+		if (Double.isNaN(rvCorr) && header.containsKey("BSS_RQVH")) {
+			rvCorr = -header.getDoubleValue("BSS_RQVH");
 		}
 		
 		if (!Double.isNaN(rvCorr)) {

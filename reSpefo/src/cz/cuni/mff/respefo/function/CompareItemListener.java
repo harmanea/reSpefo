@@ -188,8 +188,8 @@ public class CompareItemListener extends Function {
 		final Composite yShiftComposite = new Composite(bottomBar, SWT.NONE);
 		yShiftComposite.setLayout(new FillLayout());
 		
-		final CLabel yShiftLabel = new CLabel(yShiftComposite, SWT.CENTER);
-		yShiftLabel.setText("Y shift: ");
+		final CLabel yScaleLabel = new CLabel(yShiftComposite, SWT.CENTER);
+		yScaleLabel.setText("Y scale: ");
 		
 		final Button decrementYShiftButton = new Button(yShiftComposite, SWT.PUSH);
 		decrementYShiftButton.setText("-");

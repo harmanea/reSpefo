@@ -202,7 +202,7 @@ public class RVResultDialog extends Dialog {
 						rvrFileNamesList.add(fileNameWithParent);
 					}							
 				}
-				rvrFileNames = (String[]) rvrFileNamesList.stream().toArray(String[]::new);
+				rvrFileNames = rvrFileNamesList.stream().toArray(String[]::new);
 				
 				indexColumn.pack();
 				dateColumn.pack();

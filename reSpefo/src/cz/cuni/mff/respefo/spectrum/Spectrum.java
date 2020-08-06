@@ -295,9 +295,9 @@ public abstract class Spectrum {
 	}
 	
 	protected void clearNaNs() {
-		for (int i = 0; i < xSeries.length; i++) {
-			if (Double.isNaN(xSeries[i])) {
-				xSeries[i] = 0.0;
+		for (int i = 0; i < ySeries.length; i++) {
+			if (Double.isNaN(ySeries[i])) {
+				ySeries[i] = 0.0;
 			}
 		}
 	}
