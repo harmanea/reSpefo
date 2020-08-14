@@ -292,7 +292,7 @@ public class OldSpefoSpectrum extends Spectrum {
 			if (rectNum > 0) {
 				hdu.addValue("HISTORY", "Rectified using Turbo Pascal Spefo", null);
 			}
-			hdu.addValue("HISTORY", "Converted from UUI/RUI to FITS using reSpefo " + Version.toFullString(), null);
+			hdu.addValue("HISTORY", "Converted from UUI/RUI to FITS", null);
 			
 			fits.addHDU(hdu);
 			try {

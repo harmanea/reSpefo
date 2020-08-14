@@ -19,7 +19,7 @@ public class Version {
 			OS = "unknown";
 		}
 	}
-	public static final String PUBLISHED = "2020-08";
+	public static final String PUBLISHED = "2020-08-14";
 	
 	/**
 	 * @return version in the format vMAJOR.MINOR.RELEASE BUILD
