@@ -85,13 +85,16 @@ public class ConvertToListener {
 		String rvrFileName = FileUtils.stripFileExtension(fileName) + ".rvr";
 		RVResults rvResults = new RVResults(rvrFileName);
 		
-		double headerCorr = spectrum.getRvCorrection().getValue();
+		double originalCorr = rvResults.getRvCorr().getValue();
+		if (spectrum.getRvCorrection() != null && !MathUtils.doublesEqual(spectrum.getRvCorrection().getValue(), originalCorr)) {
+			Message.warning("The RV corrections in the spectrum and .rvr files don't match!");
+		}
 		double measuredCorr = rvResults.getRvOfCategory("corr");
 		if (Double.isNaN(measuredCorr)) {
 			throw new SpefoException("rvr file does not contain corr measurements");
 		}
 		
-		double deltaCorr = headerCorr - measuredCorr;
+		double deltaCorr = originalCorr - measuredCorr;
 		
 		double[] xSeries = spectrum.getXSeries();
 		for (int i = 0; i < xSeries.length; i++) {
