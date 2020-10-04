@@ -315,7 +315,6 @@ public class MeasureEWItemListener extends Function {
 			
 			results.get(index).getPoints().add(ArrayUtils.findClosest(spectrum.getXSeries(), newPoint));
 			results.get(index).getCategories().add(category);
-			results.get(index).getRemarks().add("Remark"); // TODO: add to dialog
 			
 			bottomList.add(category);
 			bottomList.setSelection(results.get(index).size() - 1);

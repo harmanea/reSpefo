@@ -8,12 +8,10 @@ public class MeasurementResult {
 	private int right;
 	private List<Integer> points;
 	private List<String> categories;
-	private List<String> remarks;
 	
 	public MeasurementResult(int left, int right) {
 		points = new ArrayList<>();
 		categories = new ArrayList<>();
-		remarks = new ArrayList<>();
 		
 		this.left = left;
 		this.right = right;
@@ -49,10 +47,6 @@ public class MeasurementResult {
 
 	public List<String> getCategories() {
 		return categories;
-	}
-	
-	public List<String> getRemarks() {
-		return remarks;
 	}
 
 	public int size() {

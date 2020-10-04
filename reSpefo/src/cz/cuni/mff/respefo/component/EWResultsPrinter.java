@@ -1,13 +1,15 @@
 package cz.cuni.mff.respefo.component;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cz.cuni.mff.respefo.ReSpefo;
+import cz.cuni.mff.respefo.dialog.OverwriteDialog;
 import cz.cuni.mff.respefo.spectrum.Spectrum;
 import cz.cuni.mff.respefo.util.FileUtils;
 import cz.cuni.mff.respefo.util.MathUtils;
@@ -18,15 +20,28 @@ public class EWResultsPrinter {
 	private static final Logger LOGGER = Logger.getLogger(ReSpefo.class.getName());
 	
 	public static boolean printResults(Spectrum spectrum, Measurements measurements, MeasurementResults results) {
+		boolean append = false;
+		
 		String fileNamePart = FileUtils.getFilterPath() + File.separator + spectrum.getName();
 		File file = new File(fileNamePart + ".eqw");
 		if (file.exists()) {
-			file = FileUtils.firstUniqueFileName(fileNamePart, "eqw");
+			int choice = new OverwriteDialog(ReSpefo.getShell()).open();
+			if (choice == 0) {
+				return false;
+
+			} else if (choice == 2) {
+				append = true;
+
+			} else if (choice == 3) {
+				file = FileUtils.firstUniqueFileName(fileNamePart, "eqw");
+			}
 		}
 		
-		try (PrintWriter writer = new PrintWriter(new FileOutputStream(file))) {
-			writer.println("# Summary of equivalent widths etc. measured on " + spectrum.getName());
-			writer.println("_This file was generated automatically, do not edit!_");
+		try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(file, append)))) {
+			if (!append) {
+				writer.println("# Summary of equivalent widths etc. measured on " + spectrum.getName());
+				writer.println("_This file was generated automatically, do not edit!_");
+			}
 			
 			for (int i = 0; i < measurements.getCount(); i++) {
 				Measurement measurement = measurements.getAt(i);
@@ -74,14 +89,13 @@ public class EWResultsPrinter {
 				
 				for (int j = 0; j < result.size(); j++) {
 					writer.println(StringUtils.trimmedOrPaddedString(result.getCategories().get(j), 4) + ": " 
-							+ MathUtils.formatDouble(spectrum.getY(result.getPoints().get(j)), 4, 4)
-							+ " " + result.getRemarks().get(j));
+							+ MathUtils.formatDouble(spectrum.getY(result.getPoints().get(j)), 4, 4));
 				}
 			}
 		
 			return true;
 			
-		} catch (FileNotFoundException exception) {
+		} catch (IOException exception) {
 			Message.error(ReSpefo.getShell(), "Couldn't save to file.", exception);
 			return false;
 		}

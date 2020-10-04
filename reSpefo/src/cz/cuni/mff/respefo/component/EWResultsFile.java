@@ -28,6 +28,8 @@ public class EWResultsFile {
 		values = new HashMap<>();
 		valid = true;
 		
+		Map<String, Integer> repeats = new HashMap<>();
+		
 		try (BufferedReader br = Files.newBufferedReader(Paths.get(fileName))) {
 			
 			// skip header
@@ -58,7 +60,26 @@ public class EWResultsFile {
 					map.put(category, value);
 				}
 				
-				values.put(name, map);
+				if (values.containsKey(name)) {
+					Map<String, Double> oldMap = values.get(name);
+					int n = repeats.get(name);
+					
+					for (Map.Entry<String, Double> entry : map.entrySet()) {
+						String key = entry.getKey();
+						
+						if (oldMap.containsKey(key)) {
+							oldMap.replace(key, (oldMap.get(key) * n + entry.getValue()) / (n + 1));
+						} else {
+							oldMap.put(key, entry.getValue());
+						}
+					}
+					
+					values.put(name, oldMap);
+					repeats.put(name, n + 1);
+				} else {
+					values.put(name, map);
+					repeats.put(name, 1);
+				}
 			}			
 			
 		} catch (IOException | NumberFormatException exception) {

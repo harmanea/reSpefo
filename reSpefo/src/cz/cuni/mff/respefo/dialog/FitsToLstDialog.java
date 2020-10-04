@@ -16,23 +16,11 @@ import cz.cuni.mff.respefo.util.FileUtils;
 public class FitsToLstDialog extends Dialog {
 	private Shell parent;
 	private boolean status;
-	private boolean nestedDirectories, julianDate, rvCorr, convert = false;
+	private boolean nestedDirectories = false;
 	private String directoryName, header;
 
 	public boolean isNestedDirectories() {
 		return nestedDirectories;
-	}
-
-	public boolean isJulianDate() {
-		return julianDate;
-	}
-
-	public boolean isRvCorr() {
-		return rvCorr;
-	}
-
-	public boolean isConvert() {
-		return convert;
 	}
 
 	public String getDirectoryName() {
@@ -45,8 +33,7 @@ public class FitsToLstDialog extends Dialog {
 
 	private Label labelOne, labelTwo;
 	private Text directoryField, headerField;
-	private Button buttonBrowse, buttonOk, buttonCancel, checkboxNestedDirectiories, checkboxJulianDate, checkboxRvCorr,
-			checkboxConvert, radioHeliocentric, radioBarycentric;
+	private Button buttonBrowse, buttonOk, buttonCancel, checkboxNestedDirectories;
 
 	public FitsToLstDialog(Shell parent) {
 		super(parent);
@@ -90,45 +77,13 @@ public class FitsToLstDialog extends Dialog {
 
 		// Part two
 
-		checkboxNestedDirectiories = createCheckbox(shell, "Search nested directories");
-		checkboxNestedDirectiories.addListener(SWT.Selection, event -> {
-			nestedDirectories = checkboxNestedDirectiories.getSelection();
+
+		checkboxNestedDirectories = new Button(shell, SWT.CHECK);
+		checkboxNestedDirectories.setText("Search nested directories");
+		checkboxNestedDirectories.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		checkboxNestedDirectories.addListener(SWT.Selection, event -> {
+			nestedDirectories = checkboxNestedDirectories.getSelection();
 		});
-		checkboxJulianDate = createCheckbox(shell, "Calculate julian date");
-		checkboxJulianDate.addListener(SWT.Selection, event -> {
-			julianDate = checkboxJulianDate.getSelection();
-		});
-		checkboxJulianDate.setEnabled(false); // TODO remove when implemented
-
-		checkboxRvCorr = createCheckbox(shell, "Calculate rv correction");
-		checkboxRvCorr.addListener(SWT.Selection, event -> {
-			rvCorr = checkboxRvCorr.getSelection();
-		});
-		checkboxRvCorr.setEnabled(false); // TODO remove when implemented
-
-		Composite compRadios = new Composite(shell, SWT.NONE);
-		compRadios.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		layout = new GridLayout(1, false);
-		layout.marginTop = 0;
-		layout.marginLeft = 15;
-		compRadios.setLayout(layout);
-
-		radioHeliocentric = new Button(compRadios, SWT.RADIO);
-		radioHeliocentric.setText("Heliocentric");
-		radioHeliocentric.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		radioHeliocentric.setEnabled(false);
-		radioHeliocentric.setSelection(true);
-
-		radioBarycentric = new Button(compRadios, SWT.RADIO);
-		radioBarycentric.setText("Barycentric");
-		radioBarycentric.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		radioBarycentric.setEnabled(false);
-
-		checkboxConvert = createCheckbox(shell, "Convert non-FITS spectrum files");
-		checkboxConvert.addListener(SWT.Selection, event -> {
-			convert = checkboxConvert.getSelection();
-		});
-		checkboxConvert.setEnabled(false); // TODO remove when implemented
 
 		// Part Three
 
@@ -195,12 +150,5 @@ public class FitsToLstDialog extends Dialog {
 	private void setStatusAndCloseShell(boolean status, Shell shell) {
 		this.status = status;
 		shell.close();
-	}
-
-	private Button createCheckbox(Shell shell, String text) {
-		Button checkbox = new Button(shell, SWT.CHECK);
-		checkbox.setText(text);
-		checkbox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		return checkbox;
 	}
 }
